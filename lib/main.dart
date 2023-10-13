@@ -31,13 +31,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  List<Widget> _strings = [];
 
-  void _incrementCounter() {
+  void _chooseProgram(){
     setState(() {
-      _counter++;
+      
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,23 +47,26 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.amber,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: _strings.length,
+              itemBuilder: (context, index) => _strings[index],
+
+              ),
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
+        onPressed: () {
+          setState(() {
+            _strings.add(
+              Text("a new text"),
+            );
+          });
+        },
+        tooltip: 'Add program',
         child: const Icon(Icons.add),
       ),
     );
