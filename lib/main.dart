@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import "package:file_picker/file_picker.dart";
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +17,6 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      
     );
   }
 }
@@ -31,14 +31,28 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Widget> _strings = [];
-
+  final List<Widget> _strings = [];
+/* 
   void _chooseProgram(){
     setState(() {
       
     });
-  }
+  } */
+  void _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
 
+    if (result == null) return;
+
+    PlatformFile file = result.files.single;
+
+    print(file.name);
+
+    setState(() {
+      _strings.add(
+        Text(file.name)
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,18 +67,13 @@ class _MyHomePageState extends State<MyHomePage> {
             child: ListView.builder(
               itemCount: _strings.length,
               itemBuilder: (context, index) => _strings[index],
-
-              ),
+            ),
           )
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          setState(() {
-            _strings.add(
-              Text("a new text"),
-            );
-          });
+          _pickFile();
         },
         tooltip: 'Add program',
         child: const Icon(Icons.add),
