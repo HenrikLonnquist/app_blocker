@@ -88,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Text(
-              timeLeft.toString(),
+              timeLeft == 0? "DONE" : timeLeft.toString(),
               style: const TextStyle(fontSize: 50),
             ),
             MaterialButton(
