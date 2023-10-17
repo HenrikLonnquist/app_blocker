@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import "package:file_picker/file_picker.dart";
@@ -35,6 +36,21 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _strings = [];
   int timeLeft = 5;
+  String time = DateFormat.Hms().format(DateTime.now());
+
+  @override
+  void initState() {
+    super.initState();
+    Timer.periodic(const Duration(seconds: 1), (timer) => _currentTime());
+  }
+
+  void _currentTime() {
+    Timer.periodic(const Duration(seconds: 1), (updatetime) {
+      setState(() {
+        time = DateFormat.Hms().format(DateTime.now());
+      });
+    });
+  }
 
   // timer method
   void _startCountdown() {
@@ -49,12 +65,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-/* 
-  void _chooseProgram(){
-    setState(() {
-      
-    });
-  } */
   void _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
@@ -63,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
     PlatformFile file = result.files.single;
 
     // ignore: avoid_print
-    print(file.name);
+    // print(file.name);
 
     setState(() {
       _strings.add(Text(file.name));
@@ -81,6 +91,13 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            Text(
+              time,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 30,
+              ),
+            ),
             Expanded(
               child: ListView.builder(
                 itemCount: _strings.length,
@@ -88,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Text(
-              timeLeft == 0? "DONE" : timeLeft.toString(),
+              timeLeft == 0 ? "DONE" : timeLeft.toString(),
               style: const TextStyle(fontSize: 50),
             ),
             MaterialButton(
