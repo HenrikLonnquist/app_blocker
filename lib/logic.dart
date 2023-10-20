@@ -23,7 +23,7 @@ class Window {
   final int hWnd;
 
   // Process ID of the window
-  final processID;
+  final int processID;
 
   ///Full path the to executable of the window (Path to the exe file).
   final String? exePath;
@@ -39,33 +39,36 @@ class Window {
 
 final List<Window> _list = [];
 
-// ignore: unused_element
-int _enumChildWindowsProc(int hWnd, int lParam) {
-  // final child = FindWindowEx(hWnd, 0, nullptr, nullptr);
-  final test2 = GetWindow(hWnd, 5);
+String getExePathfromPID(int processID) {
+  final int hProcess = OpenProcess(
+      PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
 
-  // stderr.write("did something happen here? $child ");
-  stderr.write("did something happen here? $test2 ");
+  final String exePath;
+  final LPWSTR imgName = wsalloc(MAX_PATH);
+  final Pointer<Uint32> buff = calloc<Uint32>()..value = MAX_PATH;
+  if (QueryFullProcessImageName(hProcess, 0, imgName, buff) != 0) {
+    final LPWSTR szModName = wsalloc(MAX_PATH);
+    GetModuleFileNameEx(hProcess, 0, szModName, MAX_PATH);
+    exePath = szModName.toDartString();
+    free(szModName);
+  } else {
+    exePath = "";
+  }
 
-  return TRUE;
+  free(imgName);
+  free(buff);
+  CloseHandle(hProcess);
+
+  return exePath;
 }
 
-
-
-// Getting children of a window
-// _enumChildWindowsProc(hWnd, 0);
-
-// PROCESS ID OF THE WINDOW FUNCTION
-/* final pID = calloc<Uint32>(1);
-GetWindowThreadProcessId(hWnd, pID); 
-// final int test = pId.value;
-// stderr.write("Parent: ${GetParent(hWnd)} \n");
-// Can not find the right process ID for MS Todo, which makes me think that it is not the only one that might be incorrect.
-stderr.write("Process ID: ${pID.value} \n\n"); 
-free(pID);
-*/
-
-
+int getProcessID(int hWnd) {
+  final Pointer<Uint32> pId = calloc<Uint32>();
+  GetWindowThreadProcessId(hWnd, pId);
+  final int processID = pId.value;
+  free(pId);
+  return processID;
+}
 
 int _enumWindowsProc(int hWnd, int lParam) {
   if (IsWindowVisible(hWnd) == TRUE) {
@@ -74,15 +77,23 @@ int _enumWindowsProc(int hWnd, int lParam) {
 
     GetWindowText(hWnd, buffer, length + 1);
 
+    final int processID = getProcessID(hWnd);
+    final String exePath = getExePathfromPID(processID);
     bool isActive = GetForegroundWindow() == hWnd;
     final String title = buffer.toDartString();
     _list.add(Window(
-        title: title, isActive: isActive, hWnd: hWnd, processID: Null));
+        title: title,
+        isActive: isActive,
+        hWnd: hWnd,
+        processID: processID,
+        exePath: exePath));
     free(buffer);
   }
   return TRUE;
 }
 
+
+// add the app from file picker in here to match .exe
 void main() {
   final winProc = Pointer.fromFunction<EnumWindowsProc>(_enumWindowsProc, 0);
   EnumWindows(winProc, 0);
@@ -90,9 +101,8 @@ void main() {
   for (var win in _list) {
     if (win.title != "") {
       stderr.write(
-          "${win.title} | ${win.isActive} | ${win.hWnd} | ${win.exePath} | ${win.processID}\n");
+          "${win.title} | ${win.isActive} | hwnd: ${win.hWnd} | pID: ${win.processID} | ${win.exePath}\n");
     }
-    // stderr.write("${win.title} | ${win.isActive} | ${win.hWnd} | ${win.exePath}\n");
   }
 
   exit(0);
