@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
+import "dart:core";
 
 
 import "package:ffi/ffi.dart";
@@ -24,14 +25,14 @@ class Window {
   final int processID;
 
   ///Full path the to executable of the window (Path to the exe file).
-  final String? exePath;
+  final String exePath;
 
   const Window({
     required this.title,
     required this.isActive,
     required this.hWnd,
     required this.processID,
-    this.exePath,
+    required this.exePath,
   });
 }
 
@@ -67,29 +68,7 @@ int getProcessID(int hWnd) {
   free(pId);
   return processID;
 }
-
-int _enumWindowsProc(int hWnd, int lParam) {
-  if (IsWindowVisible(hWnd) == TRUE) {
-    final length = GetWindowTextLength(hWnd);
-    final buffer = wsalloc(length + 1);
-
-    GetWindowText(hWnd, buffer, length + 1);
-
-    final int processID = getProcessID(hWnd);
-    final String exePath = getExePathfromPID(processID);
-    bool isActive = GetForegroundWindow() == hWnd;
-    final String title = buffer.toDartString();
-    _list.add(Window(
-        title: title,
-        isActive: isActive,
-        hWnd: hWnd,
-        processID: processID,
-        exePath: exePath));
-    free(buffer);
-  }
-  return TRUE;
-}
-
+  // this is for flutter
   // Future<void> readJson() async{
 
   // final String response = await rootBundle.loadString('assets/data.json');
@@ -122,52 +101,94 @@ int _enumChildren(int hWnd, int lParam) {
 
 
 
-int _enumChildProc(int hWnd, int lParam) {
+int _enumWinProc(int hWnd, int lParam) {
   if (IsWindowVisible(hWnd) == TRUE) {
+
     final length = GetWindowTextLength(hWnd);
     final buffer = wsalloc(length + 1);
 
     GetWindowText(hWnd, buffer, length + 1);
     final String title = buffer.toDartString();
+    bool isActive = GetForegroundWindow() == hWnd;
     final int processID = getProcessID(hWnd);
     final String exePath = getExePathfromPID(processID);
 
     final List path = exePath.split("\\");
-    final String last = path.last; // need for matching the chosen program
+    final String last = path.last; // needed for matching the chosen program
     // stdout.write("$last \n");
 
     // stdout.write("$title | $hWnd | $processID | $exePath \n");
 
     
-    // put this above the other lines
     if (last == "ApplicationFrameHost.exe") {
-
-      // stdout.write("somethign if $processID ");
-
+      
       final winproc3 = Pointer.fromFunction<EnumWindowsProc>(_enumChildren, 0);
       EnumChildWindows(hWnd, winproc3, processID);
-
       
+      _list.add(Window(
+        title: title, 
+        isActive: isActive,
+        hWnd: hWnd, 
+        processID: processID, 
+        exePath: exePath
+      ));
       free(buffer);
       return TRUE;
-      
-    }
-    
 
+   }
     
-    
-
+    _list.add(Window(
+      title: title, 
+      isActive: isActive,
+      hWnd: hWnd, 
+      processID: processID, 
+      exePath: exePath
+      ));
+    free(buffer);
   }
   return TRUE;
 }
 
-void main() {
+Future<List> readJsonFile(String filePath) async {
 
-  final winproc2 = Pointer.fromFunction<EnumWindowsProc>(_enumChildProc, 0);
+  var input = await File(filePath).readAsString();
+  var jsonData = const JsonDecoder().convert(input);
+  return jsonData["exe_list"];
+
+}
+
+// Finding if the actives windows are in the list of programs to block
+void matchingExe(List exeList) {
+    for (var i = 0; i < exeList.length; i++) {
+      final String exeName = exeList[i];
+      for (var j = 0; j < _list.length; j++) {
+        final String winName = _list[j].exePath.split("\\").last;
+        if (winName == exeName) {
+          stdout.write("${winName == exeName} | $winName | $exeName \n");
+          break;
+        
+        }
+        stdout.write("${winName == exeName} | $winName | $exeName \n");
+        
+
+      }
+    }
+  }
+
+Future<void> main() async {
+
+  // get the active windows and their executables path
+  final winproc2 = Pointer.fromFunction<EnumWindowsProc>(_enumWinProc, 0);
   EnumWindows(winproc2, 0);
 
+  // match the active windows exe path with list from json file
+  final List exeList = await readJsonFile(
+    "C:\\Users\\henri\\Documents\\Programming Projects\\Flutter Projects\\app_blocker\\assets\\data.json").then((value) => value);
 
+  
+  matchingExe(exeList);
 
+  exit(0);
 }
 
 
@@ -175,7 +196,7 @@ void main() {
 
 
 void logic() {
-  final winProc = Pointer.fromFunction<EnumWindowsProc>(_enumWindowsProc, 0);
+  final winProc = Pointer.fromFunction<EnumWindowsProc>(_enumWinProc, 0);
   EnumWindows(winProc, 0);
 
   for (var win in _list) {
