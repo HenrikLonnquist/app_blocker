@@ -161,15 +161,20 @@ Future<List> readJsonFile(String filePath) async {
 // find the window that needs to be minimized from the handle
 void _minimizeWin(int hWnd) {
 
-  // only if the blocking conditions are true will it block
+  // only if the blocking conditions are true will it "block"; minimize
 
+  // if 
+
+  
 
   // 0 == SW_HIDE --> https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
   ShowWindow(hWnd, 0);
+  
+  if (IsIconic(hWnd) == FALSE) throw Exception("Window is not minimized");
 
 }
 
-// Finding if the actives windows are in the list of programs to block
+// Finds if the actives windows(opened programs) are in the list of programs to block(minimize)
 void matchingExe(List exeList) {
     for (var i = 0; i < exeList.length; i++) {
       final String exeName = exeList[i];
@@ -179,7 +184,7 @@ void matchingExe(List exeList) {
           stdout.write("${winName == exeName} | $winName | $exeName \n");
           // need to do something here if it matches.
           // and check for blocking conditions for that particular program.
-          // blocking conditions: Timer, No timer, 
+          // blocking conditions: Timer reaches zero, no timer, "clock/schedule based", 
           break;
         
         }
