@@ -157,6 +157,18 @@ Future<List> readJsonFile(String filePath) async {
 
 }
 
+
+// find the window that needs to be minimized from the handle
+void _minimizeWin(int hWnd) {
+
+  // only if the blocking conditions are true will it block
+
+
+  // 0 == SW_HIDE --> https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
+  ShowWindow(hWnd, 0);
+
+}
+
 // Finding if the actives windows are in the list of programs to block
 void matchingExe(List exeList) {
     for (var i = 0; i < exeList.length; i++) {
@@ -165,6 +177,9 @@ void matchingExe(List exeList) {
         final String winName = _list[j].exePath.split("\\").last;
         if (winName == exeName) {
           stdout.write("${winName == exeName} | $winName | $exeName \n");
+          // need to do something here if it matches.
+          // and check for blocking conditions for that particular program.
+          // blocking conditions: Timer, No timer, 
           break;
         
         }
@@ -185,8 +200,11 @@ Future<void> main() async {
   final List exeList = await readJsonFile(
     "C:\\Users\\henri\\Documents\\Programming Projects\\Flutter Projects\\app_blocker\\assets\\data.json").then((value) => value);
 
-  
+  // matching the lists and opened programs, at the same time will minimize or
+  // or close those that meet the blocking conditions.
   matchingExe(exeList);
+
+
 
   exit(0);
 }
