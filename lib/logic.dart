@@ -13,25 +13,25 @@ import 'package:win32/win32.dart';
 /// Class containing information about a window and related functions.
 class Window {
   ///Title of the window.
-  final String title;
+  final String? title;
 
   ///If the window is the active window or not.
-  final bool isActive;
+  final bool? isActive;
 
   ///Window ID.
-  final int hWnd;
+  final int? hWnd;
 
   // Process ID of the window
-  final int processID;
+  final int? processID;
 
   ///Full path the to executable of the window (Path to the exe file).
   final String exePath;
 
   const Window({
-    required this.title,
-    required this.isActive,
-    required this.hWnd,
-    required this.processID,
+    this.title,
+    this.isActive,
+    this.hWnd,
+    this.processID,
     required this.exePath,
   });
 }
@@ -82,15 +82,18 @@ int getProcessID(int hWnd) {
 
   // }
 
-int _enumChildren(int hWnd, int lParam) {
+int _enumChildren(int hWnd, int pID) {
   final int processID2 = getProcessID(hWnd);
   
-  if (lParam != processID2) {
+
+  if (pID != processID2) {
     
     final String exePath2 = getExePathfromPID(processID2);
 
-    // _list.add(Widnow(exePath: exePath2, processID: processID2, title: "", isActive: false, hWnd))
-    stdout.write("$lParam | $exePath2 | $processID2 \n");
+    _list.add(Window(exePath: exePath2, processID: processID2, hWnd: hWnd));
+    // stdout.write("$pID | $exePath2 | $processID2 \n");
+
+
 
   }
   
@@ -118,20 +121,21 @@ int _enumWinProc(int hWnd, int lParam) {
     // stdout.write("$last \n");
 
     // stdout.write("$title | $hWnd | $processID | $exePath \n");
+    // stdout.write("$processID | $last \n");
 
     
     if (last == "ApplicationFrameHost.exe") {
       
       final winproc3 = Pointer.fromFunction<EnumWindowsProc>(_enumChildren, 0);
       EnumChildWindows(hWnd, winproc3, processID);
-      
-      _list.add(Window(
-        title: title, 
-        isActive: isActive,
-        hWnd: hWnd, 
-        processID: processID, 
-        exePath: exePath
-      ));
+            
+      // _list.add(Window(
+      //   title: title, 
+      //   isActive: isActive,
+      //   hWnd: hWnd, 
+      //   processID: processID, 
+      //   exePath: exePath
+      // ));
       free(buffer);
       return TRUE;
 
@@ -163,32 +167,47 @@ void _minimizeWin(int hWnd) {
 
   // only if the blocking conditions are true will it "block"; minimize
 
-  // if 
-
+  // if  
   
+
 
   // 0 == SW_HIDE --> https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
-  ShowWindow(hWnd, 0);
+  // ShowWindow(hWnd, 0);
   
-  if (IsIconic(hWnd) == FALSE) throw Exception("Window is not minimized");
+  // if (IsIconic(hWnd) == FALSE) throw Exception("Window is not minimized");
 
 }
 
 // Finds if the actives windows(opened programs) are in the list of programs to block(minimize)
 void matchingExe(List exeList) {
+
+    // stdout.write("$exeList \n");
+    var copyWinExeList = [];
+
+    for (var i = 0; i < _list.length; i++) {
+      final Window win = _list[i];
+      // stdout.write("${win.title} | ${win.isActive} | hwnd: ${win.hWnd} | pID: ${win.processID} | ${win.exePath}\n");
+      copyWinExeList.add(win.exePath);
+    }
+
+    final noDup = copyWinExeList.toSet().toList();
+    // for (var element in noDup) {
+    //   stdout.write("$element \n");
+    // }
+
     for (var i = 0; i < exeList.length; i++) {
       final String exeName = exeList[i];
-      for (var j = 0; j < _list.length; j++) {
-        final String winName = _list[j].exePath.split("\\").last;
+      for (var j = 0; j < noDup.length; j++) {
+        final String winName = noDup[j].split("\\").last;
         if (winName == exeName) {
-          stdout.write("${winName == exeName} | $winName | $exeName \n");
+          stdout.write("Inside if | ${winName == exeName} | $winName | $exeName \n");
           // need to do something here if it matches.
           // and check for blocking conditions for that particular program.
           // blocking conditions: Timer reaches zero, no timer, "clock/schedule based", 
           break;
         
         }
-        stdout.write("${winName == exeName} | $winName | $exeName \n");
+        stdout.write("Outside if | ${winName == exeName} | $winName | $exeName \n");
         
 
       }
@@ -209,7 +228,7 @@ Future<void> main() async {
   // or close those that meet the blocking conditions.
   matchingExe(exeList);
 
-
+  _minimizeWin(0);
 
   exit(0);
 }
