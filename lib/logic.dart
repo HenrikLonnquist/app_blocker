@@ -1,45 +1,17 @@
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
-import "dart:core";
 import "dart:async";
 
-
 import "package:ffi/ffi.dart";
+import 'package:win32/win32.dart';
 // import 'package:flutter/services.dart';
-import 'package:win32/win32.dart'; // C:\Users\henri\AppData\Local\Pub\Cache\hosted\pub.dev\win32-5.0.9\lib\win32.dart
 
+// final List<Window> _list = [];
+var _lastChild = "";
 
-
-/// Class containing information about a window and related functions.
-class Window {
-  ///Title of the window.
-  final String? title;
-
-  ///If the window is the active window or not.
-  final bool? isActive;
-
-  ///Window ID.
-  final int? hWnd;
-
-  // Process ID of the window
-  final int? processID;
-
-  ///Full path the to executable of the window (Path to the exe file).
-  final String exePath;
-
-  const Window({
-    this.title,
-    this.isActive,
-    this.hWnd,
-    this.processID,
-    required this.exePath,
-  });
-}
-
-final List<Window> _list = [];
-
-String getExePathfromPID(int processID) {
+String getExePathfromHWND(int hWnd) {
+  final int processID = getProcessID(hWnd);
   final int hProcess = OpenProcess(
       PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
 
@@ -69,210 +41,99 @@ int getProcessID(int hWnd) {
   free(pId);
   return processID;
 }
-  // this is for flutter
-  // Future<void> readJson() async{
 
-  // final String response = await rootBundle.loadString('assets/data.json');
-  // Map<String, dynamic> myMap = await json.decode(response);
-  // List<dynamic> myList = myMap["exe_list"];
-  // // stderr.write("something got printed: $myMap \n");
-  // // stderr.write("something got printed: $myList \n");
+// this is for flutter
+// Future<void> readJson() async{
 
-  
-  
+// final String response = await rootBundle.loadString('assets/data.json');
+// Map<String, dynamic> myMap = await json.decode(response);
+// List<dynamic> myList = myMap["exe_list"];
+// // stderr.write("something got printed: $myMap \n");
+// // stderr.write("something got printed: $myList \n");
 
-  // }
+// }
 
 int _enumChildren(int hWnd, int pID) {
   final int processID2 = getProcessID(hWnd);
-  
 
   if (pID != processID2) {
-    
-    final String exePath2 = getExePathfromPID(processID2);
-
-    _list.add(Window(exePath: exePath2, processID: processID2, hWnd: hWnd));
-    // stdout.write("$pID | $exePath2 | $processID2 \n");
-
-
-
+    final String exePath2 = getExePathfromHWND(hWnd);
+    _lastChild = exePath2.split("\\").last;
   }
-  
 
-  
-  return TRUE;
-}
-
-
-
-int _enumWinProc(int hWnd, int lParam) {
-  if (IsWindowVisible(hWnd) == TRUE) {
-
-    final length = GetWindowTextLength(hWnd);
-    final buffer = wsalloc(length + 1);
-
-    GetWindowText(hWnd, buffer, length + 1);
-    final String title = buffer.toDartString();
-    bool isActive = GetForegroundWindow() == hWnd;
-    final int processID = getProcessID(hWnd);
-    final String exePath = getExePathfromPID(processID);
-
-    final List path = exePath.split("\\");
-    final String last = path.last; // needed for matching the chosen program
-    // stdout.write("$last \n");
-
-    // stdout.write("$title | $hWnd | $processID | $exePath \n");
-    // stdout.write("$processID | $last \n");
-
-    
-    if (last == "ApplicationFrameHost.exe") {
-      
-      final winproc3 = Pointer.fromFunction<EnumWindowsProc>(_enumChildren, 0);
-      EnumChildWindows(hWnd, winproc3, processID);
-            
-      // _list.add(Window(
-      //   title: title, 
-      //   isActive: isActive,
-      //   hWnd: hWnd, 
-      //   processID: processID, 
-      //   exePath: exePath
-      // ));
-      free(buffer);
-      return TRUE;
-
-   }
-    
-    _list.add(Window(
-      title: title, 
-      isActive: isActive,
-      hWnd: hWnd, 
-      processID: processID, 
-      exePath: exePath
-      ));
-    free(buffer);
-  }
   return TRUE;
 }
 
 Future<List> readJsonFile(String filePath) async {
-
   var input = await File(filePath).readAsString();
   var jsonData = const JsonDecoder().convert(input);
   return jsonData["exe_list"];
-
 }
 
-
-// find the window that needs to be minimized from the handle
-void _minimizeWin(int hWnd) {
-
+// Find matches if true the minimizes the window.
+void _matchAndMinimize(int hWnd, List storageList, String last) {
   // only if the blocking conditions are true will it "block"; minimize
 
-  // if  
-  
+  // if
 
-
-  // 0 == SW_HIDE --> https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
-  // ShowWindow(hWnd, 0);
-  
-  // if (IsIconic(hWnd) == FALSE) throw Exception("Window is not minimized");
-
-}
-
-// Finds if the actives windows(opened programs) are in the list of programs to block(minimize)
-void matchingExe(List exeList) {
-
-    // stdout.write("$exeList \n");
-    var copyWinExeList = [];
-
-    for (var i = 0; i < _list.length; i++) {
-      final Window win = _list[i];
-      // stdout.write("${win.title} | ${win.isActive} | hwnd: ${win.hWnd} | pID: ${win.processID} | ${win.exePath}\n");
-      copyWinExeList.add(win.exePath);
-    }
-
-    final noDup = copyWinExeList.toSet().toList();
-    // for (var element in noDup) {
-    //   stdout.write("$element \n");
-    // }
-
-    for (var i = 0; i < exeList.length; i++) {
-      final String exeName = exeList[i];
-      for (var j = 0; j < noDup.length; j++) {
-        final String winName = noDup[j].split("\\").last;
-        if (winName == exeName) {
-          stdout.write("Inside if | ${winName == exeName} | $winName | $exeName \n");
-          // need to do something here if it matches.
-          // and check for blocking conditions for that particular program.
-          // blocking conditions: Timer reaches zero, no timer, "clock/schedule based", 
-          break;
-        
-        }
-        stdout.write("Outside if | ${winName == exeName} | $winName | $exeName \n");
-        
-
-      }
+  for (var i = 0; i < storageList.length; i++) {
+    if (_lastChild != "" && storageList[i] == _lastChild) {
+      SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+      break;
+    } else if (storageList[i] == last) {
+      // ShowWindow(hWnd, 11);
+      SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+      break;
     }
   }
+}
 
-Future<void> main() async {
+void main() async {
+  final stopwatch = Stopwatch()..start();
+  var currentHwnd = 0;
 
-  // get the active windows and their executables path
-  final winproc2 = Pointer.fromFunction<EnumWindowsProc>(_enumWinProc, 0);
-  EnumWindows(winproc2, 0);
+  // have this in the init setstate.
+  final List storageList = await readJsonFile(
+          "C:\\Users\\henri\\Documents\\Programming Projects\\Flutter Projects\\app_blocker\\assets\\data.json")
+      .then((value) => value);
 
-  // match the active windows exe path with list from json file
-  final List exeList = await readJsonFile(
-    "C:\\Users\\henri\\Documents\\Programming Projects\\Flutter Projects\\app_blocker\\assets\\data.json").then((value) => value);
+  //! Not necessary
+  // Will check all the opened programs and then minimize if matches are found in the storage list
+  // final winproc2 = Pointer.fromFunction<EnumWindowsProc>(_enumWinProc, 0);
+  // EnumWindows(winproc2, 0);
 
-  // matching the lists and opened programs, at the same time will minimize or
-  // or close those that meet the blocking conditions.
-  matchingExe(exeList);
-
-  _minimizeWin(0);
-
-  //! Didnt work
-  // testing the an event listener for active windows(foreground window). 
-  // var hEvent = SetWinEventHook(EVENT_SYSTEM_FOREGROUND , EVENT_SYSTEM_FOREGROUND ,NULL, WinEventProcCallback, 0, 0, WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
-  // var hEvent = 
-  //!
-
-  // interval timer of 1 second to check for active windows 
+  // interval timer of 1 second to check for active windows
   // and if there are a change then test the new window to check if it needs to be minimized or closed.
+  //* Could loop through all the windows every interval but maybe later.
+  //! Getting error with task manager, not showing up as anything.
   // TODO: Can move this to the main.dart file later if this works.
-  Timer.periodic(const Duration(seconds: 1), (timer) {
+  Timer.periodic(const Duration(milliseconds: 500), (timer) {
+    if (currentHwnd == 0) {
+      currentHwnd = GetForegroundWindow();
+    }
 
-    GetForegroundWindow();
+    if (currentHwnd != GetForegroundWindow()) {
+      final test = Stopwatch()..start();
+      currentHwnd = GetForegroundWindow();
 
+      _lastChild = "";
+      final String exePath = getExePathfromHWND(currentHwnd);
+      final String last = exePath.split("\\").last;
+
+      if (last == "ApplicationFrameHost.exe") {
+        final int processID = getProcessID(currentHwnd);
+        final winproc3 =
+            Pointer.fromFunction<EnumWindowsProc>(_enumChildren, 0);
+        EnumChildWindows(currentHwnd, winproc3, processID);
+      }
+
+      _matchAndMinimize(currentHwnd, storageList, last);
+      stdout.write(
+          "Current program: ${_lastChild.isNotEmpty ? _lastChild : last} \n");
+      stdout.write("testing : ${test.elapsed.inMicroseconds} \n");
+      test.stop();
+    }
   });
 
-
-  exit(0);
-}
-
-
-
-
-
-void logic() {
-  final winProc = Pointer.fromFunction<EnumWindowsProc>(_enumWinProc, 0);
-  EnumWindows(winProc, 0);
-
-  for (var win in _list) {
-    if (win.title != "") {
-      stderr.write(
-          "${win.title} | ${win.isActive} | hwnd: ${win.hWnd} | pID: ${win.processID} | ${win.exePath}\n");
-    }
-  }
-
-  // List dataItems = [];
-
-
-  // dataItems.add(readJson());
-
-  // stderr.writeln(dataItems);
-
-
-
-  exit(0);
+  stdout.write("Executed in: ${stopwatch.elapsedMilliseconds} Miliseconds \n");
 }
