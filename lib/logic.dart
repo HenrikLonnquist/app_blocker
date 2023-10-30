@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 import "dart:core";
+import "dart:async";
 
 
 import "package:ffi/ffi.dart";
 // import 'package:flutter/services.dart';
-import 'package:win32/win32.dart';
+import 'package:win32/win32.dart'; // C:\Users\henri\AppData\Local\Pub\Cache\hosted\pub.dev\win32-5.0.9\lib\win32.dart
 
 
 
@@ -229,6 +230,22 @@ Future<void> main() async {
   matchingExe(exeList);
 
   _minimizeWin(0);
+
+  //! Didnt work
+  // testing the an event listener for active windows(foreground window). 
+  // var hEvent = SetWinEventHook(EVENT_SYSTEM_FOREGROUND , EVENT_SYSTEM_FOREGROUND ,NULL, WinEventProcCallback, 0, 0, WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
+  // var hEvent = 
+  //!
+
+  // interval timer of 1 second to check for active windows 
+  // and if there are a change then test the new window to check if it needs to be minimized or closed.
+  // TODO: Can move this to the main.dart file later if this works.
+  Timer.periodic(const Duration(seconds: 1), (timer) {
+
+    GetForegroundWindow();
+
+  });
+
 
   exit(0);
 }
