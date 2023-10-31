@@ -1,7 +1,8 @@
-import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 import "dart:async";
+
+import "dart_functions.dart";
 
 import "package:ffi/ffi.dart";
 import 'package:win32/win32.dart';
@@ -64,11 +65,6 @@ int _enumChildren(int hWnd, int pID) {
   return TRUE;
 }
 
-Future<List> readJsonFile(String filePath) async {
-  var input = await File(filePath).readAsString();
-  var jsonData = const JsonDecoder().convert(input);
-  return jsonData["exe_list"];
-}
 
 // Find matches if true the minimizes the window.
 void _matchAndMinimize(int hWnd, List storageList, String last) {
