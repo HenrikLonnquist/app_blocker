@@ -1,17 +1,16 @@
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
-import "dart:async";
 
-import "dart_functions.dart";
+import 'dart_functions.dart';
 
 import "package:ffi/ffi.dart";
 import 'package:win32/win32.dart';
-// import 'package:flutter/services.dart';
 
-// final List<Window> _list = [];
+
 var _lastChild = "";
 
-String getExePathfromHWND(int hWnd) {
+String _getExePathfromHWND(int hWnd) {
   final int processID = getProcessID(hWnd);
   final int hProcess = OpenProcess(
       PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
@@ -43,28 +42,16 @@ int getProcessID(int hWnd) {
   return processID;
 }
 
-// this is for flutter
-// Future<void> readJson() async{
-
-// final String response = await rootBundle.loadString('assets/data.json');
-// Map<String, dynamic> myMap = await json.decode(response);
-// List<dynamic> myList = myMap["exe_list"];
-// // stderr.write("something got printed: $myMap \n");
-// // stderr.write("something got printed: $myList \n");
-
-// }
-
 int _enumChildren(int hWnd, int pID) {
   final int processID2 = getProcessID(hWnd);
 
   if (pID != processID2) {
-    final String exePath2 = getExePathfromHWND(hWnd);
+    final String exePath2 = _getExePathfromHWND(hWnd);
     _lastChild = exePath2.split("\\").last;
   }
 
   return TRUE;
 }
-
 
 // Find matches if true the minimizes the window.
 void _matchAndMinimize(int hWnd, List storageList, String last) {
@@ -84,26 +71,19 @@ void _matchAndMinimize(int hWnd, List storageList, String last) {
   }
 }
 
-void main() async {
-  final stopwatch = Stopwatch()..start();
+//! Not necessary - can add this to the function later maybe.
+// Will check all the opened programs and then minimize if matches are found in the storage list
+// final winproc2 = Pointer.fromFunction<EnumWindowsProc>(_enumWinProc, 0);
+// EnumWindows(winproc2, 0);
+//* Could loop through all the windows every interval but maybe later.
+//! Getting error with task manager, not showing up as anything.
+
+void watchingActiveWindow() async {
+  final List storageList = await readJsonFile();
   var currentHwnd = 0;
-
-  // have this in the init setstate.
-  final List storageList = await readJsonFile(
-          "C:\\Users\\henri\\Documents\\Programming Projects\\Flutter Projects\\app_blocker\\assets\\data.json")
-      .then((value) => value);
-
-  //! Not necessary
-  // Will check all the opened programs and then minimize if matches are found in the storage list
-  // final winproc2 = Pointer.fromFunction<EnumWindowsProc>(_enumWinProc, 0);
-  // EnumWindows(winproc2, 0);
-
-  // interval timer of 1 second to check for active windows
-  // and if there are a change then test the new window to check if it needs to be minimized or closed.
-  //* Could loop through all the windows every interval but maybe later.
-  //! Getting error with task manager, not showing up as anything.
-  // TODO: Can move this to the main.dart file later if this works.
+  
   Timer.periodic(const Duration(milliseconds: 500), (timer) {
+
     if (currentHwnd == 0) {
       currentHwnd = GetForegroundWindow();
     }
@@ -113,7 +93,7 @@ void main() async {
       currentHwnd = GetForegroundWindow();
 
       _lastChild = "";
-      final String exePath = getExePathfromHWND(currentHwnd);
+      final String exePath = _getExePathfromHWND(currentHwnd);
       final String last = exePath.split("\\").last;
 
       if (last == "ApplicationFrameHost.exe") {
@@ -130,6 +110,4 @@ void main() async {
       test.stop();
     }
   });
-
-  stdout.write("Executed in: ${stopwatch.elapsedMilliseconds} Miliseconds \n");
 }

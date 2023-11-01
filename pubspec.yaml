@@ -41,7 +41,6 @@ dependencies:
   screen_retriever: ^0.1.9
   ffi: ^2.0.1
   open_file: ^3.3.2
-  path_provider: ^2.1.1
 
 dev_dependencies:
   flutter_test:

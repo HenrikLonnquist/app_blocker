@@ -1,18 +1,13 @@
 import 'dart:async';
 import 'package:intl/intl.dart';
 
-// import "logic.dart";
+import 'dart_functions.dart';
+import "logic.dart";
 
 import 'package:flutter/material.dart';
 import "package:file_picker/file_picker.dart";
 
-
-
-
 void main() {
-
-  // Future<void> waiting() async { logic();}
-
   runApp(const MyApp());
 }
 
@@ -45,14 +40,15 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _strings = [];
   int timeLeft = 5;
   String time = DateFormat.Hms().format(DateTime.now());
-
+  var currentHwnd = 0;
+  
 
   @override
   void initState() {
     super.initState();
     Timer.periodic(const Duration(seconds: 1), (timer) => _currentTime());
 
-    
+    watchingActiveWindow();
 
   }
 
@@ -83,9 +79,6 @@ class _MyHomePageState extends State<MyHomePage> {
     if (result == null) return;
 
     PlatformFile file = result.files.single;
-
-    // print(file.name);
-
     setState(() {
       _strings.add(Text(file.name));
     });
