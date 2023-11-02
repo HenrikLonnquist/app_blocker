@@ -39,12 +39,17 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // data handle
   final List<Widget> _strings = []; // for displaying to listview
   List _dataList = []; // for the json file
+  var dataPath = "assets/data.json";
+  
+  // window watcher
+  var currentHwnd = 0; // window handle
+  
+  // time
   int timeLeft = 5;
   String time = DateFormat.Hms().format(DateTime.now());
-  var currentHwnd = 0; // window handle
-  var dataPath = "assets/data.json";
   
 
   @override
@@ -107,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
         if (dupList.contains(_dataList[i])) {
           dupl = true;
           //alert the user that it already exists in the list.
-  
+          print("duplates in the list:");
           break;
         } else {
           dupList.add(_dataList[i]);
@@ -129,36 +134,39 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.amber,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              time,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 30,
-              ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            time,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 30,
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _strings.length,
-                itemBuilder: (context, index){
-                  return _strings[index];
-                },
-              ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _strings.length,
+              itemBuilder: (context, index){
+                return Card(
+                  child: ListTile(
+                    // leading:  <- have the program icon here
+                    title: Center(child: _strings[index]),
+                  )
+                );
+              },
             ),
-            Text(
-              timeLeft == 0 ? "DONE" : timeLeft.toString(),
-              style: const TextStyle(fontSize: 50),
-            ),
-            MaterialButton(
-              onPressed: _startCountdown,
-              color: Colors.amberAccent[100],
-              child: const Text("START"),
-            )
-          ],
-        ),
+          ),
+          Text(
+            timeLeft == 0 ? "DONE" : timeLeft.toString(),
+            style: const TextStyle(fontSize: 50),
+          ),
+          MaterialButton(
+            onPressed: _startCountdown,
+            color: Colors.amberAccent[100],
+            child: const Text("START"),
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
