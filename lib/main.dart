@@ -1,7 +1,9 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
+import 'package:app_blocker/dart_functions.dart';
 import 'package:intl/intl.dart';
 
-import 'dart_functions.dart';
 import "logic.dart";
 
 import 'package:flutter/material.dart';
@@ -37,18 +39,31 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Widget> _strings = [];
+  final List<Widget> _strings = []; // for displaying to listview
+  List _dataList = []; // for the json file
   int timeLeft = 5;
   String time = DateFormat.Hms().format(DateTime.now());
-  var currentHwnd = 0;
+  var currentHwnd = 0; // window handle
+  var dataPath = "assets/data.json";
   
 
   @override
   void initState() {
     super.initState();
-    Timer.periodic(const Duration(seconds: 1), (timer) => _currentTime());
-
+    _currentTime();
+    
+    callData();
     watchingActiveWindow();
+
+  }
+
+  // calling data and adding to list widget to display in list view
+  void callData() async {
+
+    _dataList = await readJsonFile();
+    for (var i = 0; i < _dataList.length; i++) {
+      _strings.add(Text(_dataList[i]));
+    }    
 
   }
 
@@ -74,13 +89,36 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ["exe"],
+      initialDirectory: "Desktop" // TODO: change back to C:
+    );
 
     if (result == null) return;
 
     PlatformFile file = result.files.single;
     setState(() {
-      _strings.add(Text(file.name));
+    
+      // Will check for duplicates and then alert the user if there are.
+      final List dupList = [];
+      bool dupl = false;
+      for(var i = 0; i < _dataList.length; i++) {
+        if (dupList.contains(_dataList[i])) {
+          dupl = true;
+          //alert the user that it already exists in the list.
+  
+          break;
+        } else {
+          dupList.add(_dataList[i]);
+        }
+      }
+
+      if ( dupl == false) {
+        _dataList.add(file.name);
+        writeJsonFile(dataPath, _dataList);
+      }
+      
     });
   }
 
@@ -105,7 +143,9 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(
               child: ListView.builder(
                 itemCount: _strings.length,
-                itemBuilder: (context, index) => _strings[index],
+                itemBuilder: (context, index){
+                  return _strings[index];
+                },
               ),
             ),
             Text(

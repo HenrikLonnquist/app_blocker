@@ -2,28 +2,39 @@
 import "dart:convert";
 import 'dart:io';
 
-import 'package:flutter/services.dart';
 
-
-
-
-// Read Json file
+// open Json file
 Future<List> readJsonFile() async {
-  var filePath = await rootBundle.loadString("assets/data.json");
-  var input = await File(filePath).readAsString();
+  var input = await File("assets/data.json").readAsString();
   var jsonData = const JsonDecoder().convert(input);
   return jsonData["exe_list"];
 }
 
-// Write Json file
-Future<void> writeJsonFile(String filePath, List data) async {
+// save to Json file
+Future<void> writeJsonFile(String filePath, List dataList) async {
   var jsonData = {
-    "exe_list": data
+    "exe_list": dataList
   };
   var jsonString = json.encode(jsonData);
   await File(filePath).writeAsString(jsonString);
 }
 
+// remove from Json file
+void removeDataJsonFile(String dataPath, List dataList) async {
+
+  // current list displaying
+  // open Json file
+  // save new list to json file...
+  final List fileData = await readJsonFile();
+
+  fileData.add(dataList);
+
+  stdout.write(fileData);
+  
+  writeJsonFile(dataPath, fileData);
+
+
+}
 
 
 

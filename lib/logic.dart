@@ -76,8 +76,8 @@ void _matchAndMinimize(int hWnd, List storageList, String last) {
 // final winproc2 = Pointer.fromFunction<EnumWindowsProc>(_enumWinProc, 0);
 // EnumWindows(winproc2, 0);
 //* Could loop through all the windows every interval but maybe later.
-//! Getting error with task manager, not showing up as anything.
-
+//! Cant show exe+/path of task manager, not showing up as anything.
+// TODO: active another window when minimizing
 void watchingActiveWindow() async {
   final List storageList = await readJsonFile();
   var currentHwnd = 0;
@@ -106,7 +106,7 @@ void watchingActiveWindow() async {
       _matchAndMinimize(currentHwnd, storageList, last);
       stdout.write(
           "Current program: ${_lastChild.isNotEmpty ? _lastChild : last} \n");
-      stdout.write("testing : ${test.elapsed.inMicroseconds} \n");
+      stdout.write("testing : ${test.elapsed.inMicroseconds}μs \n");
       test.stop();
     }
   });
