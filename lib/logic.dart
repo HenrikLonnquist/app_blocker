@@ -77,7 +77,7 @@ void _matchAndMinimize(int hWnd, List storageList, String last) {
 // EnumWindows(winproc2, 0);
 //* Could loop through all the windows every interval but maybe later.
 //! Cant show exe+/path of task manager, not showing up as anything.
-// TODO: active another window when minimizing
+//! not very accurate
 void watchingActiveWindow() async {
   final List storageList = await readJsonFile();
   var currentHwnd = 0;

@@ -1,7 +1,5 @@
-
 import "dart:convert";
 import 'dart:io';
-
 
 // open Json file
 Future<List> readJsonFile() async {
@@ -12,16 +10,13 @@ Future<List> readJsonFile() async {
 
 // save to Json file
 Future<void> writeJsonFile(String filePath, List dataList) async {
-  var jsonData = {
-    "exe_list": dataList
-  };
+  var jsonData = {"exe_list": dataList};
   var jsonString = json.encode(jsonData);
   await File(filePath).writeAsString(jsonString);
 }
 
 // remove from Json file
 void removeDataJsonFile(String dataPath, List dataList) async {
-
   // current list displaying
   // open Json file
   // save new list to json file...
@@ -30,22 +25,6 @@ void removeDataJsonFile(String dataPath, List dataList) async {
   fileData.add(dataList);
 
   stdout.write(fileData);
-  
+
   writeJsonFile(dataPath, fileData);
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

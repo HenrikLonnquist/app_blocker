@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'package:app_blocker/dart_functions.dart';
+import 'package:app_blocker/setwineventhook.dart';
 import 'package:intl/intl.dart';
 
 import "logic.dart";
@@ -44,9 +45,6 @@ class _MyHomePageState extends State<MyHomePage> {
   List _dataList = []; // for the json file
   var dataPath = "assets/data.json";
   
-  // window watcher
-  var currentHwnd = 0; // window handle
-  
   // time
   int timeLeft = 5;
   String time = DateFormat.Hms().format(DateTime.now());
@@ -58,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _currentTime();
     
     callData();
-    watchingActiveWindow();
+    startEventMonitoringIsolate();
 
   }
 
