@@ -5,7 +5,7 @@ import 'package:app_blocker/dart_functions.dart';
 import 'package:app_blocker/setwineventhook.dart';
 import 'package:intl/intl.dart';
 
-import "logic.dart";
+// import "logic.dart";
 
 import 'package:flutter/material.dart';
 import "package:file_picker/file_picker.dart";
@@ -56,14 +56,15 @@ class _MyHomePageState extends State<MyHomePage> {
     _currentTime();
     
     callData();
+    
     startEventMonitoringIsolate();
 
   }
 
   // calling data and adding to list widget to display in list view
-  void callData() async {
+  void callData() {
 
-    _dataList = await readJsonFile();
+    _dataList = readJsonFile();
     for (var i = 0; i < _dataList.length; i++) {
       _strings.add(Text(_dataList[i]));
     }    

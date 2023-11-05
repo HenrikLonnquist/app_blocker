@@ -1,11 +1,18 @@
+// ignore_for_file: avoid_print
+
 import "dart:convert";
 import 'dart:io';
 
 // open Json file
-Future<List> readJsonFile() async {
-  var input = await File("assets/data.json").readAsString();
-  var jsonData = const JsonDecoder().convert(input);
-  return jsonData["exe_list"];
+List readJsonFile() {
+  try {
+    final fileContent = File("assets/data.json").readAsStringSync();
+    final jsonData = json.decode(fileContent);
+    return jsonData["exe_list"];
+  } catch (e) {
+        print('Error reading JSON file: $e');
+    return [];
+  }
 }
 
 // save to Json file
@@ -20,7 +27,7 @@ void removeDataJsonFile(String dataPath, List dataList) async {
   // current list displaying
   // open Json file
   // save new list to json file...
-  final List fileData = await readJsonFile();
+  final List fileData = readJsonFile();
 
   fileData.add(dataList);
 
