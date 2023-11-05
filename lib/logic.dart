@@ -78,8 +78,8 @@ void _matchAndMinimize(int hWnd, List storageList, String last) {
 //* Could loop through all the windows every interval but maybe later.
 //! Cant show exe+/path of task manager, not showing up as anything.
 //! not very accurate
-void watchingActiveWindow() async {
-  final List storageList = await readJsonFile();
+void monitorActiveWindow() async {
+  final List storageList = readJsonFile();
   var currentHwnd = 0;
   
   Timer.periodic(const Duration(milliseconds: 500), (timer) {

@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'package:app_blocker/dart_functions.dart';
+import 'package:app_blocker/logic.dart';
 import 'package:app_blocker/setwineventhook.dart';
 import 'package:intl/intl.dart';
 
@@ -57,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
     
     callData();
     
-    startEventMonitoringIsolate();
+    monitorActiveWindow();
 
   }
 
