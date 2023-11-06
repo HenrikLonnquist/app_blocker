@@ -3,10 +3,12 @@
 import "dart:convert";
 import 'dart:io';
 
+const dataPath = "assets/data.json";
+
 // open Json file
 List readJsonFile() {
   try {
-    final fileContent = File("assets/data.json").readAsStringSync();
+    final fileContent = File(dataPath).readAsStringSync();
     final jsonData = json.decode(fileContent);
     return jsonData["exe_list"];
   } catch (e) {
@@ -16,22 +18,20 @@ List readJsonFile() {
 }
 
 // save to Json file
-Future<void> writeJsonFile(String filePath, List dataList) async {
+void writeJsonFile(List dataList) {
   var jsonData = {"exe_list": dataList};
   var jsonString = json.encode(jsonData);
-  await File(filePath).writeAsString(jsonString);
+  File(dataPath).writeAsStringSync(jsonString);
 }
 
 // remove from Json file
-void removeDataJsonFile(String dataPath, List dataList) async {
+void removeDataJsonFile(List dataList) {
   // current list displaying
   // open Json file
   // save new list to json file...
-  final List fileData = readJsonFile();
+  List fileData = readJsonFile();
+  fileData = dataList;
+  
 
-  fileData.add(dataList);
-
-  stdout.write(fileData);
-
-  writeJsonFile(dataPath, fileData);
+  writeJsonFile(fileData);
 }

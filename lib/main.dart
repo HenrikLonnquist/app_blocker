@@ -1,9 +1,9 @@
 // ignore_for_file: avoid_print
 
 import 'dart:async';
+
 import 'package:app_blocker/dart_functions.dart';
 import 'package:app_blocker/logic.dart';
-import 'package:app_blocker/setwineventhook.dart';
 import 'package:intl/intl.dart';
 
 // import "logic.dart";
@@ -42,7 +42,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   // data handle
-  final List<Widget> _strings = []; // for displaying to listview
+  // List _dataList = []; // for displaying to listview
   List _dataList = []; // for the json file
   var dataPath = "assets/data.json";
   
@@ -66,9 +66,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void callData() {
 
     _dataList = readJsonFile();
-    for (var i = 0; i < _dataList.length; i++) {
-      _strings.add(Text(_dataList[i]));
-    }    
+    // for (var i = 0; i < _dataList.length; i++) {
+    //   _dataList.add(Text(_dataList[i]));
+    // }    
 
   }
 
@@ -121,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       if ( dupl == false) {
         _dataList.add(file.name);
-        writeJsonFile(dataPath, _dataList);
+        writeJsonFile(_dataList);
       }
       
     });
@@ -146,12 +146,27 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: _strings.length,
+              itemCount: _dataList.length,
               itemBuilder: (context, index){
                 return Card(
                   child: ListTile(
                     // leading:  <- have the program icon here
-                    title: Center(child: _strings[index]),
+                    title: Center(child: Text(_dataList[index])),
+                    trailing: TextButton(onPressed: () {
+                        //remove first from list -> update displayed list
+                        setState(() {
+                          
+                          _dataList.removeAt(index);
+                          
+                          
+                        });
+                        // call the remove function of json file and to remove the list
+                        removeDataJsonFile(_dataList);
+
+                      }, child: const Text("Remove")
+                  ),
+
+
                   )
                 );
               },
