@@ -41,13 +41,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // data handle
-  // List _dataList = []; // for displaying to listview
   List _dataList = []; // for the json file
-  var dataPath = "assets/data.json";
-  
-  // time
-  int timeLeft = 5;
   String time = DateFormat.Hms().format(DateTime.now());
   
 
@@ -64,12 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // calling data and adding to list widget to display in list view
   void callData() {
-
     _dataList = readJsonFile();
-    // for (var i = 0; i < _dataList.length; i++) {
-    //   _dataList.add(Text(_dataList[i]));
-    // }    
-
   }
 
   void _currentTime() {
@@ -77,19 +66,6 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         time = DateFormat.Hms().format(DateTime.now());
       });
-    });
-  }
-
-  // timer method
-  void _startCountdown() {
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (timeLeft > 0) {
-        setState(() {
-          timeLeft--;
-        });
-      } else {
-        timer.cancel();
-      }
     });
   }
 
@@ -150,7 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
               itemBuilder: (context, index){
                 return Card(
                   child: ListTile(
-                    // leading:  <- have the program icon here
+                    // leading:  <- have the program icon here, maybe timer as well
                     title: Center(child: Text(_dataList[index])),
                     trailing: TextButton(onPressed: () {
                         //remove first from list -> update displayed list
@@ -172,15 +148,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
           ),
-          Text(
-            timeLeft == 0 ? "DONE" : timeLeft.toString(),
-            style: const TextStyle(fontSize: 50),
-          ),
-          MaterialButton(
-            onPressed: _startCountdown,
-            color: Colors.amberAccent[100],
-            child: const Text("START"),
-          )
+          
         ],
       ),
       floatingActionButton: FloatingActionButton(
