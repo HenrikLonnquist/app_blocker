@@ -125,16 +125,82 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            const SizedBox(height: 40),
+            Wrap(
+              spacing: 60.0,
+              // mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextButton(onPressed: () {}, child: const Text("Home")),
-                TextButton(onPressed: () {}, child: const Text("Settings")),
-                TextButton(onPressed: () {}, child: const Text("Help")),
-                TextButton(onPressed: () {}, child: const Text("FAQ")),
-                IconButton(onPressed: () {}, icon: const Text("DARK MODE")),
+                TextButton(
+                  onPressed: () {}, 
+                  style: const ButtonStyle(
+                    fixedSize: MaterialStatePropertyAll(Size.fromWidth(77)),
+                    backgroundColor: MaterialStatePropertyAll(Color.fromRGBO(235, 235, 235, 1)),
+                  ),
+                  child: const Text(
+                    "Home",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                    ),
+                    )
+                  ),
+                TextButton(
+                  onPressed: () {}, 
+                  style: const ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll(Color.fromRGBO(235, 235, 235, 1)),
+                  ),
+                  child: const Text(
+                    "Settings",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                    ),
+                    )
+                  ),
+                TextButton(
+                  onPressed: () {}, 
+                  style: const ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll(Color.fromRGBO(235, 235, 235, 1)),
+                  ),
+                  child: const Text(
+                    "Help",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                    ),
+                    )
+                  ),
+                TextButton(
+                  onPressed: () {}, 
+                  style: const ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll(Color.fromRGBO(235, 235, 235, 1)),
+                  ),
+                  child: const Text(
+                    "FAQ",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                    ),
+                    )
+                  ),
+                SizedBox(
+                  width: 30,
+                  height: 30,
+                  child: IconButton(
+                    padding: const EdgeInsets.all(0.0),
+                    iconSize: 20,
+                    // TODO: added a switch towards different themes and switch the icons as well.
+                    // https://stackoverflow.com/questions/62942430/flutter-change-dark-mode-switch-to-an-icon
+                    icon: const Icon(Icons.wb_sunny,),
+                    style: const ButtonStyle(
+                      backgroundColor: MaterialStatePropertyAll(Color.fromRGBO(235, 235, 235, 1)),
+                    ),
+                    onPressed: () {}, 
+                  ),
+                ),
               ],
             ),
+            const SizedBox(height: 40),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
