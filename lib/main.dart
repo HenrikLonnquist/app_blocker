@@ -169,24 +169,32 @@ class _MyHomePageState extends State<MyHomePage> {
                             // List of programs with icons and names
                             const Expanded(
                               flex: 8,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                              child: Wrap(
+                                runSpacing: 5.0, // Verttical
+                                spacing: 5.0, // Horizontal
                                 children: [
                                   Text(
                                     "RANDOM PROGRAM1",
+                                    maxLines: 1,
                                     style: TextStyle(
                                       fontSize: 12.0,
                                     )
                                   ),
                                   Text(
                                     "RANDOM PROGRAM2",
+                                    maxLines: 1,
                                     style: TextStyle(
                                       fontSize: 12.0,
                                     )
                                   ),
                                   // Todo: Constrained error; need something flexible and go to next row
-                                  // Text("RANDOM PROGRAM"),
+                                  Text(
+                                    "RANDOM PROGRAM3",
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                      fontSize: 12.0,
+                                    )
+                                  ),
                                 ]
                               ),
                             ),
