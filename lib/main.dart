@@ -123,115 +123,170 @@ class _MyHomePageState extends State<MyHomePage> {
           gradient: LinearGradient(
               colors: [backgroundColorGradient1, backgroundColorGradient2]),
         ),
-        child: Center(
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(onPressed: () {}, child: const Text("Home")),
-                  TextButton(onPressed: () {}, child: const Text("Settings")),
-                  TextButton(onPressed: () {}, child: const Text("Help")),
-                  TextButton(onPressed: () {}, child: const Text("FAQ")),
-                  IconButton(onPressed: () {}, icon: const Text("DARK MODE")),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 427,
-                    height: 441,
-                    decoration: BoxDecoration(
-                      color: const Color.fromRGBO(215, 218, 223, 0.76),
-                      // gradient: LinearGradient(
-                      //   colors: []
-                      // ),
-                      border: Border.all(
-                        color: const Color.fromRGBO(9, 80, 113, 1),
-                        width: 6.0,
-                      ),
-                      borderRadius: BorderRadius.circular(8.0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(onPressed: () {}, child: const Text("Home")),
+                TextButton(onPressed: () {}, child: const Text("Settings")),
+                TextButton(onPressed: () {}, child: const Text("Help")),
+                TextButton(onPressed: () {}, child: const Text("FAQ")),
+                IconButton(onPressed: () {}, icon: const Text("DARK MODE")),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 427,
+                  height: 441,
+                  decoration: BoxDecoration(
+                    color: const Color.fromRGBO(215, 218, 223, 0.76),
+                    gradient: const LinearGradient(
+                      colors: [Color.fromRGBO(151, 162, 170, 1), Color.fromRGBO(215, 218, 223, 0.76)]
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          time,
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 30,
-                          ),
-                        ),
-                        // Expanded(
-                        //   child: ListView.builder(
-                        //     itemCount: _dataList.length,
-                        //     itemBuilder: (context, index) {
-                        //       return Card(
-                        //           child: ListTile(
-                        //         // leading:  <- have the program icon here, maybe timer as well
-                        //         title: Center(child: Text(_dataList[index])),
-                        //         trailing: TextButton(
-                        //             onPressed: () {
-                        //               //remove first from list -> update displayed list
-                        //               setState(() {
-                        //                 _dataList.removeAt(index);
-                        //               });
-                        //               // call the remove function of json file and to remove the list
-                        //               removeDataJsonFile(_dataList);
-                        //             },
-                        //             child: const Text("Remove")),
-                        //       ));
-                        //     },
-                        //   ),
-                        // ),
-                      ],
+                    border: Border.all(
+                      color: const Color.fromRGBO(9, 80, 113, 1),
+                      width: 6.0,
                     ),
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  Column(
+                  child: Column(
                     children: [
                       Container(
-                        width: 181,
-                        height: 293,
+                        width: 337,
+                        height: 266,
+                        padding: const EdgeInsets.all(10.0),
+                        margin: const EdgeInsets.fromLTRB(0, 30, 0, 20),
                         decoration: BoxDecoration(
-                          color: Colors.black,
-                          border: Border.all(
-                            color: const Color.fromRGBO(9, 80, 113, 1),
-                            width: 6,
-                          ),
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         child: Column(
-                            children: [
-                              Expanded(
-                                  child: Container(
-                                    margin: const EdgeInsets.all(8.0),
-                                    color: Colors.black,
-                                    child: const Text("TAB LIST"),
-                                  )),
-                            ],
-                          ),
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            // List of programs with icons and names
+                            const Expanded(
+                              flex: 8,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text(
+                                    "RANDOM PROGRAM1",
+                                    style: TextStyle(
+                                      fontSize: 12.0,
+                                    )
+                                  ),
+                                  Text(
+                                    "RANDOM PROGRAM2",
+                                    style: TextStyle(
+                                      fontSize: 12.0,
+                                    )
+                                  ),
+                                  // Todo: Constrained error; need something flexible and go to next row
+                                  // Text("RANDOM PROGRAM"),
+                                ]
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Center(
+                                child: ElevatedButton(
+                                  onPressed: () {},
+                                  style: const ButtonStyle(
+                                    fixedSize: MaterialStatePropertyAll(Size.fromWidth(100)),
+                                    foregroundColor: MaterialStatePropertyAll(Colors.white),
+                                    backgroundColor: MaterialStatePropertyAll(Color.fromRGBO(9, 80, 113, 1)),
+                                  ),
+                                  child: const Text(
+                                    "Add", 
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ]
                         ),
-                      Container(
-                        width: 181,
-                        height: 148,
-                        decoration: BoxDecoration(
+                      ),
+                      Text(
+                        time,
+                        style: const TextStyle(
                           color: Colors.black,
-                          border: Border.all(
-                            color: const Color.fromRGBO(9, 80, 113, 1),
-                            width: 6,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
+                          fontSize: 30,
                         ),
-                        child:  const Text("ICON statistics"),
-                      )
+                      ),
+                      // Expanded(
+                      //   child: ListView.builder(
+                      //     itemCount: _dataList.length,
+                      //     itemBuilder: (context, index) {
+                      //       return Card(
+                      //           child: ListTile(
+                      //         // leading:  <- have the program icon here, maybe timer as well
+                      //         title: Center(child: Text(_dataList[index])),
+                      //         trailing: TextButton(
+                      //             onPressed: () {
+                      //               //remove first from list -> update displayed list
+                      //               setState(() {
+                      //                 _dataList.removeAt(index);
+                      //               });
+                      //               // call the remove function of json file and to remove the list
+                      //               removeDataJsonFile(_dataList);
+                      //             },
+                      //             child: const Text("Remove")),
+                      //       ));
+                      //     },
+                      //   ),
+                      // ),
                     ],
-                  )
-                ],
-              ),
-            ],
-          ),
+                  ),
+                ),
+                Column(
+                  children: [
+                    Container(
+                      width: 181,
+                      height: 293,
+                      decoration: BoxDecoration(
+                        color: const Color.fromRGBO(198, 205, 213, 1),
+                        // TODO: Change left side border to null
+                        border: Border.all(
+                          color: const Color.fromRGBO(9, 80, 113, 1),
+                          width: 6,
+                        ),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                              child: Container(
+                            margin: const EdgeInsets.all(8.0),
+                            color: const Color.fromRGBO(198, 205, 213, 1),
+                            child: const Text("TAB LIST"),
+                          )),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 181,
+                      height: 148,
+                      decoration: BoxDecoration(
+                        color: const Color.fromRGBO(198, 205, 213, 1),
+                        // TODO: change the top and left border side to null
+                        border: Border.all(
+                          color: const Color.fromRGBO(9, 80, 113, 1),
+                          width: 6,
+                        ),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: const Text("ICON statistics"),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
