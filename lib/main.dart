@@ -20,7 +20,7 @@ void main() async {
 
   WindowOptions options = const WindowOptions(
     minimumSize: Size(800, 676),
-    size: Size(800, 676),
+    maximumSize: Size.infinite,
     center: true,
     title: "AppBlocker",
   );
