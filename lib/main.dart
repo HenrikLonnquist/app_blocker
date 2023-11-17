@@ -20,7 +20,6 @@ void main() async {
 
   WindowOptions options = const WindowOptions(
     minimumSize: Size(800, 676),
-    maximumSize: Size.infinite,
     center: true,
     title: "AppBlocker",
   );
@@ -134,25 +133,29 @@ class _MyHomePageState extends State<MyHomePage> {
                   TextButton(onPressed: () {}, child: const Text("Settings")),
                   TextButton(onPressed: () {}, child: const Text("Help")),
                   TextButton(onPressed: () {}, child: const Text("FAQ")),
+                  IconButton(onPressed: () {}, icon: const Text("DARK MODE")),
                 ],
               ),
-              Container(
-                width: 450,
-                height: 450,
-                decoration: BoxDecoration(
-                  color: const Color.fromRGBO(215, 218, 223, 0.76),
-                  // gradient: LinearGradient(
-                  //   colors: []
-                  // ),
-                  border: Border.all(
-                    color: const Color.fromRGBO(9, 80, 113, 1),
-                    width: 6.0,
-                  ),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Row(
-                  children: [
-                    Column(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 427,
+                    height: 441,
+                    decoration: BoxDecoration(
+                      color: const Color.fromRGBO(215, 218, 223, 0.76),
+                      // gradient: LinearGradient(
+                      //   colors: []
+                      // ),
+                      border: Border.all(
+                        color: const Color.fromRGBO(9, 80, 113, 1),
+                        width: 6.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
                           time,
@@ -185,8 +188,47 @@ class _MyHomePageState extends State<MyHomePage> {
                         // ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  Column(
+                    children: [
+                      Container(
+                        width: 181,
+                        height: 293,
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          border: Border.all(
+                            color: const Color.fromRGBO(9, 80, 113, 1),
+                            width: 6,
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Column(
+                            children: [
+                              Expanded(
+                                  child: Container(
+                                    margin: const EdgeInsets.all(8.0),
+                                    color: Colors.black,
+                                    child: const Text("TAB LIST"),
+                                  )),
+                            ],
+                          ),
+                        ),
+                      Container(
+                        width: 181,
+                        height: 148,
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          border: Border.all(
+                            color: const Color.fromRGBO(9, 80, 113, 1),
+                            width: 6,
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child:  const Text("ICON statistics"),
+                      )
+                    ],
+                  )
+                ],
               ),
             ],
           ),
