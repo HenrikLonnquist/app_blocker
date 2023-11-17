@@ -194,7 +194,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               flex: 2,
                               child: Center(
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    _pickFile();
+                                  },
                                   style: const ButtonStyle(
                                     fixedSize: MaterialStatePropertyAll(Size.fromWidth(100)),
                                     foregroundColor: MaterialStatePropertyAll(Colors.white),
@@ -288,13 +290,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _pickFile();
-        },
-        tooltip: 'Add program',
-        child: const Icon(Icons.add),
       ),
     );
   }
