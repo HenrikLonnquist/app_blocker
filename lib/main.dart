@@ -128,7 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
             const SizedBox(height: 40),
             Wrap(
               spacing: 60.0,
-              // mainAxisAlignment: MainAxisAlignment.center,
+              // TODO: add a widget for these instead DRY with properties when needed to change values.
               children: [
                 TextButton(
                   onPressed: () {}, 
@@ -189,7 +189,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: IconButton(
                     padding: const EdgeInsets.all(0.0),
                     iconSize: 20,
-                    // TODO: added a switch towards different themes and switch the icons as well.
+                    // TODO: add a switch towards different themes and switch the icons as well.
                     // https://stackoverflow.com/questions/62942430/flutter-change-dark-mode-switch-to-an-icon
                     icon: const Icon(Icons.wb_sunny,),
                     style: const ButtonStyle(
@@ -223,14 +223,14 @@ class _MyHomePageState extends State<MyHomePage> {
                       Container(
                         width: 337,
                         height: 266,
-                        padding: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.fromLTRB(15, 20, 10, 0),
                         margin: const EdgeInsets.fromLTRB(0, 30, 0, 20),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             // List of programs with icons and names
                             const Expanded(
@@ -240,23 +240,21 @@ class _MyHomePageState extends State<MyHomePage> {
                                 spacing: 5.0, // Horizontal
                                 children: [
                                   Text(
-                                    "RANDOM PROGRAM1",
-                                    maxLines: 1,
+                                    "PROGRAM1",
                                     style: TextStyle(
+                                      
                                       fontSize: 12.0,
                                     )
                                   ),
                                   Text(
-                                    "RANDOM PROGRAM2",
-                                    maxLines: 1,
+                                    "PROGRAM2",
                                     style: TextStyle(
                                       fontSize: 12.0,
                                     )
                                   ),
                                   // Todo: Constrained error; need something flexible and go to next row
                                   Text(
-                                    "RANDOM PROGRAM3",
-                                    maxLines: 1,
+                                    "PROGRAM3",
                                     style: TextStyle(
                                       fontSize: 12.0,
                                     )
@@ -339,7 +337,22 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: Container(
                             margin: const EdgeInsets.all(8.0),
                             color: const Color.fromRGBO(198, 205, 213, 1),
-                            child: const Text("TAB LIST"),
+                            child: ListView(
+                              children: [
+                                TextButton(
+                                  onPressed: () {},
+                                  style: const ButtonStyle(
+                                    backgroundColor: MaterialStatePropertyAll(Color.fromRGBO(245, 245, 245, 1)),
+                                  ),
+                                  child: const Text(
+                                    "TAB 1",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                    )
+                                  ),
+                                ),
+                              ]
+                            )
                           )),
                         ],
                       ),
@@ -356,7 +369,23 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      child: const Text("ICON statistics"),
+                      child: Center(
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.all(0.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            backgroundColor: Colors.white,
+                          ),
+                          onPressed: () {},
+                          child: const Icon(
+                            Icons.data_thresholding_rounded,
+                            size: 80,
+                            color: Color.fromRGBO(9, 80, 113, 1),
+                          )
+                        ),
+                      ),
                     ),
                   ],
                 )
