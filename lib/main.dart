@@ -131,58 +131,58 @@ class _MyHomePageState extends State<MyHomePage> {
               // TODO: add a widget for these instead DRY with properties when needed to change values.
               children: [
                 TextButton(
-                  onPressed: () {}, 
-                  style: const ButtonStyle(
-                    fixedSize: MaterialStatePropertyAll(Size.fromWidth(77)),
-                    backgroundColor: MaterialStatePropertyAll(Color.fromRGBO(235, 235, 235, 1)),
-                  ),
-                  child: const Text(
-                    "Home",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
+                    onPressed: () {},
+                    style: const ButtonStyle(
+                      fixedSize: MaterialStatePropertyAll(Size.fromWidth(77)),
+                      backgroundColor: MaterialStatePropertyAll(
+                          Color.fromRGBO(235, 235, 235, 1)),
                     ),
-                    )
-                  ),
+                    child: const Text(
+                      "Home",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                      ),
+                    )),
                 TextButton(
-                  onPressed: () {}, 
-                  style: const ButtonStyle(
-                    backgroundColor: MaterialStatePropertyAll(Color.fromRGBO(235, 235, 235, 1)),
-                  ),
-                  child: const Text(
-                    "Settings",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
+                    onPressed: () {},
+                    style: const ButtonStyle(
+                      backgroundColor: MaterialStatePropertyAll(
+                          Color.fromRGBO(235, 235, 235, 1)),
                     ),
-                    )
-                  ),
+                    child: const Text(
+                      "Settings",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                      ),
+                    )),
                 TextButton(
-                  onPressed: () {}, 
-                  style: const ButtonStyle(
-                    backgroundColor: MaterialStatePropertyAll(Color.fromRGBO(235, 235, 235, 1)),
-                  ),
-                  child: const Text(
-                    "Help",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
+                    onPressed: () {},
+                    style: const ButtonStyle(
+                      backgroundColor: MaterialStatePropertyAll(
+                          Color.fromRGBO(235, 235, 235, 1)),
                     ),
-                    )
-                  ),
+                    child: const Text(
+                      "Help",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                      ),
+                    )),
                 TextButton(
-                  onPressed: () {}, 
-                  style: const ButtonStyle(
-                    backgroundColor: MaterialStatePropertyAll(Color.fromRGBO(235, 235, 235, 1)),
-                  ),
-                  child: const Text(
-                    "FAQ",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
+                    onPressed: () {},
+                    style: const ButtonStyle(
+                      backgroundColor: MaterialStatePropertyAll(
+                          Color.fromRGBO(235, 235, 235, 1)),
                     ),
-                    )
-                  ),
+                    child: const Text(
+                      "FAQ",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
+                    )),
                 SizedBox(
                   width: 30,
                   height: 30,
@@ -191,11 +191,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     iconSize: 20,
                     // TODO: add a switch towards different themes and switch the icons as well.
                     // https://stackoverflow.com/questions/62942430/flutter-change-dark-mode-switch-to-an-icon
-                    icon: const Icon(Icons.wb_sunny,),
-                    style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Color.fromRGBO(235, 235, 235, 1)),
+                    icon: const Icon(
+                      Icons.wb_sunny,
                     ),
-                    onPressed: () {}, 
+                    style: const ButtonStyle(
+                      backgroundColor: MaterialStatePropertyAll(
+                          Color.fromRGBO(235, 235, 235, 1)),
+                    ),
+                    onPressed: () {},
                   ),
                 ),
               ],
@@ -209,9 +212,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   height: 441,
                   decoration: BoxDecoration(
                     color: const Color.fromRGBO(215, 218, 223, 0.76),
-                    gradient: const LinearGradient(
-                      colors: [Color.fromRGBO(151, 162, 170, 1), Color.fromRGBO(215, 218, 223, 0.76)]
-                    ),
+                    gradient: const LinearGradient(colors: [
+                      Color.fromRGBO(151, 162, 170, 1),
+                      Color.fromRGBO(215, 218, 223, 0.76)
+                    ]),
                     border: Border.all(
                       color: const Color.fromRGBO(9, 80, 113, 1),
                       width: 6.0,
@@ -230,67 +234,138 @@ class _MyHomePageState extends State<MyHomePage> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // List of programs with icons and names
-                            const Expanded(
-                              flex: 8,
-                              child: Wrap(
-                                runSpacing: 5.0, // Verttical
-                                spacing: 5.0, // Horizontal
-                                children: [
-                                  Text(
-                                    "PROGRAM1",
-                                    style: TextStyle(
-                                      
-                                      fontSize: 12.0,
-                                    )
-                                  ),
-                                  Text(
-                                    "PROGRAM2",
-                                    style: TextStyle(
-                                      fontSize: 12.0,
-                                    )
-                                  ),
-                                  // Todo: Constrained error; need something flexible and go to next row
-                                  Text(
-                                    "PROGRAM3",
-                                    style: TextStyle(
-                                      fontSize: 12.0,
-                                    )
-                                  ),
-                                ]
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // List of programs with icons and names
+                              const Expanded(
+                                flex: 8,
+                                child: Wrap(
+                                    runSpacing: 5.0, // Verttical
+                                    spacing: 5.0, // Horizontal
+                                    children: [
+                                      Text("PROGRAM1",
+                                          style: TextStyle(
+                                            fontSize: 12.0,
+                                          )),
+                                      Text("PROGRAM2",
+                                          style: TextStyle(
+                                            fontSize: 12.0,
+                                          )),
+                                      // Todo: Constrained error; need something flexible and go to next row
+                                      Text("PROGRAM3",
+                                          style: TextStyle(
+                                            fontSize: 12.0,
+                                          )),
+                                    ]),
                               ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Center(
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    _pickFile();
-                                  },
-                                  style: const ButtonStyle(
-                                    fixedSize: MaterialStatePropertyAll(Size.fromWidth(100)),
-                                    foregroundColor: MaterialStatePropertyAll(Colors.white),
-                                    backgroundColor: MaterialStatePropertyAll(Color.fromRGBO(9, 80, 113, 1)),
-                                  ),
-                                  child: const Text(
-                                    "Add", 
-                                    style: TextStyle(fontSize: 12),
+                              Expanded(
+                                flex: 2,
+                                child: Center(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      _pickFile();
+                                    },
+                                    style: const ButtonStyle(
+                                      fixedSize: MaterialStatePropertyAll(
+                                          Size.fromWidth(100)),
+                                      foregroundColor: MaterialStatePropertyAll(
+                                          Colors.white),
+                                      backgroundColor: MaterialStatePropertyAll(
+                                          Color.fromRGBO(9, 80, 113, 1)),
+                                    ),
+                                    child: const Text(
+                                      "Add",
+                                      style: TextStyle(fontSize: 12),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
-                          ]
-                        ),
+                              )
+                            ]),
                       ),
-                      Text(
-                        time,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 30,
-                        ),
-                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 5,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: const Color.fromRGBO(9, 80, 113, 1),
+                                    
+                                  ),
+                                  onPressed: () {},
+                                  child: const Text(
+                                    "Repeat",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: const Color.fromRGBO(9, 80, 113, 1),
+                                    
+                                  ),
+                                  onPressed: () {},
+                                  child: const Text(
+                                    "Repeat",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ]
+                            ),
+                          ),
+                          Expanded(
+                            flex: 5,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                  ),
+                                  onPressed: () {},
+                                  child: const Text(
+                                    "TextField1",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                    )
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                  ),
+                                  onPressed: () {},
+                                  child: const Text(
+                                    "TextField2",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                    )
+                                  ),
+                                ),
+                              // TextField(
+                              //   style: TextStyle(
+                              //     backgroundColor: Colors.white,
+                              //   ),
+                              // )
+                            ]),
+                          )
+                      ])  ,
+                      // Text(
+                      //   time,
+                      //   style: const TextStyle(
+                      //     color: Colors.black,
+                      //     fontSize: 30,
+                      //   ),
+                      // ),
                       // Expanded(
                       //   child: ListView.builder(
                       //     itemCount: _dataList.length,
@@ -335,25 +410,23 @@ class _MyHomePageState extends State<MyHomePage> {
                         children: [
                           Expanded(
                               child: Container(
-                            margin: const EdgeInsets.all(8.0),
-                            color: const Color.fromRGBO(198, 205, 213, 1),
-                            child: ListView(
-                              children: [
-                                TextButton(
-                                  onPressed: () {},
-                                  style: const ButtonStyle(
-                                    backgroundColor: MaterialStatePropertyAll(Color.fromRGBO(245, 245, 245, 1)),
-                                  ),
-                                  child: const Text(
-                                    "TAB 1",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                    )
-                                  ),
-                                ),
-                              ]
-                            )
-                          )),
+                                  margin: const EdgeInsets.all(8.0),
+                                  color: const Color.fromRGBO(198, 205, 213, 1),
+                                  child: ListView(children: [
+                                    TextButton(
+                                      onPressed: () {},
+                                      style: const ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStatePropertyAll(
+                                                Color.fromRGBO(
+                                                    245, 245, 245, 1)),
+                                      ),
+                                      child: const Text("TAB 1",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                          )),
+                                    ),
+                                  ]))),
                         ],
                       ),
                     ),
@@ -371,20 +444,19 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       child: Center(
                         child: TextButton(
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.all(0.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.all(0.0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              backgroundColor: Colors.white,
                             ),
-                            backgroundColor: Colors.white,
-                          ),
-                          onPressed: () {},
-                          child: const Icon(
-                            Icons.data_thresholding_rounded,
-                            size: 80,
-                            color: Color.fromRGBO(9, 80, 113, 1),
-                          )
-                        ),
+                            onPressed: () {},
+                            child: const Icon(
+                              Icons.data_thresholding_rounded,
+                              size: 80,
+                              color: Color.fromRGBO(9, 80, 113, 1),
+                            )),
                       ),
                     ),
                   ],
