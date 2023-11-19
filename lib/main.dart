@@ -13,6 +13,16 @@ import 'package:flutter/material.dart';
 import "package:file_picker/file_picker.dart";
 
 // TODO: use the window_manager package to listen for changes on focus states of windows.
+/*
+Different sections:
+- Program List
+- Tab List
+- 
+
+
+ */
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -233,16 +243,18 @@ class _MyHomePageState extends State<MyHomePage> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8.0),
                         ),
+                        //* Program List
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              // List of programs with icons and names
+                              //TODO: Show the programs with icons and names
                               const Expanded(
                                 flex: 8,
                                 child: Wrap(
                                     runSpacing: 5.0, // Verttical
                                     spacing: 5.0, // Horizontal
                                     children: [
+                                      // TODO: make them selectable
                                       Text("PROGRAM1",
                                           style: TextStyle(
                                             fontSize: 12.0,
@@ -251,7 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           style: TextStyle(
                                             fontSize: 12.0,
                                           )),
-                                      // Todo: Constrained error; need something flexible and go to next row
+                                      // TODO: Constrained error; need something flexible and go to next row
                                       Text("PROGRAM3",
                                           style: TextStyle(
                                             fontSize: 12.0,
@@ -266,8 +278,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                       _pickFile();
                                     },
                                     style: const ButtonStyle(
-                                      fixedSize: MaterialStatePropertyAll(
-                                          Size.fromWidth(100)),
                                       foregroundColor: MaterialStatePropertyAll(
                                           Colors.white),
                                       backgroundColor: MaterialStatePropertyAll(
@@ -405,10 +415,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
+                      
+                      //* Tab List
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          const SizedBox(height: 10),
                           Expanded(
+                            flex: 8,
                               child: Container(
                                   margin: const EdgeInsets.all(8.0),
                                   color: const Color.fromRGBO(198, 205, 213, 1),
@@ -426,7 +440,25 @@ class _MyHomePageState extends State<MyHomePage> {
                                             fontSize: 14,
                                           )),
                                     ),
-                                  ]))),
+                                  ])
+                              )
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Center(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                ),
+                                onPressed: () {
+                                  // TODO: setstate will add a textbutton to tab list
+                              
+                                  
+                                },
+                                child: const Text("Add TAB"),
+                              ),
+                            )
+                          )
                         ],
                       ),
                     ),
