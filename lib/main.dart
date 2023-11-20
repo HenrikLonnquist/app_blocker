@@ -17,8 +17,9 @@ import "package:file_picker/file_picker.dart";
 Different sections:
 - Program List
 - Tab List
-- 
-
+- Option block
+  - TextFieldForm
+  - Repeat option
 
  */
 
@@ -295,8 +296,10 @@ class _MyHomePageState extends State<MyHomePage> {
                               )
                             ]),
                       ),
+                      // Option block
                       Row(
                         children: [
+                          // Repeat option
                           Expanded(
                             flex: 5,
                             child: Container(
@@ -337,6 +340,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                           ),
+                          // TextFieldForm
                           Expanded(
                             flex: 5,
                             child: Container(
@@ -344,36 +348,39 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  TextButton(
-                                    style: TextButton.styleFrom(
-                                      backgroundColor: Colors.white,
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(10, 5, 0, 10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8.0),
                                     ),
-                                    onPressed: () {},
-                                    child: const Text(
-                                      "TextField1",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                      )
+                                    child: TextFormField(
+                                      decoration: const InputDecoration(
+                                        constraints: BoxConstraints(
+                                          maxHeight: 30,
+                                        ),
+                                        // border: InputBorder.none,
+                                        hintText: "0000-2359",
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(height: 10),
-                                  TextButton(
-                                    style: TextButton.styleFrom(
-                                      backgroundColor: Colors.white,
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(10, 5, 0, 10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8.0),
                                     ),
-                                    onPressed: () {},
-                                    child: const Text(
-                                      "TextField2",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                      )
+                                    child: TextFormField(
+                                      decoration: const InputDecoration(
+                                        constraints: BoxConstraints(
+                                          maxHeight: 30,
+                                        ),
+                                        // border: InputBorder.none,
+                                        hintText: "0000-2359",
+                                      ),
                                     ),
                                   ),
-                                // TextField(
-                                //   style: TextStyle(
-                                //     backgroundColor: Colors.white,
-                                //   ),
-                                // )
                               ]),
                             ),
                           )
