@@ -7,7 +7,7 @@ import 'dart_functions.dart';
 import "package:ffi/ffi.dart";
 import 'package:win32/win32.dart';
 
-
+// Why do I need this?
 var _lastChild = "";
 
 String _getExePathfromHWND(int hWnd) {
@@ -98,8 +98,7 @@ void monitorActiveWindow() async {
 
       if (last == "ApplicationFrameHost.exe") {
         final int processID = getProcessID(currentHwnd);
-        final winproc3 =
-            Pointer.fromFunction<EnumWindowsProc>(_enumChildren, 0);
+        final winproc3 = Pointer.fromFunction<EnumWindowsProc>(_enumChildren, 0);
         EnumChildWindows(currentHwnd, winproc3, processID);
       }
 

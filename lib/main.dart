@@ -99,6 +99,9 @@ class _MyHomePageState extends State<MyHomePage> {
         initialDirectory: "Desktop" // TODO: change back to C:
         );
 
+    // TODO: need to check if the dialog is open and then return null
+    // just hade the dialog open repeatedly after clicking many times on it.
+    // Maybe I could set a disable timer  after clicking it once but then it needs to show that it's loading the dialog.
     if (result == null) return;
 
     PlatformFile file = result.files.single;
@@ -296,77 +299,83 @@ class _MyHomePageState extends State<MyHomePage> {
                         children: [
                           Expanded(
                             flex: 5,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: const Color.fromRGBO(9, 80, 113, 1),
-                                    
-                                  ),
-                                  onPressed: () {},
-                                  child: const Text(
-                                    "Repeat",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.white,
+                            child: Container(
+                              margin: const EdgeInsets.fromLTRB(40, 0, 10, 0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      backgroundColor: const Color.fromRGBO(9, 80, 113, 1),
+                                      
+                                    ),
+                                    onPressed: () {},
+                                    child: const Text(
+                                      "Repeat",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(height: 10),
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: const Color.fromRGBO(9, 80, 113, 1),
-                                    
-                                  ),
-                                  onPressed: () {},
-                                  child: const Text(
-                                    "Repeat",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.white,
+                                  const SizedBox(height: 10),
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      backgroundColor: const Color.fromRGBO(9, 80, 113, 1),
+                                      
+                                    ),
+                                    onPressed: () {},
+                                    child: const Text(
+                                      "Repeat",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ]
+                                ]
+                              ),
                             ),
                           ),
                           Expanded(
                             flex: 5,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: Colors.white,
+                            child: Container(
+                              margin: const EdgeInsets.fromLTRB(0, 0, 40, 0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                    ),
+                                    onPressed: () {},
+                                    child: const Text(
+                                      "TextField1",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                      )
+                                    ),
                                   ),
-                                  onPressed: () {},
-                                  child: const Text(
-                                    "TextField1",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                    )
+                                  const SizedBox(height: 10),
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                    ),
+                                    onPressed: () {},
+                                    child: const Text(
+                                      "TextField2",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                      )
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 10),
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                  ),
-                                  onPressed: () {},
-                                  child: const Text(
-                                    "TextField2",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                    )
-                                  ),
-                                ),
-                              // TextField(
-                              //   style: TextStyle(
-                              //     backgroundColor: Colors.white,
-                              //   ),
-                              // )
-                            ]),
+                                // TextField(
+                                //   style: TextStyle(
+                                //     backgroundColor: Colors.white,
+                                //   ),
+                                // )
+                              ]),
+                            ),
                           )
                       ])  ,
                       // Text(
