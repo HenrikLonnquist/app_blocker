@@ -3,6 +3,8 @@
 import 'dart:async';
 import "dart:io";
 
+import 'package:flutter/services.dart';
+
 import 'dart_functions.dart';
 import 'logic.dart';
 
@@ -70,6 +72,8 @@ class _MyHomePageState extends State<MyHomePage> {
   final backgroundColorGradient1 = const Color.fromRGBO(136, 148, 162, 1.0);
   final backgroundColorGradient2 = const Color.fromRGBO(188, 202, 219, 0.56);
 
+  List<String> repeatChooices = ["Daily", "Weekdays", "Weekly", "Custom"];
+
   @override
   void initState() {
     super.initState();
@@ -130,6 +134,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    String dropValue = repeatChooices[0];
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -303,39 +309,38 @@ class _MyHomePageState extends State<MyHomePage> {
                           Expanded(
                             flex: 5,
                             child: Container(
-                              margin: const EdgeInsets.fromLTRB(40, 0, 10, 0),
+                              margin: const EdgeInsets.fromLTRB(40, 5, 10, 0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  TextButton(
-                                    style: TextButton.styleFrom(
-                                      backgroundColor: const Color.fromRGBO(9, 80, 113, 1),
-                                      
-                                    ),
-                                    onPressed: () {},
-                                    child: const Text(
-                                      "Repeat",
-                                      style: TextStyle(
-                                        fontSize: 12,
+                                  // TODO: Make them into dropdownmenu buttons; Make my own?
+                                Container(
+                                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                  decoration: BoxDecoration(
+                                    color: const Color.fromRGBO(9, 80, 113, 1),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                      });
+                                    },
+                                    child: Text(
+                                      dropValue,
+                                      style: const TextStyle(
                                         color: Colors.white,
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 10),
-                                  TextButton(
-                                    style: TextButton.styleFrom(
-                                      backgroundColor: const Color.fromRGBO(9, 80, 113, 1),
-                                      
-                                    ),
-                                    onPressed: () {},
-                                    child: const Text(
-                                      "Repeat",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                                ),
+                                const SizedBox(height: 10),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8.0),
                                   ),
+                                  child: Text(dropValue),
+                                ),
+                                  
                                 ]
                               ),
                             ),
@@ -359,7 +364,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                         constraints: BoxConstraints(
                                           maxHeight: 30,
                                         ),
-                                        // border: InputBorder.none,
                                         hintText: "0000-2359",
                                       ),
                                     ),
@@ -372,11 +376,19 @@ class _MyHomePageState extends State<MyHomePage> {
                                       borderRadius: BorderRadius.circular(8.0),
                                     ),
                                     child: TextFormField(
+                                      onChanged: (String? value) {
+
+                                      },
+                                      validator: (String? value) {
+                                        return value != null && value.contains(RegExp(r"^A-Za-z")) ? "Only numbers are allowed" : null;
+                                      },
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly,
+                                      ],
                                       decoration: const InputDecoration(
                                         constraints: BoxConstraints(
                                           maxHeight: 30,
                                         ),
-                                        // border: InputBorder.none,
                                         hintText: "0000-2359",
                                       ),
                                     ),
