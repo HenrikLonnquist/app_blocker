@@ -7,12 +7,16 @@ import 'package:flutter/services.dart';
 
 import 'dart_functions.dart';
 import 'logic.dart';
+import "custom_overlay_repeat.dart";
 
 import 'package:intl/intl.dart';
 import "package:window_manager/window_manager.dart";
 
 import 'package:flutter/material.dart';
 import "package:file_picker/file_picker.dart";
+
+import 'package:dropdown_button2/dropdown_button2.dart';
+
 
 // TODO: use the window_manager package to listen for changes on focus states of windows.
 /*
@@ -72,7 +76,9 @@ class _MyHomePageState extends State<MyHomePage> {
   final backgroundColorGradient1 = const Color.fromRGBO(136, 148, 162, 1.0);
   final backgroundColorGradient2 = const Color.fromRGBO(188, 202, 219, 0.56);
 
-  List<String> repeatChooices = ["Daily", "Weekdays", "Weekly", "Custom"];
+  List<String> repeatItems = ["Daily", "Weekdays", "Weekends", "Weekly", "Custom"];
+  String? dropValue;
+
 
   @override
   void initState() {
@@ -133,9 +139,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    String dropValue = repeatChooices[0];
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -291,7 +301,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                       foregroundColor: MaterialStatePropertyAll(
                                           Colors.white),
                                       backgroundColor: MaterialStatePropertyAll(
-                                          Color.fromRGBO(9, 80, 113, 1)),
+                                          Color.fromRGBO(9, 80, 113, 1)
+                                      ),
                                     ),
                                     child: const Text(
                                       "Add",
@@ -314,33 +325,61 @@ class _MyHomePageState extends State<MyHomePage> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   // TODO: Make them into dropdownmenu buttons; Make my own?
-                                Container(
-                                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                  decoration: BoxDecoration(
-                                    color: const Color.fromRGBO(9, 80, 113, 1),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  child: TextButton(
-                                    onPressed: () {
-                                      setState(() {
-                                      });
-                                    },
-                                    child: Text(
-                                      dropValue,
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                  DropdownButtonHideUnderline(
+                                    child: DropdownButton2(
+                                      hint: const Text(
+                                        "Repeat",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        )
+                                      ),
+                                      items: repeatItems.map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(
+                                            value,
+                                            style: const TextStyle(
+                                              color: Colors.white
+                                            )
+                                          )
+                                        );
+                                      }).toList(),
+                                      value: dropValue,
+                                      onChanged: (String? value) {
+                                        setState(() {
+                                          dropValue = value;
+                                        });
+                                        if (value == "Custom") {
+                                          print("Custom");
+                                          // make an overlay for custom repeat
+                                          
+                                        }
+                                      },
+                                      iconStyleData: const IconStyleData(
+                                        icon: Icon(
+                                          Icons.keyboard_arrow_down_outlined,
+                                        ),
+                                        iconSize: 20,
+                                        iconEnabledColor: Colors.white,
+
+                                      ),
+                                      buttonStyleData: ButtonStyleData(
+                                        padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(8.0),
+                                          color: const Color.fromRGBO(9, 80, 113, 1),
+                                        )
+                                      ),
+                                      dropdownStyleData: DropdownStyleData(
+                                        offset: const Offset(0, 100),
+                                        maxHeight: 260,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(8.0),
+                                          color: const Color.fromRGBO(9, 80, 113, 1),
+                                        )
                                       ),
                                     ),
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  child: Text(dropValue),
-                                ),
-                                  
+                                  )
                                 ]
                               ),
                             ),
