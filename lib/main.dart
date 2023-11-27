@@ -15,8 +15,6 @@ import "package:window_manager/window_manager.dart";
 import 'package:flutter/material.dart';
 import "package:file_picker/file_picker.dart";
 
-import 'package:dropdown_button2/dropdown_button2.dart';
-
 
 // TODO: use the window_manager package to listen for changes on focus states of windows.
 /*
@@ -75,9 +73,6 @@ class _MyHomePageState extends State<MyHomePage> {
   String time = DateFormat.Hms().format(DateTime.now());
   final backgroundColorGradient1 = const Color.fromRGBO(136, 148, 162, 1.0);
   final backgroundColorGradient2 = const Color.fromRGBO(188, 202, 219, 0.56);
-
-  List<String> repeatItems = ["Daily", "Weekdays", "Weekends", "Weekly", "Custom"];
-  String? dropValue;
 
 
   @override
@@ -321,65 +316,10 @@ class _MyHomePageState extends State<MyHomePage> {
                             flex: 5,
                             child: Container(
                               margin: const EdgeInsets.fromLTRB(40, 5, 10, 0),
-                              child: Column(
+                              child: const Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  // TODO: Make them into dropdownmenu buttons; Make my own?
-                                  DropdownButtonHideUnderline(
-                                    child: DropdownButton2(
-                                      hint: const Text(
-                                        "Repeat",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        )
-                                      ),
-                                      items: repeatItems.map((String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Text(
-                                            value,
-                                            style: const TextStyle(
-                                              color: Colors.white
-                                            )
-                                          )
-                                        );
-                                      }).toList(),
-                                      value: dropValue,
-                                      onChanged: (String? value) {
-                                        setState(() {
-                                          dropValue = value;
-                                        });
-                                        if (value == "Custom") {
-                                          print("Custom");
-                                          // make an overlay for custom repeat
-                                          
-                                        }
-                                      },
-                                      iconStyleData: const IconStyleData(
-                                        icon: Icon(
-                                          Icons.keyboard_arrow_down_outlined,
-                                        ),
-                                        iconSize: 20,
-                                        iconEnabledColor: Colors.white,
-
-                                      ),
-                                      buttonStyleData: ButtonStyleData(
-                                        padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(8.0),
-                                          color: const Color.fromRGBO(9, 80, 113, 1),
-                                        )
-                                      ),
-                                      dropdownStyleData: DropdownStyleData(
-                                        offset: const Offset(0, 100),
-                                        maxHeight: 260,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(8.0),
-                                          color: const Color.fromRGBO(9, 80, 113, 1),
-                                        )
-                                      ),
-                                    ),
-                                  )
+                                  CustomOverlay(),
                                 ]
                               ),
                             ),

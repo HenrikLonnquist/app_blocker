@@ -77,7 +77,11 @@ void _matchAndMinimize(int hWnd, List storageList, String last) {
 // EnumWindows(winproc2, 0);
 //* Could loop through all the windows every interval but maybe later.
 //! Cant show exe+/path of task manager, not showing up as anything.
-//! not very accurate
+//! not very accurate and reliable but works most of the time. Sometimes it wont work 
+//! when it checks the "ApplicationFrameHost.exe" <- it's not fast enough.
+//! Maybe I can optimize it or something.
+// TODO: Optimize the "ApplicationFrameHost.exe"?
+
 void monitorActiveWindow() async {
   final List storageList = readJsonFile();
   var currentHwnd = 0;
