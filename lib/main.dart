@@ -15,6 +15,7 @@ import "package:window_manager/window_manager.dart";
 import 'package:flutter/material.dart';
 import "package:file_picker/file_picker.dart";
 
+import "package:dropdown_button2/dropdown_button2.dart";
 
 // TODO: use the window_manager package to listen for changes on focus states of windows.
 /*
@@ -319,7 +320,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: const Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  CustomOverlay(),
+                                  CustomOverlayPortal(),
                                 ]
                               ),
                             ),
