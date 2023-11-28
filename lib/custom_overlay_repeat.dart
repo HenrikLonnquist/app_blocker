@@ -2,143 +2,15 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
 
-class MenuWidget extends StatefulWidget {
-  const MenuWidget({
+class CustomOverlayPortal extends StatefulWidget {
+  const CustomOverlayPortal({
     super.key,
     this.width = 200,
     this.height = 360,
-    this.showOverlay,
   });
 
   final double? width;
   final double? height;
-  final VoidCallback? showOverlay;
-
-  @override
-  State<MenuWidget> createState() => _MenuWidgetState();
-}
-
-class _MenuWidgetState extends State<MenuWidget> {
-  List<String> repeatList = ["days", "weeks", "months", "years"];
-  String? repeatValue;
-
-  
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: widget.width,
-      height: widget.height,
-      padding: const EdgeInsets.all(5.0),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8.0),
-          color: const Color.fromRGBO(9, 80, 113, 1)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text("Repeat every ...",
-              style: TextStyle(
-                decoration: TextDecoration.none,
-                color: Colors.white,
-                fontSize: 14,
-              )),
-          Container(
-            constraints: const BoxConstraints(
-              maxHeight: 40,
-            ),
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Material(
-                    borderRadius: BorderRadius.circular(8.0),
-                    child: TextFormField(
-                      initialValue: "1",
-                      maxLines: 1,
-                      textAlign: TextAlign.start,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 8,
-                  child: Material(
-                    borderRadius: BorderRadius.circular(8.0),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton2(
-                        items: repeatList.map((String value) {
-                          return DropdownMenuItem(
-                            value: value,
-                            child: Text(
-                              value,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (String? value) {
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                flex: 5,
-                child: TextButton( // TODO: fix the borderRadius
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.white, 
-                  ),
-                  onPressed: widget.showOverlay,
-                  child: const Text("Cancel",
-                      style: TextStyle(
-                        color: Colors.black,
-                      )),
-                ),
-              ),
-              const SizedBox(width: 8.0),
-              Expanded(
-                flex: 5,
-                child: TextButton(
-                  style: TextButton.styleFrom(backgroundColor: Colors.white),
-                  onPressed: () {
-                    //call the "database" to save and display the new info
-                    //to the Triggered widget -> DropdownButton2{Custom}
-                    setState(() {
-                      //! because this is from another file and class. Maybe 
-                      //! I dont need to do anything here with this.
-                      // widget.dropValue = "Custom"; //TODO: change this later to the custom values chosen by the user
-                    });
-                  },
-                  child: const Text(
-                    "Save",
-                    style: TextStyle(
-                      color: Colors.black,
-                    )
-                  ),
-                ),
-              ),
-            ],
-          )
-        ],
-      ),
-    );
-  }
-}
-
-
-
-
-
-class CustomOverlayPortal extends StatefulWidget {
-  const CustomOverlayPortal({
-    super.key,
-  });
 
 
   @override
@@ -150,11 +22,14 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
   final OverlayPortalController tooltipController = OverlayPortalController();
   final _link = LayerLink();
 
+  List<String> repeatList = ["days", "weeks", "months", "years"];
+  String? repeatValue;
+
   List<String> dropdownList = ["Daily", "Weekdays", "Weekly", "Monthly", "Yearly", "Custom",];
   String? dropValue;
 
 
-  void toggle() {
+  void toggleOverlayPortal() {
 
     tooltipController.toggle();
 
@@ -173,9 +48,106 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
             targetAnchor: Alignment.bottomLeft,
             child: Align(
               alignment: AlignmentDirectional.topStart,
-              child: MenuWidget(
-                showOverlay: toggle,
-              ),
+              child: Container(
+                width: widget.width,
+                height: widget.height,
+                padding: const EdgeInsets.all(5.0),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.0),
+                    color: const Color.fromRGBO(9, 80, 113, 1)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Repeat every ...",
+                        style: TextStyle(
+                          decoration: TextDecoration.none,
+                          color: Colors.white,
+                          fontSize: 14,
+                        )),
+                    Container(
+                      constraints: const BoxConstraints(
+                        maxHeight: 40,
+                      ),
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Material(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: TextFormField(
+                                initialValue: "1",
+                                maxLines: 1,
+                                textAlign: TextAlign.start,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 8,
+                            child: Material(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton2(
+                                  items: repeatList.map((String value) {
+                                    return DropdownMenuItem(
+                                      value: value,
+                                      child: Text(
+                                        value,
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? value) {
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: TextButton( // TODO: fix the borderRadius
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.white, 
+                            ),
+                            onPressed: toggleOverlayPortal,
+                            child: const Text("Cancel",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                )),
+                          ),
+                        ),
+                        const SizedBox(width: 8.0),
+                        Expanded(
+                          flex: 5,
+                          child: TextButton(
+                            style: TextButton.styleFrom(backgroundColor: Colors.white),
+                            onPressed: () {
+                              // TODO: call the "database" to save and display the new info
+                              //to the Triggered widget -> DropdownButton2{Custom}
+                              setState(() {
+                                dropValue = "Custom"; 
+                                toggleOverlayPortal();
+                              });
+                            },
+                            child: const Text(
+                              "Save",
+                              style: TextStyle(
+                                color: Colors.black,
+                              )
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              )
             ),
           );
         },
@@ -203,7 +175,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
             onChanged: (String? value) {
               setState(() {
                 if (value == "Custom") {
-                  toggle();
+                  toggleOverlayPortal();
                 } else {
                   dropValue = value!;
                 }
