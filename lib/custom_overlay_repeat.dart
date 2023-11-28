@@ -6,7 +6,7 @@ class CustomOverlayPortal extends StatefulWidget {
   const CustomOverlayPortal({
     super.key,
     this.width = 200,
-    this.height = 360,
+    this.height = 130,
   });
 
   final double? width;
@@ -45,7 +45,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
         overlayChildBuilder: (context) {
           return CompositedTransformFollower(
             link: _link,
-            targetAnchor: Alignment.bottomLeft,
+            targetAnchor: Alignment.topLeft,
             child: Align(
               alignment: AlignmentDirectional.topStart,
               child: Container(
@@ -58,7 +58,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Repeat every ...",
+                    const Text("  Repeat every ...",
                         style: TextStyle(
                           decoration: TextDecoration.none,
                           color: Colors.white,
@@ -82,6 +82,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                               ),
                             ),
                           ),
+                          const SizedBox(width: 10),
                           Expanded(
                             flex: 8,
                             child: Material(
@@ -96,6 +97,13 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                                       ),
                                     );
                                   }).toList(),
+                                  hint: Text(
+                                    repeatList[0],
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                    )
+                                  ),
+                                  value: repeatValue,
                                   onChanged: (String? value) {
                                   },
                                 ),
