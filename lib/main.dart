@@ -71,6 +71,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Map _dataList = {}; // for the json file
+  final ScrollController _scrollController = ScrollController();
   String time = DateFormat.Hms().format(DateTime.now());
   final backgroundColorGradient1 = const Color.fromRGBO(136, 148, 162, 1.0);
   final backgroundColorGradient2 = const Color.fromRGBO(188, 202, 219, 0.56);
@@ -432,61 +433,74 @@ class _MyHomePageState extends State<MyHomePage> {
                           Expanded(
                             flex: 8,
                               child: Container(
-                                  margin: const EdgeInsets.all(8.0),
-                                  color: const Color.fromRGBO(198, 205, 213, 1),
-                                  child: ListView.builder(
-                                    itemCount: _dataList["tab_list"].length,
-                                    itemBuilder: (context, index) {
-                                      return Padding(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: TextButton(
-                                          onPressed: () {
-                                            //Grab info from data jsonfile and change info
-                                            
-                                          },
-                                          style: const ButtonStyle(
-                                            backgroundColor:
-                                                MaterialStatePropertyAll(
-                                                    Color.fromRGBO(
-                                                        245, 245, 245, 1)),
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                flex: 7,
-                                                child: Padding(
-                                                  padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                                                  child: Text(
-                                                    _dataList["tab_list"][index],
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                    )),
-                                                ),
-                                              ),
-                                              Expanded(
-                                                flex: 3,
-                                                child: IconButton(
-                                                  onPressed: (){
-                                                    setState(() {
-                                                      _dataList["tab_list"].removeAt(index);
-                                                      writeJsonFile(_dataList);
-                                                    });
-                                                  },
-                                                  icon: const Icon(
-                                                    Icons.remove_circle_outlined,
-                                                    size: 20,
+                                  margin: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    color: const Color.fromRGBO(217, 217, 217, 1),
+                                    // boxShadow: [
+                                    //   BoxShadow(
+                                    //     color: Colors.grey.withOpacity(0.5),
+                                    //     blurRadius: 7,
+                                    //     spreadRadius: 5,
+                                    //     offset: const Offset(0, 4),
+                                    //   ),
+                                    // ]
+                                  ),
+                                  child: Scrollbar(
+                                    thumbVisibility: true,
+                                    controller: _scrollController,
+                                    child: ListView.builder(
+                                      controller: _scrollController,
+                                      itemCount: _dataList["tab_list"].length,
+                                      itemBuilder: (context, index) {
+                                        return Padding(
+                                          padding: const EdgeInsets.fromLTRB(8, 4, 14, 4),
+                                          child: TextButton(
+                                            onPressed: () {
+                                              //Grab info from data jsonfile and change info
+                                              
+                                            },
+                                            style: TextButton.styleFrom(
+                                              backgroundColor: const Color.fromRGBO(245, 245, 245, 1)
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  flex: 7,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                                                    child: Text(
+                                                      _dataList["tab_list"][index],
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                      )),
                                                   ),
                                                 ),
-                                              )
-                                                
-                                            ],
+                                                Expanded(
+                                                  flex: 3,
+                                                  child: IconButton(
+                                                    onPressed: (){
+                                                      setState(() {
+                                                        _dataList["tab_list"].removeAt(index);
+                                                        writeJsonFile(_dataList);
+                                                      });
+                                                    },
+                                                    icon: const Icon(
+                                                      Icons.remove_circle_outlined,
+                                                      size: 20,
+                                                    ),
+                                                  ),
+                                                )
+                                                  
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                    }
-                                     
+                                        );
+                                      }
+                                    ),
                                   )
-                              )
+                              ) 
                           ),
                           Expanded(
                             flex: 2,
