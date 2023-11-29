@@ -159,6 +159,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
             ),
           );
         },
+        // TODO: FocusNode widget here?
         child: DropdownButtonHideUnderline(
           child: DropdownButton2(
             hint: const Text(

@@ -71,6 +71,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List _dataList = []; // for the json file
+  List tabList = [];
   String time = DateFormat.Hms().format(DateTime.now());
   final backgroundColorGradient1 = const Color.fromRGBO(136, 148, 162, 1.0);
   final backgroundColorGradient2 = const Color.fromRGBO(188, 202, 219, 0.56);
@@ -88,7 +89,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // calling data and adding to list widget to display in list view
   void callData() {
-    _dataList = readJsonFile();
+    _dataList = readJsonFile("program_list");
+    tabList = readJsonFile("tab_list");
   }
 
   void _currentTime() {
@@ -129,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       if (dupl == false) {
         _dataList.add(file.name);
-        writeJsonFile(_dataList);
+        writeJsonFile(_dataList, "program_list");
       }
     });
   }
@@ -399,7 +401,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       //                 _dataList.removeAt(index);
                       //               });
                       //               // call the remove function of json file and to remove the list
-                      //               removeDataJsonFile(_dataList);
+                      //               removeDataJsonFile(_dataList, "program_list");
                       //             },
                       //             child: const Text("Remove")),
                       //       ));
@@ -434,21 +436,31 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: Container(
                                   margin: const EdgeInsets.all(8.0),
                                   color: const Color.fromRGBO(198, 205, 213, 1),
-                                  child: ListView(children: [
-                                    TextButton(
-                                      onPressed: () {},
-                                      style: const ButtonStyle(
-                                        backgroundColor:
-                                            MaterialStatePropertyAll(
-                                                Color.fromRGBO(
-                                                    245, 245, 245, 1)),
-                                      ),
-                                      child: const Text("TAB 1",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                          )),
-                                    ),
-                                  ])
+                                  child: ListView.builder(
+                                    itemCount: tabList.length,
+                                    itemBuilder: (context, index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: TextButton(
+                                          onPressed: () {
+                                            //Grab info from data jsonfile and change info
+                                          },
+                                          style: const ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStatePropertyAll(
+                                                    Color.fromRGBO(
+                                                        245, 245, 245, 1)),
+                                          ),
+                                          child: Text(
+                                            tabList[index],
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                            )),
+                                        ),
+                                      );
+                                    }
+                                     
+                                  )
                               )
                           ),
                           Expanded(
@@ -460,7 +472,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                                 onPressed: () {
                                   // TODO: setstate will add a textbutton to tab list
-                              
+                                  setState(() {
+                                    tabList.add("TAB 2");
+                                  });
                                   
                                 },
                                 child: const Text("Add TAB"),
