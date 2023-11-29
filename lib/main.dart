@@ -70,8 +70,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List _dataList = []; // for the json file
-  List tabList = [];
+  Map _dataList = {}; // for the json file
   String time = DateFormat.Hms().format(DateTime.now());
   final backgroundColorGradient1 = const Color.fromRGBO(136, 148, 162, 1.0);
   final backgroundColorGradient2 = const Color.fromRGBO(188, 202, 219, 0.56);
@@ -89,8 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // calling data and adding to list widget to display in list view
   void callData() {
-    _dataList = readJsonFile("program_list");
-    tabList = readJsonFile("tab_list");
+    _dataList = readJsonFile();
   }
 
   void _currentTime() {
@@ -130,8 +128,8 @@ class _MyHomePageState extends State<MyHomePage> {
       }
 
       if (dupl == false) {
-        _dataList.add(file.name);
-        writeJsonFile(_dataList, "program_list");
+        _dataList["program_list"].add(file.name);
+        writeJsonFile(_dataList);
       }
     });
   }
@@ -398,10 +396,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       //             onPressed: () {
                       //               //remove first from list -> update displayed list
                       //               setState(() {
-                      //                 _dataList.removeAt(index);
+                      //                 _dataList["program_list"].removeAt(index);
                       //               });
-                      //               // call the remove function of json file and to remove the list
-                      //               removeDataJsonFile(_dataList, "program_list");
+                      //               // overwriting existing with the new one
+                      //               (_dataList);
                       //             },
                       //             child: const Text("Remove")),
                       //       ));
@@ -437,13 +435,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                   margin: const EdgeInsets.all(8.0),
                                   color: const Color.fromRGBO(198, 205, 213, 1),
                                   child: ListView.builder(
-                                    itemCount: tabList.length,
+                                    itemCount: _dataList["tab_list"].length,
                                     itemBuilder: (context, index) {
                                       return Padding(
                                         padding: const EdgeInsets.all(4.0),
                                         child: TextButton(
                                           onPressed: () {
                                             //Grab info from data jsonfile and change info
+                                            
                                           },
                                           style: const ButtonStyle(
                                             backgroundColor:
@@ -451,11 +450,37 @@ class _MyHomePageState extends State<MyHomePage> {
                                                     Color.fromRGBO(
                                                         245, 245, 245, 1)),
                                           ),
-                                          child: Text(
-                                            tabList[index],
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                            )),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                flex: 7,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                                                  child: Text(
+                                                    _dataList["tab_list"][index],
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                    )),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 3,
+                                                child: IconButton(
+                                                  onPressed: (){
+                                                    setState(() {
+                                                      _dataList["tab_list"].removeAt(index);
+                                                      writeJsonFile(_dataList);
+                                                    });
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.remove_circle_outlined,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              )
+                                                
+                                            ],
+                                          ),
                                         ),
                                       );
                                     }
@@ -473,7 +498,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 onPressed: () {
                                   // TODO: setstate will add a textbutton to tab list
                                   setState(() {
-                                    tabList.add("TAB 2");
+                                    _dataList["tab_list"].add("TAB ${_dataList["tab_list"].length + 1}");
+                                    writeJsonFile(_dataList);
                                   });
                                   
                                 },

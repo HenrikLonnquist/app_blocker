@@ -6,32 +6,21 @@ import 'dart:io';
 const dataPath = "assets/data.json";
 
 // open Json file
-List readJsonFile(String nameOf) {
+Map readJsonFile() {
   try {
     final fileContent = File(dataPath).readAsStringSync();
     final jsonData = json.decode(fileContent);
-    return jsonData[nameOf];
+    return jsonData;
   } catch (e) {
         print('Error reading JSON file: $e');
-    return [];
+    return {};
   }
 }
 
 // save to Json file
-void writeJsonFile(List dataList, String nameOf) {
-  var jsonData = {nameOf : dataList};
-  var jsonString = json.encode(jsonData);
+void writeJsonFile(Map dataList) {
+  var jsonString = json.encode(dataList);
   File(dataPath).writeAsStringSync(jsonString);
 }
 
-// remove from Json file
-void removeDataJsonFile(List dataList, String nameOf) {
-  // current list displaying
-  // open Json file
-  // save new list to json file...
-  List fileData = readJsonFile(nameOf);
-  fileData = dataList;
-  
 
-  writeJsonFile(fileData, nameOf);
-}

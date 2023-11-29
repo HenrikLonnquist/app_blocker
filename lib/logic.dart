@@ -83,7 +83,7 @@ void _matchAndMinimize(int hWnd, List storageList, String last) {
 // TODO: Optimize the "ApplicationFrameHost.exe"?
 
 void monitorActiveWindow() async {
-  final List storageList = readJsonFile("program_list");
+  final List storageList = readJsonFile()["program_list"];
   var currentHwnd = 0;
   
   Timer.periodic(const Duration(milliseconds: 500), (timer) {
