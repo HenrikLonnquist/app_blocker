@@ -71,6 +71,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Map _dataList = {}; // for the json file
+  int isSelected = 0;
   final ScrollController _scrollController = ScrollController();
   String time = DateFormat.Hms().format(DateTime.now());
   final backgroundColorGradient1 = const Color.fromRGBO(136, 148, 162, 1.0);
@@ -447,53 +448,54 @@ class _MyHomePageState extends State<MyHomePage> {
                                     //   ),
                                     // ]
                                   ),
-                                  child: Scrollbar(
+                                  child: RawScrollbar(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    thickness: 10,
+                                    thumbColor: Colors.deepPurple,
+                                    trackVisibility: false,
                                     thumbVisibility: true,
                                     controller: _scrollController,
                                     child: ListView.builder(
                                       controller: _scrollController,
                                       itemCount: _dataList["tab_list"].length,
                                       itemBuilder: (context, index) {
-                                        return Padding(
-                                          padding: const EdgeInsets.fromLTRB(8, 4, 14, 4),
-                                          child: TextButton(
-                                            onPressed: () {
-                                              //Grab info from data jsonfile and change info
-                                              
-                                            },
-                                            style: TextButton.styleFrom(
-                                              backgroundColor: const Color.fromRGBO(245, 245, 245, 1)
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  flex: 7,
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                                                    child: Text(
-                                                      _dataList["tab_list"][index],
-                                                      style: const TextStyle(
-                                                        fontSize: 14,
-                                                      )),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 3,
-                                                  child: IconButton(
-                                                    onPressed: (){
-                                                      setState(() {
-                                                        _dataList["tab_list"].removeAt(index);
-                                                        writeJsonFile(_dataList);
-                                                      });
-                                                    },
-                                                    icon: const Icon(
-                                                      Icons.remove_circle_outlined,
-                                                      size: 20,
-                                                    ),
-                                                  ),
+                                        return Material(
+                                          color: const Color.fromRGBO(217, 217, 217, 1),
+                                          child: Padding(
+                                            padding: const EdgeInsets.fromLTRB(8, 0, 14, 8),
+                                            child: ListTile(
+                                              onTap: () {
+                                                setState(() {
+                                                  isSelected = index;
+                                                });
+                                              },
+                                              contentPadding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(8.0),
+                                              ),
+                                              tileColor: isSelected == index ?
+                                               const Color.fromRGBO(145, 245, 245, 1) :
+                                               const Color.fromRGBO(245, 245, 245, 1),
+                                              title: Text(
+                                                _dataList["tab_list"][index],
+                                                style: const TextStyle(
+                                                  fontSize: 14,
                                                 )
-                                                  
-                                              ],
+                                              ),
+                                              trailing: IconButton(
+                                                onPressed: (){
+                                                  setState(() {
+                                                    _dataList["tab_list"].removeAt(index);
+                                                    writeJsonFile(_dataList);
+                                                  });
+                                                },
+                                                icon: const Icon(
+                                                  Icons.remove_circle_outlined,
+                                                  size: 20,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         );
