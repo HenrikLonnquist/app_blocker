@@ -475,13 +475,17 @@ class _MyHomePageState extends State<MyHomePage> {
                                               shape: RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.circular(8.0),
                                               ),
+                                              textColor: Colors.deepPurple,
+                                              iconColor: Colors.deepPurple,
                                               tileColor: isSelected == index ?
-                                               const Color.fromRGBO(145, 245, 245, 1) :
-                                               const Color.fromRGBO(245, 245, 245, 1),
+                                               const Color.fromRGBO(245, 113, 161, 1.0) :
+                                               const Color.fromRGBO(245, 245, 245, 1.0),
                                               title: Text(
                                                 _dataList["tab_list"][index],
                                                 style: const TextStyle(
-                                                  fontSize: 14,
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily: "BerkshireSwash",
                                                 )
                                               ),
                                               trailing: IconButton(
