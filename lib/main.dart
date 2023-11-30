@@ -20,6 +20,7 @@ import "package:dropdown_button2/dropdown_button2.dart";
 // TODO: use the window_manager package to listen for changes on focus states of windows.
 /*
 Different sections:
+- "HEADER"
 - Program List
 - Tab List
 - Option block
@@ -71,7 +72,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Map _dataList = {}; // for the json file
-  int isSelected = 0;
+  int selectedIndex = 0;
+  Map<String, dynamic> dummyMap = {};
   final ScrollController _scrollController = ScrollController();
   String time = DateFormat.Hms().format(DateTime.now());
   final backgroundColorGradient1 = const Color.fromRGBO(136, 148, 162, 1.0);
@@ -130,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
 
       if (dupl == false) {
-        _dataList["program_list"].add(file.name);
+        _dataList["tab_list"]["$selectedIndex"]["program_list"].add(file.name);
         writeJsonFile(_dataList);
       }
     });
@@ -154,6 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           children: [
             const SizedBox(height: 40),
+            // !"HEADER"
             Wrap(
               spacing: 60.0,
               // TODO: add a widget for these instead DRY with properties when needed to change values.
@@ -312,73 +315,72 @@ class _MyHomePageState extends State<MyHomePage> {
                             ]),
                       ),
                       // Option block
-                      Row(
+                      Column(
                         children: [
-                          // Repeat option
-                          Expanded(
-                            flex: 5,
-                            child: Container(
-                              margin: const EdgeInsets.fromLTRB(40, 5, 10, 0),
-                              child: const Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  CustomOverlayPortal(),
-                                ]
-                              ),
-                            ),
-                          ),
                           // TextFieldForm
-                          Expanded(
-                            flex: 5,
-                            child: Container(
-                              margin: const EdgeInsets.fromLTRB(0, 0, 40, 0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.fromLTRB(10, 5, 0, 10),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.fromLTRB(40, 0, 40, 12),
+                                  padding: const EdgeInsets.fromLTRB(10, 5, 0, 10),
+                                  decoration: BoxDecoration(
+                                    
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  child: TextFormField(
+                                    decoration: const InputDecoration(
+                                      constraints: BoxConstraints(
+                                        maxHeight: 30,
+                                      )
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                          // Repeat option
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(40, 0, 40, 4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Expanded(
+                                  flex: 5,
+                                  child: CustomOverlayPortal()
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  flex: 5,
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    // height: MediaQuery.of(context).size.height,
+                                    height: 48,
+                                    padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
+                                      color: const Color.fromRGBO(9, 80, 113, 1),
                                       borderRadius: BorderRadius.circular(8.0),
                                     ),
-                                    child: TextFormField(
-                                      decoration: const InputDecoration(
-                                        constraints: BoxConstraints(
-                                          maxHeight: 30,
+                                    child: const Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        "temporary", // TODO: change to a variable later(Changes from CustomOverlayPortal)
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
                                         ),
-                                        hintText: "0000-2359",
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 10),
-                                  Container(
-                                    padding: const EdgeInsets.fromLTRB(10, 5, 0, 10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    child: TextFormField(
-                                      onChanged: (String? value) {
-
-                                      },
-                                      validator: (String? value) {
-                                        return value != null && value.contains(RegExp(r"^A-Za-z")) ? "Only numbers are allowed" : null;
-                                      },
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.digitsOnly,
-                                      ],
-                                      decoration: const InputDecoration(
-                                        constraints: BoxConstraints(
-                                          maxHeight: 30,
-                                        ),
-                                        hintText: "0000-2359",
-                                      ),
-                                    ),
-                                  ),
-                              ]),
+                                )
+                              ],
                             ),
                           )
-                      ])  ,
+                        ]
+                      ),
                       // Text(
                       //   time,
                       //   style: const TextStyle(
@@ -468,7 +470,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                             child: ListTile(
                                               onTap: () {
                                                 setState(() {
-                                                  isSelected = index;
+
+                                                  // TODO: show different options depending on the tab seleted
+                                                  // _datalist["tab_list"]["$index"]
+                                                  selectedIndex = index;
                                                 });
                                               },
                                               contentPadding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
@@ -477,11 +482,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                               ),
                                               textColor: Colors.deepPurple,
                                               iconColor: Colors.deepPurple,
-                                              tileColor: isSelected == index ?
+                                              tileColor: selectedIndex == index ?
                                                const Color.fromRGBO(245, 113, 161, 1.0) :
                                                const Color.fromRGBO(245, 245, 245, 1.0),
                                               title: Text(
-                                                _dataList["tab_list"][index],
+                                                "${_dataList["tab_list"][index]["name"]}",
                                                 style: const TextStyle(
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.bold,
@@ -492,6 +497,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 onPressed: (){
                                                   setState(() {
                                                     _dataList["tab_list"].removeAt(index);
+                                                    _dataList["program_list"].removeAt(index);
                                                     writeJsonFile(_dataList);
                                                   });
                                                 },
@@ -516,9 +522,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                   backgroundColor: Colors.white,
                                 ),
                                 onPressed: () {
-                                  // TODO: setstate will add a textbutton to tab list
                                   setState(() {
-                                    _dataList["tab_list"].add("TAB ${_dataList["tab_list"].length + 1}");
+                                    dummyMap = {
+                                      "name": "Tab ${_dataList["tab_list"].length + 1}",
+                                      "program_list": []
+                                    }; 
+                                    _dataList["tab_list"].add(dummyMap);
+                                    dummyMap = {};
+                                    
                                     writeJsonFile(_dataList);
                                   });
                                   
