@@ -19,7 +19,10 @@ Map readJsonFile() {
 
 // save to Json file
 void writeJsonFile(Map dataList) {
-  var jsonString = json.encode(dataList);
+  
+  var spaces = " " * 4;
+  var jsonString = JsonEncoder.withIndent(spaces).convert(dataList);
+  
   File(dataPath).writeAsStringSync(jsonString);
 }
 
