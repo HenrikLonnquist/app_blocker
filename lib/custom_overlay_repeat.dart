@@ -1,3 +1,4 @@
+import 'package:app_blocker/dart_functions.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
@@ -5,12 +6,16 @@ import 'package:flutter/material.dart';
 class CustomOverlayPortal extends StatefulWidget {
   const CustomOverlayPortal({
     super.key,
+    required this.dataList,
+    this.currentTab = 0,
     this.width = 200,
     this.height = 130,
   });
 
   final double? width;
   final double? height;
+  final Map dataList;
+  final int currentTab;
 
 
   @override
@@ -25,19 +30,43 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
   List<String> repeatList = ["days", "weeks", "months", "years"];
   String? repeatValue;
 
+  //TODO: need to make an array of buttons for the days of the week when weeks are chosen
+  // Mon, Tue, Wed, Thu, Fri, Sat, Sun,
+  List<String> weekday = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",];
+
   List<String> dropdownList = ["Daily", "Weekdays", "Weekly", "Monthly", "Yearly", "Custom",];
   String? dropValue;
 
+  late List dataRepeatList;
+
 
   void toggleOverlayPortal() {
-
     tooltipController.toggle();
-
   }
 
+  void addToDataList(String? value) {
+
+    // If it's custom to do something else as well. wrap below 
+
+    if (value == "Custom") {
+
+      
+
+    }
+
+    if (dataRepeatList.isEmpty){
+      dataRepeatList.add(value);
+    }else {
+      dataRepeatList[0] = value;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    
+    dataRepeatList = widget.dataList["tab_list"][widget.currentTab]["options"]["repeat"];
+    dropValue = dataRepeatList.isEmpty ? null : dataRepeatList[0];
+    
     return CompositedTransformTarget(
       link: _link,
       child: OverlayPortal(
@@ -101,10 +130,12 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                                     repeatList[0],
                                     style: const TextStyle(
                                       fontSize: 15,
+                                      color: Colors.black,
                                     )
                                   ),
-                                  value: repeatValue,
+                                  value: repeatValue, // TODO: how to change this to data from json file
                                   onChanged: (String? value) {
+                                    repeatValue = value!;
                                   },
                                 ),
                               ),
@@ -113,6 +144,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                         ],
                       ),
                     ),
+                    // TODO: make the array of buttons appear here I think between the dropdown and cancel/save buttons
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -139,7 +171,10 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                               // TODO: call the "database" to save and display the new info
                               //to the Triggered widget -> DropdownButton2{Custom}
                               setState(() {
-                                dropValue = "Custom"; 
+                                addToDataList("Custom");
+                                dropValue = dataRepeatList[0];
+
+                                // writeJsonFile(widget.dataList);
                                 toggleOverlayPortal();
                               });
                             },
@@ -168,7 +203,6 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                 color: Colors.white,
               ),
             ),
-            value: dropValue,
             items: dropdownList.map((String value) {
               return DropdownMenuItem(
                 value: value,
@@ -181,12 +215,16 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                 )
               );
             }).toList(),
+            value: dropValue,
             onChanged: (String? value) {
               setState(() {
                 if (value == "Custom") {
                   toggleOverlayPortal();
                 } else {
-                  dropValue = value!;
+                  addToDataList(value);
+                  dropValue = dataRepeatList[0];
+                  
+                  writeJsonFile(widget.dataList);
                 }
               });
             },
