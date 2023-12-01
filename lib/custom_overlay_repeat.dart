@@ -27,7 +27,12 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
   final OverlayPortalController tooltipController = OverlayPortalController();
   final _link = LayerLink();
 
+  double width = 200;
+  double height = 120;
+  double weekdayButtonsHeight = 85;
+
   List<String> repeatList = ["days", "weeks", "months", "years"];
+  bool weeksSelected = false;
   String? repeatValue;
 
   //TODO: need to make an array of buttons for the days of the week when weeks are chosen
@@ -61,11 +66,23 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     
     dataRepeatList = widget.dataList["tab_list"][widget.currentTab]["options"]["repeat"];
-    dropValue = dataRepeatList.isEmpty ? null : dataRepeatList[0];
+    
+    if (dataRepeatList.isNotEmpty) {
+      if (dataRepeatList[0] == "Custom") {
+        repeatValue = dataRepeatList[0];
+      }
+      dropValue = dataRepeatList[0];
+
+    } else {
+      dropValue = null;
+    }
+    // dropValue = dataRepeatList.isEmpty ? null : dataRepeatList[0];
+    // repeatValue = dataRepeatList[0] != "Custom" ? null : dataRepeatList[0]; 
     
     return CompositedTransformTarget(
       link: _link,
@@ -78,8 +95,8 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
             child: Align(
               alignment: AlignmentDirectional.topStart,
               child: Container(
-                width: widget.width,
-                height: widget.height,
+                width: width,
+                height: height,
                 padding: const EdgeInsets.all(5.0),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8.0),
@@ -101,21 +118,36 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                       child: Row(
                         children: [
                           Expanded(
-                            flex: 2,
+                            flex: 3,
                             child: Material(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child: TextFormField(
-                                initialValue: "1",
-                                maxLines: 1,
-                                textAlign: TextAlign.start,
+                              borderRadius: BorderRadius.circular(5.0),
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(4, 0, 4, 2),
+                                child: TextFormField(
+
+                                  initialValue: "1",
+                                  maxLines: 1,
+                                  cursorHeight: 20,
+                                  textAlign: TextAlign.start,
+                                  style: const TextStyle(
+                                    height: 1.1,
+                                    fontSize: 18,
+                                  ),
+                                  decoration: const InputDecoration(
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.fromLTRB(0, 4, 4, 4)
+                                  ),
+                                  
+                                  // TODO: add to datalist on save or similar
+                                ),
                               ),
                             ),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
-                            flex: 8,
+                            flex: 7,
                             child: Material(
-                              borderRadius: BorderRadius.circular(8.0),
+                              borderRadius: BorderRadius.circular(5.0),
                               child: DropdownButtonHideUnderline(
                                 child: DropdownButton2(
                                   items: repeatList.map((String value) {
@@ -123,6 +155,9 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                                       value: value,
                                       child: Text(
                                         value,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     );
                                   }).toList(),
@@ -130,12 +165,26 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                                     repeatList[0],
                                     style: const TextStyle(
                                       fontSize: 15,
+                                      fontWeight: FontWeight.bold,
                                       color: Colors.black,
                                     )
                                   ),
-                                  value: repeatValue, // TODO: how to change this to data from json file
+                                  value: repeatValue,
                                   onChanged: (String? value) {
-                                    repeatValue = value!;
+                                    
+                                    setState(() {
+                                      if (value == "weeks") {
+                                        height = height + weekdayButtonsHeight;
+                                        weeksSelected = true;
+                                      } else {
+                                        if (height > 130) {
+                                          height = height - weekdayButtonsHeight;
+                                        }
+                                        weeksSelected = false;
+                                      }
+                                      repeatValue = value!;
+                                    });
+
                                   },
                                 ),
                               ),
@@ -144,7 +193,41 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                         ],
                       ),
                     ),
-                    // TODO: make the array of buttons appear here I think between the dropdown and cancel/save buttons
+                    if (weeksSelected) Container(
+                      margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                      height: weekdayButtonsHeight,
+                      child: GridView.builder(
+                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 40,
+                          crossAxisSpacing: 4.0,
+                          mainAxisSpacing: 4.0,
+                        ),
+                        itemCount: weekday.length,
+                        itemBuilder: (context, index) {
+                          return Material(
+                            borderRadius: BorderRadius.circular(5.0),
+                            color: Colors.white,
+                            child: InkWell(
+                              highlightColor: Colors.grey,
+                              onTap: () {
+                                // change color;
+                                setState(() {
+                                  // selectedItem == index;
+                                });
+                              },
+                              child: Center(
+                                child: Text(
+                                  weekday[index],
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600
+                                  ),
+                                ),
+                              )
+                            ),
+                          );
+                        }
+                      ),
+                    ),
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -153,7 +236,10 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                           flex: 5,
                           child: TextButton( // TODO: fix the borderRadius
                             style: TextButton.styleFrom(
-                              backgroundColor: Colors.white, 
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5.0)
+                              )
                             ),
                             onPressed: toggleOverlayPortal,
                             child: const Text("Cancel",
@@ -166,13 +252,20 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                         Expanded(
                           flex: 5,
                           child: TextButton(
-                            style: TextButton.styleFrom(backgroundColor: Colors.white),
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.white, // TODO: change to a different color
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5.0),
+                              )
+                            ),
                             onPressed: () {
                               // TODO: call the "database" to save and display the new info
                               //to the Triggered widget -> DropdownButton2{Custom}
                               setState(() {
                                 addToDataList("Custom");
                                 dropValue = dataRepeatList[0];
+
+                                // TODO: add the repeatValue + textformfield value
 
                                 // writeJsonFile(widget.dataList);
                                 toggleOverlayPortal();
@@ -219,6 +312,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
             onChanged: (String? value) {
               setState(() {
                 if (value == "Custom") {
+                  // myFocusNode.requestFocus()
                   toggleOverlayPortal();
                 } else {
                   addToDataList(value);
