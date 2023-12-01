@@ -30,6 +30,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
   double width = 200;
   double height = 120;
   double weekdayButtonsHeight = 85;
+  int weekdaySelected = 0;
 
   List<String> repeatList = ["days", "weeks", "months", "years"];
   bool weeksSelected = false;
@@ -205,14 +206,16 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                         itemCount: weekday.length,
                         itemBuilder: (context, index) {
                           return Material(
-                            borderRadius: BorderRadius.circular(5.0),
-                            color: Colors.white,
+                            // borderRadius: BorderRadius.circular(5.0),
+                            color: weekdaySelected != index ?
+                            Colors.white : 
+                            const Color.fromRGBO(245, 113, 161, 1.0),
                             child: InkWell(
-                              highlightColor: Colors.grey,
+                              hoverColor: const Color.fromRGBO(245, 113, 161, .3),
+                              splashColor: const Color.fromRGBO(245, 113, 161, 1.0),
                               onTap: () {
-                                // change color;
                                 setState(() {
-                                  // selectedItem == index;
+                                  weekdaySelected = index;
                                 });
                               },
                               child: Center(
