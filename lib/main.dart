@@ -330,11 +330,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                     borderRadius: BorderRadius.circular(5.0),
                                   ),
                                   child: TextFormField(
+                                    cursorHeight: 20,
                                     decoration: const InputDecoration(
+                                      hintText: "Example: 0900-1230,1330-1700",
                                       constraints: BoxConstraints(
                                         maxHeight: 30,
                                       )
                                     ),
+                                    // validator: ,
                                   ),
                                 ),
                               )
@@ -347,9 +350,12 @@ class _MyHomePageState extends State<MyHomePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Expanded(
+                                Expanded(
                                   flex: 5,
-                                  child: CustomOverlayPortal()
+                                  child: CustomOverlayPortal(
+                                    dataList: _dataList,
+                                    currentTab: selectedIndex,
+                                  )
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(
@@ -497,7 +503,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 onPressed: (){
                                                   setState(() {
                                                     _dataList["tab_list"].removeAt(index);
-                                                    _dataList["program_list"].removeAt(index);
                                                     writeJsonFile(_dataList);
                                                   });
                                                 },
@@ -522,13 +527,27 @@ class _MyHomePageState extends State<MyHomePage> {
                                   backgroundColor: Colors.white,
                                 ),
                                 onPressed: () {
+                                  String hourMin = DateFormat("hh:mm").format(DateTime.now());
+                                  String weekday = DateFormat("E").format(DateTime.now());
+                                  String month = DateFormat("d/M").format(DateTime.now());
+                                  String year = DateFormat("d/M/y").format(DateTime.now());
+                                  print(hourMin);
+                                  print(weekday);
+                                  print(month);
+                                  print(year);
                                   setState(() {
+
+                                    
+
                                     dummyMap = {
                                       "name": "Tab ${_dataList["tab_list"].length + 1}",
-                                      "program_list": []
+                                      "program_list": [],
+                                      "options": {
+                                        "repeat": [],
+                                        "time": "",
+                                      }
                                     }; 
                                     _dataList["tab_list"].add(dummyMap);
-                                    dummyMap = {};
                                     
                                     writeJsonFile(_dataList);
                                   });
