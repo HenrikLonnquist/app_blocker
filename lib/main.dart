@@ -75,9 +75,11 @@ class _MyHomePageState extends State<MyHomePage> {
   int selectedIndex = 0;
   Map<String, dynamic> dummyMap = {};
   final ScrollController _scrollController = ScrollController();
-  String time = DateFormat.Hms().format(DateTime.now());
+  String time = DateFormat("HHmm").format(DateTime.now());
   final backgroundColorGradient1 = const Color.fromRGBO(136, 148, 162, 1.0);
   final backgroundColorGradient2 = const Color.fromRGBO(188, 202, 219, 0.56);
+  final OverlayPortalController _portalController = OverlayPortalController();
+  final FocusNode myFocusNode = FocusNode();
 
 
   @override
@@ -98,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _currentTime() {
     Timer.periodic(const Duration(seconds: 1), (updatetime) {
       setState(() {
-        time = DateFormat.Hms().format(DateTime.now());
+        time = DateFormat("HHmm").format(DateTime.now());
       });
     });
   }
@@ -330,14 +332,38 @@ class _MyHomePageState extends State<MyHomePage> {
                                     borderRadius: BorderRadius.circular(5.0),
                                   ),
                                   child: TextFormField(
-                                    cursorHeight: 20,
+                                    initialValue: _dataList["tab_list"][selectedIndex]["options"]["time"],
+                                    focusNode: myFocusNode,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.allow(RegExp(r"^[\d\-,]{0,19}")),
+                                    ],
+                                    onFieldSubmitted: (String? value) {
+                                      // save when validation is without  error.
+                                      const snackBar = SnackBar(
+                                        content: Text("Saved"),
+                                      );
+                                      // match this: 0900-1230,1330-1700
+                                      if (value!.contains(RegExp(r"^\d{4}-\d{4}(?:,\d{4}-\d{4})?$"))) {
+                                        print("matches, do nothing");
+                                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                      } else {
+                                        // TODO: do a popup/tooltip/dialog to show whats wrong
+                                        myFocusNode.requestFocus();                                    
+                                      }
+                                    },
+                                    onTapOutside: (PointerDownEvent event) {
+                                      // TODO: when tapping outside send to datalist but needs validation 
+                                      //* before sending maybe the same as onsubmitt
+                                      //! maybe not do this?
+                                      
+                                    },
+                                    cursorHeight: 24,
                                     decoration: const InputDecoration(
                                       hintText: "Example: 0900-1230,1330-1700",
                                       constraints: BoxConstraints(
                                         maxHeight: 30,
                                       )
                                     ),
-                                    // validator: ,
                                   ),
                                 ),
                               )
@@ -476,9 +502,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                             child: ListTile(
                                               onTap: () {
                                                 setState(() {
-
-                                                  // TODO: show different options depending on the tab seleted
-                                                  // _datalist["tab_list"]["$index"]
                                                   selectedIndex = index;
                                                 });
                                               },
@@ -527,7 +550,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   backgroundColor: Colors.white,
                                 ),
                                 onPressed: () {
-                                  String hourMin = DateFormat("hh:mm").format(DateTime.now());
+                                  String hourMin = DateFormat("HH:mm").format(DateTime.now());
                                   String weekday = DateFormat("E").format(DateTime.now());
                                   String month = DateFormat("d/M").format(DateTime.now());
                                   String year = DateFormat("d/M/y").format(DateTime.now());
