@@ -4,6 +4,7 @@ import 'dart:async';
 import "dart:io";
 
 import 'package:flutter/services.dart';
+import 'package:win32/win32.dart';
 
 import 'dart_functions.dart';
 import 'logic.dart';
@@ -344,7 +345,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                       );
                                       // match this: 0900-1230,1330-1700
                                       if (value!.contains(RegExp(r"^\d{4}-\d{4}(?:,\d{4}-\d{4})?$"))) {
-                                        print("matches, do nothing");
+                                        print("matches, save to json file");
+
+                                        _dataList["tab_list"][selectedIndex]["options"]["time"] = value;
+                                        writeJsonFile(_dataList);
                                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                                       } else {
                                         // TODO: do a popup/tooltip/dialog to show whats wrong
