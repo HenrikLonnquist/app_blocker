@@ -1,11 +1,13 @@
 // ignore_for_file: avoid_print, unused_import, unused_local_variable
 
 import 'dart:async';
+import 'dart:collection';
 import "dart:io";
 
 import 'package:flutter/services.dart';
 import 'package:win32/win32.dart';
 
+import 'custom_overlay_tooltip.dart';
 import 'dart_functions.dart';
 import 'logic.dart';
 import "custom_overlay_repeat.dart";
@@ -79,21 +81,24 @@ class _MyHomePageState extends State<MyHomePage> {
   String time = DateFormat("HHmm").format(DateTime.now());
   final backgroundColorGradient1 = const Color.fromRGBO(136, 148, 162, 1.0);
   final backgroundColorGradient2 = const Color.fromRGBO(188, 202, 219, 0.56);
-  final OverlayPortalController _portalController = OverlayPortalController();
+  TextEditingController textController = TextEditingController();
   final FocusNode myFocusNode = FocusNode();
+  bool _validationError = false;
+  final OverlayPortalController portalController = OverlayPortalController();  
+  
 
 
   @override
   void initState() {
     super.initState();
-    _currentTime();
-
+    _currentTime(); //! What do I need this for?
     callData();
-
     monitorActiveWindow();
-  }
 
-  // calling data and adding to list widget to display in list view
+    textController.text = _dataList["tab_list"][selectedIndex]["options"]["time"];
+
+  }
+  
   void callData() {
     _dataList = readJsonFile();
   }
@@ -143,8 +148,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
+    textController.dispose();
+
   }
 
   @override
@@ -330,41 +336,67 @@ class _MyHomePageState extends State<MyHomePage> {
                                   decoration: BoxDecoration(
                                     
                                     color: Colors.white,
+                                    border: _validationError ? Border.all(
+                                      color: Colors.red
+                                    ) : null,
                                     borderRadius: BorderRadius.circular(5.0),
                                   ),
-                                  child: TextFormField(
-                                    initialValue: _dataList["tab_list"][selectedIndex]["options"]["time"],
+                                  //TODO: try make it so that when it unfocus, it will the save the input
+                                  child: TextFormField( 
                                     focusNode: myFocusNode,
+                                    controller: textController,
                                     inputFormatters: [
                                       FilteringTextInputFormatter.allow(RegExp(r"^[\d\-,]{0,19}")),
                                     ],
-                                    onFieldSubmitted: (String? value) {
-                                      // save when validation is without  error.
+                                    onFieldSubmitted: (String value){
+                                      
                                       const snackBar = SnackBar(
                                         content: Text("Saved"),
+                                        duration: Duration(milliseconds: 1100),
                                       );
-                                      // match this: 0900-1230,1330-1700
-                                      if (value!.contains(RegExp(r"^\d{4}-\d{4}(?:,\d{4}-\d{4})?$"))) {
-                                        print("matches, save to json file");
 
+                                      var sameNum = value.split(RegExp(r"\W+"));
+                                      var uniq = [];
+                                      bool noDupl = true;
+                                      for(var i in sameNum) {
+                                        if(uniq.contains(i)) {
+                                          noDupl = false;
+                                        } else {
+                                          uniq.add(i);
+                                        }
+                                      }
+
+                                      // match this: 0900-1230,1330-1700, noduplicates
+                                      if (value.contains(RegExp(r"^\d{4}-\d{4}(?:,\d{4}-\d{4})?$")) && noDupl) {
+                                        _validationError = false;
                                         _dataList["tab_list"][selectedIndex]["options"]["time"] = value;
                                         writeJsonFile(_dataList);
                                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                        portalController.hide();
                                       } else {
-                                        // TODO: do a popup/tooltip/dialog to show whats wrong
-                                        myFocusNode.requestFocus();                                    
+                                        _validationError = true;
+                                        portalController.show();
+                                        myFocusNode.requestFocus();
+                                        //TODO: how do i make it disappear after saved input
+                                        
                                       }
-                                    },
-                                    onTapOutside: (PointerDownEvent event) {
-                                      // TODO: when tapping outside send to datalist but needs validation 
-                                      //* before sending maybe the same as onsubmitt
-                                      //! maybe not do this?
-                                      
+
                                     },
                                     cursorHeight: 24,
-                                    decoration: const InputDecoration(
-                                      hintText: "Example: 0900-1230,1330-1700",
-                                      constraints: BoxConstraints(
+                                    decoration: InputDecoration(
+                                      suffixIcon: _validationError ? const Icon(
+                                        Icons.emergency,
+                                        size: 16,
+                                      ) : null,
+                                      error: _validationError ? 
+                                      TextfieldTooltip(
+                                        controller: portalController,
+                                      ) :
+                                      null,
+                                      // errorText: _validationError ? "" : null,
+                                      errorStyle: const TextStyle(height: 0),
+                                      hintText: "Ex. 0900-1230,1330-1700; press enter to save",
+                                      constraints: const BoxConstraints(
                                         maxHeight: 30,
                                       )
                                     ),
@@ -507,6 +539,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                               onTap: () {
                                                 setState(() {
                                                   selectedIndex = index;
+                                                  textController.text = _dataList["tab_list"][selectedIndex]["options"]["time"];
                                                 });
                                               },
                                               contentPadding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
