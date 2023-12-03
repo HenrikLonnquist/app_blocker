@@ -74,7 +74,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Map dataList = {}; // for the json file
-  int selectedIndex = 0;
+  int currentTab = 0;
   Map<String, dynamic> dummyMap = {};
   final ScrollController _scrollController = ScrollController();
   String time = DateFormat("HHmm").format(DateTime.now());
@@ -102,16 +102,23 @@ class _MyHomePageState extends State<MyHomePage> {
               onTap: (){
                 removeOverlayTooltip();
               },
-              child: Container(
-                width: 200,
-                height: 50,
-                padding: const EdgeInsets.all(8.0),
-                color: Colors.red,
-                child: const Text(
-                  'Your validation error message here',
-                  style: TextStyle(
+              child: Material(
+                child: Container(
+                  width: 200,
+                  height: 50,
+                  padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  decoration: BoxDecoration(
                     color: Colors.white,
-                    fontSize: 14.0,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      "Ex. 0900-1230,1330-1700; press enter to save",
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -123,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
     
     Overlay.of(context).insert(overlayEntry!);
 
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 9999), () {
       overlayEntry?.remove();
     });
   }
@@ -143,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
     callData();
     monitorActiveWindow();
 
-    textController.text = dataList["tab_list"][selectedIndex]["options"]["time"];
+    textController.text = dataList["tab_list"][currentTab]["options"]["time"];
 
   }
 
@@ -196,7 +203,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
 
       if (dupl == false) {
-        dataList["tab_list"]["$selectedIndex"]["program_list"].add(file.name);
+        dataList["tab_list"]["$currentTab"]["program_list"].add(file.name);
         writeJsonFile(dataList);
       }
     });
@@ -329,27 +336,48 @@ class _MyHomePageState extends State<MyHomePage> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               //TODO: Show the programs with icons and names
-                              const Expanded(
+                              Expanded(
                                 flex: 8,
-                                child: Wrap(
-                                    runSpacing: 5.0, // Verttical
-                                    spacing: 5.0, // Horizontal
-                                    children: [
-                                      // TODO: make them selectable
-                                      Text("PROGRAM1",
-                                          style: TextStyle(
-                                            fontSize: 12.0,
-                                          )),
-                                      Text("PROGRAM2",
-                                          style: TextStyle(
-                                            fontSize: 12.0,
-                                          )),
-                                      // TODO: Constrained error; need something flexible and go to next row
-                                      Text("PROGRAM3",
-                                          style: TextStyle(
-                                            fontSize: 12.0,
-                                          )),
-                                    ]),
+                                // TODO: have a three dot menu to either remove or move to another tab
+                                // I guess another overlay is incoming or maybe a popupmenu
+                                child: GridView.builder(
+                                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                                    maxCrossAxisExtent: 80,
+                                    // mainAxisExtent: 60,
+                                    crossAxisSpacing: 10.0,
+                                    mainAxisSpacing: 10.0
+                                  ),
+                                  itemCount: dataList["tab_list"][currentTab]["program_list"].length,
+                                  // For testing....>
+                                  // itemCount: 20,
+                                  itemBuilder: (context, index) {
+                                    return Column(
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Colors.black,
+                                              width: 1,
+                                            )
+                                          ),
+                                          child: const Icon(
+                                            Icons.emergency,
+                                            size: 26,
+                                          ),
+                                        ),
+                                        Text(
+                                          dataList["tab_list"][currentTab]["program_list"][0].split(".")[0],
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
                               ),
                               Expanded(
                                 flex: 2,
@@ -422,8 +450,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                         // match this: 0900-1230,1330-1700, noduplicates
                                         if (value.contains(RegExp(r"^\d{4}-\d{4}(?:,\d{4}-\d{4})?$")) && noDupl) {
                                           validationError = false;
-                                          dataList["tab_list"][selectedIndex]["options"]["time"] = value;
+
+                                          dataList["tab_list"][currentTab]["options"]["time"] = value;
                                           writeJsonFile(dataList);
+
                                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
                                           removeOverlayTooltip();
@@ -432,6 +462,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         } else {
                                           validationError = true;
                                           myFocusNode.requestFocus();
+                                          
                                           showOverlayTooltip();
                                         }
                                     
@@ -444,7 +475,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         ) : null,
                                         errorText: validationError ? "" : null,
                                         errorStyle: const TextStyle(height: 0),
-                                        hintText: "Ex. 0900-1230,1330-1700; press enter to save",
+                                        hintText: "Ex. 0900-1230,1330-1700",
                                         constraints: const BoxConstraints(
                                           maxHeight: 30,
                                         )
@@ -466,7 +497,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   flex: 5,
                                   child: CustomOverlayPortal(
                                     dataList: dataList,
-                                    currentTab: selectedIndex,
+                                    currentTab: currentTab,
                                   )
                                 ),
                                 const SizedBox(width: 10),
@@ -499,35 +530,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           )
                         ]
                       ),
-                      // Text(
-                      //   time,
-                      //   style: const TextStyle(
-                      //     color: Colors.black,
-                      //     fontSize: 30,
-                      //   ),
-                      // ),
-                      // Expanded(
-                      //   child: ListView.builder(
-                      //     itemCount: dataList.length,
-                      //     itemBuilder: (context, index) {
-                      //       return Card(
-                      //           child: ListTile(
-                      //         // leading:  <- have the program icon here, maybe timer as well
-                      //         title: Center(child: Text(dataList[index])),
-                      //         trailing: TextButton(
-                      //             onPressed: () {
-                      //               //remove first from list -> update displayed list
-                      //               setState(() {
-                      //                 dataList["program_list"].removeAt(index);
-                      //               });
-                      //               // overwriting existing with the new one
-                      //               (dataList);
-                      //             },
-                      //             child: const Text("Remove")),
-                      //       ));
-                      //     },
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),
@@ -588,8 +590,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                             child: ListTile(
                                               onTap: () {
                                                 setState(() {
-                                                  selectedIndex = index;
-                                                  textController.text = dataList["tab_list"][selectedIndex]["options"]["time"];
+                                                  currentTab = index;
+                                                  textController.text = dataList["tab_list"][currentTab]["options"]["time"];
+                                                  validationError = false;
+                                                  removeOverlayTooltip();
                                                 });
                                               },
                                               contentPadding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
@@ -598,7 +602,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                               ),
                                               textColor: Colors.deepPurple,
                                               iconColor: Colors.deepPurple,
-                                              tileColor: selectedIndex == index ?
+                                              tileColor: currentTab == index ?
                                                const Color.fromRGBO(245, 113, 161, 1.0) :
                                                const Color.fromRGBO(245, 245, 245, 1.0),
                                               title: Text(
