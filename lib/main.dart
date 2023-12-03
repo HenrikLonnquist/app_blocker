@@ -389,7 +389,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         size: 16,
                                       ) : null,
                                       error: _validationError ? 
-                                      TextfieldTooltip(
+                                      CustomOverlayTooltip(
                                         controller: portalController,
                                       ) :
                                       null,
