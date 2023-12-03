@@ -7,7 +7,6 @@ import "dart:io";
 import 'package:flutter/services.dart';
 import 'package:win32/win32.dart';
 
-import 'custom_overlay_tooltip.dart';
 import 'dart_functions.dart';
 import 'logic.dart';
 import "custom_overlay_repeat.dart";
@@ -74,7 +73,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Map _dataList = {}; // for the json file
+  Map dataList = {}; // for the json file
   int selectedIndex = 0;
   Map<String, dynamic> dummyMap = {};
   final ScrollController _scrollController = ScrollController();
@@ -83,9 +82,58 @@ class _MyHomePageState extends State<MyHomePage> {
   final backgroundColorGradient2 = const Color.fromRGBO(188, 202, 219, 0.56);
   TextEditingController textController = TextEditingController();
   final FocusNode myFocusNode = FocusNode();
-  bool _validationError = false;
+  bool validationError = false;
   final OverlayPortalController portalController = OverlayPortalController();  
   
+  late OverlayEntry? overlayEntry;
+  final link = LayerLink();
+
+
+  void showOverlayTooltip(){
+
+    overlayEntry = OverlayEntry(
+      builder: (context) {
+        return CompositedTransformFollower(
+          link: link,
+          targetAnchor: Alignment.topLeft,
+          child: Align(
+            alignment: const Alignment(-1.010,-0.85),
+            child: GestureDetector(
+              onTap: (){
+                removeOverlayTooltip();
+              },
+              child: Container(
+                width: 200,
+                height: 50,
+                padding: const EdgeInsets.all(8.0),
+                color: Colors.red,
+                child: const Text(
+                  'Your validation error message here',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14.0,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+    );
+    
+    Overlay.of(context).insert(overlayEntry!);
+
+    Future.delayed(const Duration(seconds: 5), () {
+      overlayEntry?.remove();
+    });
+  }
+
+  void removeOverlayTooltip(){
+    overlayEntry?.remove();
+    overlayEntry?.dispose();
+    overlayEntry = null;
+    
+  }
 
 
   @override
@@ -95,12 +143,20 @@ class _MyHomePageState extends State<MyHomePage> {
     callData();
     monitorActiveWindow();
 
-    textController.text = _dataList["tab_list"][selectedIndex]["options"]["time"];
+    textController.text = dataList["tab_list"][selectedIndex]["options"]["time"];
+
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    textController.dispose();
+    removeOverlayTooltip();
 
   }
   
   void callData() {
-    _dataList = readJsonFile();
+    dataList = readJsonFile();
   }
 
   void _currentTime() {
@@ -128,30 +184,25 @@ class _MyHomePageState extends State<MyHomePage> {
       // Will check for duplicates and then alert the user if there are.
       final List dupList = [];
       bool dupl = false;
-      for (var i = 0; i < _dataList.length; i++) {
-        if (dupList.contains(_dataList[i])) {
+      for (var i = 0; i < dataList.length; i++) {
+        if (dupList.contains(dataList[i])) {
           dupl = true;
           //alert the user that it already exists in the list.
           print("duplates in the list:");
           break;
         } else {
-          dupList.add(_dataList[i]);
+          dupList.add(dataList[i]);
         }
       }
 
       if (dupl == false) {
-        _dataList["tab_list"]["$selectedIndex"]["program_list"].add(file.name);
-        writeJsonFile(_dataList);
+        dataList["tab_list"]["$selectedIndex"]["program_list"].add(file.name);
+        writeJsonFile(dataList);
       }
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    textController.dispose();
 
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -336,69 +387,68 @@ class _MyHomePageState extends State<MyHomePage> {
                                   decoration: BoxDecoration(
                                     
                                     color: Colors.white,
-                                    border: _validationError ? Border.all(
+                                    border: validationError ? Border.all(
                                       color: Colors.red
                                     ) : null,
                                     borderRadius: BorderRadius.circular(5.0),
                                   ),
                                   //TODO: try make it so that when it unfocus, it will the save the input
-                                  child: TextFormField( 
-                                    focusNode: myFocusNode,
-                                    controller: textController,
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.allow(RegExp(r"^[\d\-,]{0,19}")),
-                                    ],
-                                    onFieldSubmitted: (String value){
-                                      
-                                      const snackBar = SnackBar(
-                                        content: Text("Saved"),
-                                        duration: Duration(milliseconds: 1100),
-                                      );
-
-                                      var sameNum = value.split(RegExp(r"\W+"));
-                                      var uniq = [];
-                                      bool noDupl = true;
-                                      for(var i in sameNum) {
-                                        if(uniq.contains(i)) {
-                                          noDupl = false;
-                                        } else {
-                                          uniq.add(i);
-                                        }
-                                      }
-
-                                      // match this: 0900-1230,1330-1700, noduplicates
-                                      if (value.contains(RegExp(r"^\d{4}-\d{4}(?:,\d{4}-\d{4})?$")) && noDupl) {
-                                        _validationError = false;
-                                        _dataList["tab_list"][selectedIndex]["options"]["time"] = value;
-                                        writeJsonFile(_dataList);
-                                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                                        portalController.hide();
-                                      } else {
-                                        _validationError = true;
-                                        portalController.show();
-                                        myFocusNode.requestFocus();
-                                        //TODO: how do i make it disappear after saved input
+                                  child: CompositedTransformTarget(
+                                    link: link,
+                                    child: TextFormField( 
+                                      focusNode: myFocusNode,
+                                      controller: textController,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(RegExp(r"^[\d\-,]{0,19}")),
+                                      ],
+                                      onFieldSubmitted: (String value){
                                         
-                                      }
+                                        const snackBar = SnackBar(
+                                          content: Text("Saved"),
+                                          duration: Duration(milliseconds: 1100),
+                                        );
+                                    
+                                        var sameNum = value.split(RegExp(r"\W+"));
+                                        var uniq = [];
+                                        bool noDupl = true;
+                                        for(var i in sameNum) {
+                                          if(uniq.contains(i)) {
+                                            noDupl = false;
+                                          } else {
+                                            uniq.add(i);
+                                          }
+                                        }
+                                    
+                                        // match this: 0900-1230,1330-1700, noduplicates
+                                        if (value.contains(RegExp(r"^\d{4}-\d{4}(?:,\d{4}-\d{4})?$")) && noDupl) {
+                                          validationError = false;
+                                          dataList["tab_list"][selectedIndex]["options"]["time"] = value;
+                                          writeJsonFile(dataList);
+                                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-                                    },
-                                    cursorHeight: 24,
-                                    decoration: InputDecoration(
-                                      suffixIcon: _validationError ? const Icon(
-                                        Icons.emergency,
-                                        size: 16,
-                                      ) : null,
-                                      error: _validationError ? 
-                                      CustomOverlayTooltip(
-                                        controller: portalController,
-                                      ) :
-                                      null,
-                                      // errorText: _validationError ? "" : null,
-                                      errorStyle: const TextStyle(height: 0),
-                                      hintText: "Ex. 0900-1230,1330-1700; press enter to save",
-                                      constraints: const BoxConstraints(
-                                        maxHeight: 30,
-                                      )
+                                          removeOverlayTooltip();
+                                            
+                                          
+                                        } else {
+                                          validationError = true;
+                                          myFocusNode.requestFocus();
+                                          showOverlayTooltip();
+                                        }
+                                    
+                                      },
+                                      cursorHeight: 24,
+                                      decoration: InputDecoration(
+                                        suffixIcon: validationError ? const Icon(
+                                          Icons.emergency,
+                                          size: 16,
+                                        ) : null,
+                                        errorText: validationError ? "" : null,
+                                        errorStyle: const TextStyle(height: 0),
+                                        hintText: "Ex. 0900-1230,1330-1700; press enter to save",
+                                        constraints: const BoxConstraints(
+                                          maxHeight: 30,
+                                        )
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -415,7 +465,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 Expanded(
                                   flex: 5,
                                   child: CustomOverlayPortal(
-                                    dataList: _dataList,
+                                    dataList: dataList,
                                     currentTab: selectedIndex,
                                   )
                                 ),
@@ -458,20 +508,20 @@ class _MyHomePageState extends State<MyHomePage> {
                       // ),
                       // Expanded(
                       //   child: ListView.builder(
-                      //     itemCount: _dataList.length,
+                      //     itemCount: dataList.length,
                       //     itemBuilder: (context, index) {
                       //       return Card(
                       //           child: ListTile(
                       //         // leading:  <- have the program icon here, maybe timer as well
-                      //         title: Center(child: Text(_dataList[index])),
+                      //         title: Center(child: Text(dataList[index])),
                       //         trailing: TextButton(
                       //             onPressed: () {
                       //               //remove first from list -> update displayed list
                       //               setState(() {
-                      //                 _dataList["program_list"].removeAt(index);
+                      //                 dataList["program_list"].removeAt(index);
                       //               });
                       //               // overwriting existing with the new one
-                      //               (_dataList);
+                      //               (dataList);
                       //             },
                       //             child: const Text("Remove")),
                       //       ));
@@ -529,7 +579,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     controller: _scrollController,
                                     child: ListView.builder(
                                       controller: _scrollController,
-                                      itemCount: _dataList["tab_list"].length,
+                                      itemCount: dataList["tab_list"].length,
                                       itemBuilder: (context, index) {
                                         return Material(
                                           color: const Color.fromRGBO(217, 217, 217, 1),
@@ -539,7 +589,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                               onTap: () {
                                                 setState(() {
                                                   selectedIndex = index;
-                                                  textController.text = _dataList["tab_list"][selectedIndex]["options"]["time"];
+                                                  textController.text = dataList["tab_list"][selectedIndex]["options"]["time"];
                                                 });
                                               },
                                               contentPadding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
@@ -552,7 +602,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                const Color.fromRGBO(245, 113, 161, 1.0) :
                                                const Color.fromRGBO(245, 245, 245, 1.0),
                                               title: Text(
-                                                "${_dataList["tab_list"][index]["name"]}",
+                                                "${dataList["tab_list"][index]["name"]}",
                                                 style: const TextStyle(
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.bold,
@@ -562,8 +612,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                               trailing: IconButton(
                                                 onPressed: (){
                                                   setState(() {
-                                                    _dataList["tab_list"].removeAt(index);
-                                                    writeJsonFile(_dataList);
+                                                    dataList["tab_list"].removeAt(index);
+                                                    writeJsonFile(dataList);
                                                   });
                                                 },
                                                 icon: const Icon(
@@ -600,16 +650,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                     
 
                                     dummyMap = {
-                                      "name": "Tab ${_dataList["tab_list"].length + 1}",
+                                      "name": "Tab ${dataList["tab_list"].length + 1}",
                                       "program_list": [],
                                       "options": {
                                         "repeat": [],
                                         "time": "",
                                       }
                                     }; 
-                                    _dataList["tab_list"].add(dummyMap);
+                                    dataList["tab_list"].add(dummyMap);
                                     
-                                    writeJsonFile(_dataList);
+                                    writeJsonFile(dataList);
                                   });
                                   
                                 },
