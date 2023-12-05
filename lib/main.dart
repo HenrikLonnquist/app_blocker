@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:collection';
 import "dart:io";
 
+import 'package:app_blocker/gridview_custom.dart';
 import 'package:flutter/services.dart';
 import 'package:win32/win32.dart';
 
@@ -74,6 +75,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Map dataList = {}; // for the json file
+  List tempList = []; // from the customgridview, which are selected
   int currentTab = 0;
   Map<String, dynamic> dummyMap = {};
   final ScrollController _scrollController = ScrollController();
@@ -83,13 +85,17 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController textController = TextEditingController();
   final FocusNode myFocusNode = FocusNode();
   bool validationError = false;
-  final OverlayPortalController portalController = OverlayPortalController();  
   
-  late OverlayEntry? overlayEntry;
+  OverlayEntry? overlayEntry;
   final link = LayerLink();
 
 
+
   void showOverlayTooltip(){
+
+    removeOverlay();
+
+    assert(overlayEntry == null);
 
     overlayEntry = OverlayEntry(
       builder: (context) {
@@ -100,20 +106,19 @@ class _MyHomePageState extends State<MyHomePage> {
             alignment: const Alignment(-1.010,-0.85),
             child: GestureDetector(
               onTap: (){
-                removeOverlayTooltip();
+                removeOverlay();
               },
               child: Material(
+                borderRadius: BorderRadius.circular(8.0),
+                color: Colors.white,
                 child: Container(
                   width: 200,
                   height: 50,
-                  padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
+                  padding: const EdgeInsets.all(5.0),
                   child: const Center(
                     child: Text(
-                      "Ex. 0900-1230,1330-1700; press enter to save",
+                      "Ex. 0900-1230,1330-1700 press enter to save",
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14.0,
                         fontWeight: FontWeight.w600,
@@ -130,12 +135,11 @@ class _MyHomePageState extends State<MyHomePage> {
     
     Overlay.of(context).insert(overlayEntry!);
 
-    Future.delayed(const Duration(seconds: 9999), () {
-      overlayEntry?.remove();
-    });
   }
 
-  void removeOverlayTooltip(){
+ 
+
+  void removeOverlay(){
     overlayEntry?.remove();
     overlayEntry?.dispose();
     overlayEntry = null;
@@ -158,7 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose() {
     super.dispose();
     textController.dispose();
-    removeOverlayTooltip();
+    removeOverlay();
 
   }
   
@@ -338,66 +342,67 @@ class _MyHomePageState extends State<MyHomePage> {
                               //TODO: Show the programs with icons and names
                               Expanded(
                                 flex: 8,
-                                // TODO: have a three dot menu to either remove or move to another tab
-                                // I guess another overlay is incoming or maybe a popupmenu
-                                child: GridView.builder(
-                                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                                    maxCrossAxisExtent: 80,
-                                    // mainAxisExtent: 60,
-                                    crossAxisSpacing: 10.0,
-                                    mainAxisSpacing: 10.0
-                                  ),
+                                
+                                //TODO:  I guess another overlay is incoming or maybe a popupmenu
+                                child: CustomGridView(
                                   itemCount: dataList["tab_list"][currentTab]["program_list"].length,
-                                  // For testing....>
-                                  // itemCount: 20,
-                                  itemBuilder: (context, index) {
-                                    return Column(
-                                      children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: Colors.black,
-                                              width: 1,
-                                            )
-                                          ),
-                                          child: const Icon(
-                                            Icons.emergency,
-                                            size: 26,
-                                          ),
-                                        ),
-                                        Text(
-                                          dataList["tab_list"][currentTab]["program_list"][0].split(".")[0],
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
-                                    );
-                                  },
+                                  programNames: dataList["tab_list"][currentTab]["program_list"],
+                                  onProgramNamesChanged: (programNames){
+                                    
+                                    tempList = programNames;
+                                    
+                                  }
                                 ),
                               ),
                               Expanded(
                                 flex: 2,
-                                child: Center(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      _pickFile();
-                                    },
-                                    style: const ButtonStyle(
-                                      foregroundColor: MaterialStatePropertyAll(
-                                          Colors.white),
-                                      backgroundColor: MaterialStatePropertyAll(
-                                          Color.fromRGBO(9, 80, 113, 1)
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Center(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          _pickFile();
+                                        },
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.white,
+                                          backgroundColor: const Color.fromRGBO(9, 80, 113, 1)
+                                        ),
+                                        child: const Text(
+                                          "Add",
+                                          style: TextStyle(fontSize: 12),
+                                        ),
                                       ),
                                     ),
-                                    child: const Text(
-                                      "Add",
-                                      style: TextStyle(fontSize: 12),
+                                    // if a program is selected
+                                    Center(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          //TODO:Need to remove the overlayentry and icons after updating list
+                                          //Check chatgpt, i have asked some questions about it already
+                                          
+                                          var list = dataList["tab_list"][currentTab]["program_list"];
+
+                                          for(var program in tempList){
+                                            var index = list.indexOf(program);
+                                            list.removeAt(index);
+                                            
+                                          }
+                                          
+                                          dataList["tab_list"][currentTab]["program_list"] = list;
+                                          writeJsonFile(dataList);
+                                        },
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.white,
+                                          backgroundColor: const Color.fromRGBO(9, 80, 113, 1),
+                                        ),
+                                        child: const Text(
+                                          "Remove",
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               )
                             ]),
@@ -426,6 +431,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                     child: TextFormField( 
                                       focusNode: myFocusNode,
                                       controller: textController,
+                                      keyboardType: const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                        signed: true,
+                                      ),
                                       inputFormatters: [
                                         FilteringTextInputFormatter.allow(RegExp(r"^[\d\-,]{0,19}")),
                                       ],
@@ -456,7 +465,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-                                          removeOverlayTooltip();
+                                          removeOverlay();
                                             
                                           
                                         } else {
@@ -593,7 +602,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   currentTab = index;
                                                   textController.text = dataList["tab_list"][currentTab]["options"]["time"];
                                                   validationError = false;
-                                                  removeOverlayTooltip();
+                                                  removeOverlay();
                                                 });
                                               },
                                               contentPadding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
@@ -635,10 +644,14 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                           Expanded(
                             flex: 2,
-                            child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5)
+                                  )
                                 ),
                                 onPressed: () {
                                   String hourMin = DateFormat("HH:mm").format(DateTime.now());
@@ -650,9 +663,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                   print(month);
                                   print(year);
                                   setState(() {
-
+                              
                                     
-
+                              
                                     dummyMap = {
                                       "name": "Tab ${dataList["tab_list"].length + 1}",
                                       "program_list": [],
