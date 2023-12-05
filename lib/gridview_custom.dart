@@ -10,7 +10,7 @@ class CustomGridView extends StatefulWidget {
 
   final int itemCount;
   final List? programNames;
-  final void Function(List<String>) onProgramNamesChanged;
+  final void Function(Map<int, String>) onProgramNamesChanged;
 
   @override
   State<CustomGridView> createState() => _CustomGridViewState();
@@ -20,7 +20,7 @@ class _CustomGridViewState extends State<CustomGridView> {
   final Map<int, OverlayEntry> _overlayEntries = {};
   final link = LayerLink();
   
-  List<String> selectedProgramList = [];
+  Map<int, String> selectedProgramList = {};
   bool selectedProgram = false;
 
 
@@ -96,11 +96,11 @@ class _CustomGridViewState extends State<CustomGridView> {
           onTapDown: (details){
             setState(() {
               if (_overlayEntries.containsKey(index)) {
-                //Todo: maybe change this an map aswell.
-                selectedProgramList.removeAt(index);
+                
+                selectedProgramList.remove(index);
                 removeOverlay(index);
               } else {
-                selectedProgramList.add(widget.programNames![index]);
+                selectedProgramList[index] = widget.programNames![index];
                 showSelectedProgramOverlay(index);
               }});
           },

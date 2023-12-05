@@ -349,7 +349,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   programNames: dataList["tab_list"][currentTab]["program_list"],
                                   onProgramNamesChanged: (programNames){
                                     
-                                    tempList = programNames;
+                                    tempList = programNames.values.toList();
                                     
                                   }
                                 ),
@@ -378,9 +378,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                     Center(
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          //TODO:Need to remove the overlayentry and icons after updating list
-                                          //Check chatgpt, i have asked some questions about it already
-                                          
+                                          // TODO:Need to remove the overlayentry and icons after updating list
+                                          // Check chatgpt, i have asked some questions about it already
+                                          //! maybe make this inside a setstat()
                                           var list = dataList["tab_list"][currentTab]["program_list"];
 
                                           for(var program in tempList){
