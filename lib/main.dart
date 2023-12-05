@@ -75,7 +75,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Map dataList = {}; // for the json file
-  List tempList = []; // from the customgridview, which are selected
+  Map<int, String> tempMap = {}; // from the customgridview, which are selected
   int currentTab = 0;
   Map<String, dynamic> dummyMap = {};
   final ScrollController _scrollController = ScrollController();
@@ -350,9 +350,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                   itemCount: dataList["tab_list"][currentTab]["program_list"].length,
                                   programNames: dataList["tab_list"][currentTab]["program_list"],
                                   onSelectedChanged: (programNames, overlayEntries){
-                                    
+
                                     tempOverlayEntries = overlayEntries;
-                                    tempList = programNames.values.toList();
+                                    tempMap = programNames;
                                     
                                   }
                                 ),
@@ -381,16 +381,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                     Center(
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          // TODO:Need to remove the overlayentry and icons after updating list
-                                          // Check chatgpt, i have asked some questions about it already
-                                          //! maybe make this inside a setstat()
                                           var list = dataList["tab_list"][currentTab]["program_list"];
 
-                                          for(var program in tempList){
+                                          for(var program in tempMap.values){
                                             var index = list.indexOf(program);
-                                            list.removeAt(index);
                                             
+                                            list.removeAt(index);
                                           }
+                                          tempMap.clear();
+
 
                                           for (var entry in tempOverlayEntries.values) {
                                             entry.remove();
@@ -399,7 +398,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                           tempOverlayEntries.clear();
                                           
                                           dataList["tab_list"][currentTab]["program_list"] = list;
-                                          writeJsonFile(dataList);
+                                          setState(() {  
+                                            writeJsonFile(dataList);
+                                          });
                                         },
                                         style: TextButton.styleFrom(
                                           foregroundColor: Colors.white,
