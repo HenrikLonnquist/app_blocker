@@ -86,6 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
   final FocusNode myFocusNode = FocusNode();
   bool validationError = false;
   
+  Map<int, OverlayEntry> tempOverlayEntries = {};
+
   OverlayEntry? overlayEntry;
   final link = LayerLink();
 
@@ -347,8 +349,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                 child: CustomGridView(
                                   itemCount: dataList["tab_list"][currentTab]["program_list"].length,
                                   programNames: dataList["tab_list"][currentTab]["program_list"],
-                                  onProgramNamesChanged: (programNames){
+                                  onSelectedChanged: (programNames, overlayEntries){
                                     
+                                    tempOverlayEntries = overlayEntries;
                                     tempList = programNames.values.toList();
                                     
                                   }
@@ -388,6 +391,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                             list.removeAt(index);
                                             
                                           }
+
+                                          for (var entry in tempOverlayEntries.values) {
+                                            entry.remove();
+                                            entry.dispose();
+                                          }
+                                          tempOverlayEntries.clear();
                                           
                                           dataList["tab_list"][currentTab]["program_list"] = list;
                                           writeJsonFile(dataList);

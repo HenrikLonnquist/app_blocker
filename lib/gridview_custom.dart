@@ -5,12 +5,13 @@ class CustomGridView extends StatefulWidget {
     super.key,
     this.programNames,
     required this.itemCount,
-    required this.onProgramNamesChanged,
+    required this.onSelectedChanged,
   });
 
   final int itemCount;
   final List? programNames;
-  final void Function(Map<int, String>) onProgramNamesChanged;
+  // maybe together the function to send overlayentries as well
+  final void Function(Map<int, String>, Map<int, OverlayEntry>) onSelectedChanged;
 
   @override
   State<CustomGridView> createState() => _CustomGridViewState();
@@ -49,7 +50,7 @@ class _CustomGridViewState extends State<CustomGridView> {
     
     _overlayEntries[index] = overlayEntry;
     Overlay.of(context).insert(overlayEntry);
-    widget.onProgramNamesChanged(selectedProgramList);
+    widget.onSelectedChanged(selectedProgramList, _overlayEntries);
   }
 
   // TODO: Maybe make an animation removal of overlayentry?
@@ -59,7 +60,7 @@ class _CustomGridViewState extends State<CustomGridView> {
       overlayEntry.remove();
       overlayEntry.dispose();
       _overlayEntries.remove(index);
-      widget.onProgramNamesChanged(selectedProgramList);
+      widget.onSelectedChanged(selectedProgramList, _overlayEntries);
     }
   }
   
