@@ -76,7 +76,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   Map dataList = {}; // for the json file
   Map<int, String> tempMap = {}; // from the customgridview, which are selected
-  int currentTab = 0;
+  int currentTab = 1;
   Map<String, dynamic> dummyMap = {};
   final ScrollController _scrollController = ScrollController();
   String time = DateFormat("HHmm").format(DateTime.now());
@@ -154,6 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _currentTime(); //! What do I need this for?
     callData();
+    //! maybe not do this until all is load?
     monitorActiveWindow();
 
     textController.text = dataList["tab_list"][currentTab]["options"]["time"];
@@ -331,7 +332,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       Container(
                         width: 337,
                         height: 266,
-                        padding: const EdgeInsets.fromLTRB(15, 20, 10, 0),
+                        padding: const EdgeInsets.fromLTRB(15, 20, 15, 0),
                         margin: const EdgeInsets.fromLTRB(0, 30, 0, 20),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -353,7 +354,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                                     tempOverlayEntries = overlayEntries;
                                     tempMap = programNames;
-                                    
+
                                   }
                                 ),
                               ),
@@ -385,7 +386,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
                                           for(var program in tempMap.values){
                                             var index = list.indexOf(program);
-                                            
                                             list.removeAt(index);
                                           }
                                           tempMap.clear();
@@ -425,7 +425,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             children: [
                               Expanded(
                                 child: Container(
-                                  margin: const EdgeInsets.fromLTRB(40, 0, 40, 12),
+                                  margin: const EdgeInsets.fromLTRB(40, 0, 40, 0),
                                   padding: const EdgeInsets.fromLTRB(10, 5, 0, 10),
                                   decoration: BoxDecoration(
                                     
@@ -507,39 +507,61 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                           // Repeat option
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(40, 0, 40, 4),
+                            padding: const EdgeInsets.fromLTRB(40, 0, 40, 0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              // crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
-                                  flex: 5,
+                                  flex: 4,
+                                  //TODO: probably come up with a better name for it
                                   child: CustomOverlayPortal(
-                                    dataList: dataList,
+                                    dataList: dataList["tab_list"][currentTab]["options"]["repeat"],
                                     currentTab: currentTab,
+                                    onSaved: (list){
+
+                                      dataList["tab_list"][currentTab]["options"]["repeat"] = list;
+                                      writeJsonFile(dataList);
+
+                                    }
                                   )
                                 ),
-                                const SizedBox(width: 10),
                                 Expanded(
-                                  flex: 5,
-                                  child: Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    // height: MediaQuery.of(context).size.height,
-                                    height: 48,
-                                    padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                    decoration: BoxDecoration(
-                                      color: const Color.fromRGBO(9, 80, 113, 1),
-                                      borderRadius: BorderRadius.circular(8.0),
+                                  flex: 6,
+                                  child: Material(
+                                    color: const Color.fromRGBO(9, 80, 113, 1),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)
                                     ),
-                                    child: const Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        "temporary", // TODO: change to a variable later(Changes from CustomOverlayPortal)
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
+                                    child: Container(
+                                      constraints: BoxConstraints.loose(const Size.fromHeight(50)),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                        children: [
+                                          //TODO: have to figure out a better way to display custom/repeat list information.
+                                          Text(
+                                            dataList["tab_list"][currentTab]["options"]["repeat"].length > 3 ?
+                                            "Every ${dataList["tab_list"][currentTab]["options"]["repeat"][1]} ${dataList["tab_list"][currentTab]["options"]["repeat"][2]}"
+                                            : "",
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                          Text(
+                                            dataList["tab_list"][currentTab]["options"]["repeat"].length > 3 ?
+                                            "${dataList["tab_list"][currentTab]["options"]["repeat"][3].values}"
+                                            : "",
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 12,
+                                              overflow: TextOverflow.ellipsis
+                                            ),
+                                          ),
+                                        ]
                                       ),
                                     ),
                                   ),
@@ -659,34 +681,67 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5)
-                                  )
                                 ),
                                 onPressed: () {
-                                  String hourMin = DateFormat("HH:mm").format(DateTime.now());
-                                  String weekday = DateFormat("E").format(DateTime.now());
-                                  String month = DateFormat("d/M").format(DateTime.now());
-                                  String year = DateFormat("d/M/y").format(DateTime.now());
+                                  // TODO: move this(time) to custom overlay repeat dart file
+                                  DateTime timeNow = DateTime.now();
+                                  // these are "repeat options"?
+                                  String hourMin = DateFormat("HHmm").format(timeNow); // Daily: 2300
+                                  String weekday = DateFormat("E").format(timeNow); // Weekly: Tue - 2300
+                                  String month = DateFormat("d/M").format(timeNow); // Monthly: 5/12 - 2300
+                                  String year = DateFormat("d/M/y").format(timeNow); // : 5/12/2023 - 2300
+                                  /*
+                                  dat structure: 
+                                  #DAILY
+                                  time is required or it wont block
+                                  repeat: [
+                                    "Daily" - everyday at 2300-2400
+                                  ],
+                                  time: "2300-2400"
+                                  
+                                  #Weekly
+                                  repeat: [
+                                    "Weekly"
+                                    "Tue" - every Tuesday at 2300-2400
+                                  ],
+                                  time: "2300-2400"
+
+                                  #Monthly
+                                  repeat: [
+                                    "Monthly",
+                                    "5" - every 5h of the month block at 2300-2400
+                                  ],
+                                  time: "2300-2400"
+
+                                  #Yearly
+                                  repeat: [
+                                    "Yearly",
+                                    "5/12" - every year on the 5th of Dec at 2300-2400
+                                  ],
+                                  time: "2300-2400"
+
+                                  #Custom
+                                  repeat: [
+
+                                  ],
+                                  time: 2300-2400
+                                   */
                                   print(hourMin);
                                   print(weekday);
                                   print(month);
                                   print(year);
+                                  
+                                  dummyMap = {
+                                    "name": "Tab ${dataList["tab_list"].length + 1}",
+                                    "program_list": [],
+                                    "options": {
+                                      "repeat": [],
+                                      "time": "",
+                                    }
+                                  }; 
+                                  dataList["tab_list"].add(dummyMap);
                                   setState(() {
-                              
-                                    
-                              
-                                    dummyMap = {
-                                      "name": "Tab ${dataList["tab_list"].length + 1}",
-                                      "program_list": [],
-                                      "options": {
-                                        "repeat": [],
-                                        "time": "",
-                                      }
-                                    }; 
-                                    dataList["tab_list"].add(dummyMap);
-                                    
-                                    writeJsonFile(dataList);
+                                    // writeJsonFile(dataList);
                                   });
                                   
                                 },

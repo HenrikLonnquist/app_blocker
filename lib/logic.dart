@@ -54,10 +54,18 @@ int _enumChildren(int hWnd, int pID) {
 }
 
 // Find matches if true the minimizes the window.
-void _matchAndMinimize(int hWnd, List storageList, String last) {
+void _matchAndMinimize(int hWnd, List storageList, String last, int index) {
   // only if the blocking conditions are true will it "block"; minimize
 
-  // if
+  
+  // print("match: $storageList[index]");
+
+  // TODO: read the options/conditions for closing/minimizing/blocking program
+  // ! Do i do conditions first or match programs first? = Condition first
+  // ! maybe not do condition here but where the Timer function is.
+  // * So conditions first and match program while condition is true/false
+  // Example: condition to block == 8.00-17.00 while this is true, it will monitor
+  // programs for matches from the tab where the condition is true
 
   for (var i = 0; i < storageList.length; i++) {
     if (_lastChild != "" && storageList[i] == _lastChild) {
@@ -83,14 +91,27 @@ void _matchAndMinimize(int hWnd, List storageList, String last) {
 // TODO: Optimize the "ApplicationFrameHost.exe"?
 
 void monitorActiveWindow() async {
-  final List storageList = readJsonFile()["program_list"];
+  final List storageList = readJsonFile()["tab_list"];
   var currentHwnd = 0;
+  int index = 0;
   
-  Timer.periodic(const Duration(milliseconds: 500), (timer) {
+
+  
+  Timer.periodic(const Duration(microseconds: 5000), (timer) {
 
     if (currentHwnd == 0) {
       currentHwnd = GetForegroundWindow();
     }
+
+
+    //! Do I gather all the conditions outisde of timer function in a variable?'
+    //! or what? just loop inside here? Maybe I can make use of the timer function?
+    // conditions = storageList[index]["condtions"]   -- havent thought of what to call it
+    // or the structure for it; it also needs the take from the repeat option, not just the textformfield
+    // I need to loop this
+    // IF condition statement should wrap below
+    // 
+
 
     if (currentHwnd != GetForegroundWindow()) {
       final test = Stopwatch()..start();
@@ -106,10 +127,10 @@ void monitorActiveWindow() async {
         EnumChildWindows(currentHwnd, winproc3, processID);
       }
 
-      _matchAndMinimize(currentHwnd, storageList, last);
-      stdout.write(
-          "Current program: ${_lastChild.isNotEmpty ? _lastChild : last} \n");
-      stdout.write("testing : ${test.elapsed.inMicroseconds}μs \n");
+      _matchAndMinimize(currentHwnd, storageList, last, index);
+      // stdout.write(
+      //     "Current program: ${_lastChild.isNotEmpty ? _lastChild : last} \n");
+      // stdout.write("testing : ${test.elapsed.inMicroseconds}μs \n");
       test.stop();
     }
   });

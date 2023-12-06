@@ -1,12 +1,18 @@
-import 'package:app_blocker/dart_functions.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
+
+//! Seems to be rebuilding the overlayentry every second,
+//! probably because of the monitoring logic/file. So maybe
+//! it also rebuilds the whole program every 1 second.
+//TODO: I should customize so that I can re-use it
 
 class CustomOverlayPortal extends StatefulWidget {
   const CustomOverlayPortal({
     super.key,
     required this.dataList,
+    required this.onSaved,
     this.currentTab = 0,
     this.width = 200,
     this.height = 130,
@@ -14,8 +20,10 @@ class CustomOverlayPortal extends StatefulWidget {
 
   final double? width;
   final double? height;
-  final Map dataList;
+  final List dataList;
   final int currentTab;
+  
+  final void Function(List) onSaved;
 
 
   @override
@@ -30,61 +38,63 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
   double width = 200;
   double height = 120;
   double weekdayButtonsHeight = 85;
-  int weekdaySelected = 0;
 
-  List<String> repeatList = ["days", "weeks", "months", "years"];
+  Map weekdaySelected = {"0": true};
+  List<String> repeatNames = ["days", "weeks", "months", "years"];
   bool weeksSelected = false;
-  String? repeatValue;
+  String? customRepeatValue;
 
-  //TODO: need to make an array of buttons for the days of the week when weeks are chosen
-  // Mon, Tue, Wed, Thu, Fri, Sat, Sun,
   List<String> weekday = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",];
+  List<String> dropdownList = ["Repeat", "Daily", "Weekdays", "Weekly", "Monthly", "Yearly", "Custom",];
 
-  List<String> dropdownList = ["Daily", "Weekdays", "Weekly", "Monthly", "Yearly", "Custom",];
-  String? dropValue;
-
-  late List dataRepeatList;
+  final FocusNode myFocusNode = FocusNode();
+  TextEditingController formController = TextEditingController();
 
 
   void toggleOverlayPortal() {
     tooltipController.toggle();
   }
 
-  void addToDataList(String? value) {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    
+    try {
+      formController.text = widget.dataList[1];
+      customRepeatValue = widget.dataList[2];
+      if (widget.dataList[2] == "weeks"){
+        weeksSelected = true;
+        height = height + weekdayButtonsHeight;
+      }
 
-    // If it's custom to do something else as well. wrap below 
-
-    if (value == "Custom") {
-
+      if(widget.dataList.isNotEmpty && 
+        widget.dataList[0] == "Custom" && 
+        widget.dataList[2] == "weeks" ){
+          
+          weekdaySelected = widget.dataList[3];
+          
+      }
       
-
+      
+    } catch (e) {
+      formController.text = "1";
+      customRepeatValue = null;
     }
+    
+  }
 
-    if (dataRepeatList.isEmpty){
-      dataRepeatList.add(value);
-    }else {
-      dataRepeatList[0] = value;
-    }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    formController.dispose();
   }
 
 
   @override
   Widget build(BuildContext context) {
-    
-    dataRepeatList = widget.dataList["tab_list"][widget.currentTab]["options"]["repeat"];
-    
-    if (dataRepeatList.isNotEmpty) {
-      if (dataRepeatList[0] == "Custom") {
-        repeatValue = dataRepeatList[0];
-      }
-      dropValue = dataRepeatList[0];
 
-    } else {
-      dropValue = null;
-    }
-    // dropValue = dataRepeatList.isEmpty ? null : dataRepeatList[0];
-    // repeatValue = dataRepeatList[0] != "Custom" ? null : dataRepeatList[0]; 
-    
     return CompositedTransformTarget(
       link: _link,
       child: OverlayPortal(
@@ -92,7 +102,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
         overlayChildBuilder: (context) {
           return CompositedTransformFollower(
             link: _link,
-            targetAnchor: Alignment.topLeft,
+            targetAnchor: const Alignment(-1, -3.8),
             child: Align(
               alignment: AlignmentDirectional.topStart,
               child: Container(
@@ -125,8 +135,19 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(4, 0, 4, 2),
                                 child: TextFormField(
-
-                                  initialValue: "1",
+                                  focusNode: myFocusNode,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                  ],
+                                  onFieldSubmitted: (value){
+                                    if (value.isEmpty){
+                                      print("hello2");
+                                      print(formController.text.isEmpty);
+                                      myFocusNode.requestFocus();
+                                    }
+                                  },
+                                  controller: formController,
                                   maxLines: 1,
                                   cursorHeight: 20,
                                   textAlign: TextAlign.start,
@@ -149,9 +170,10 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                             flex: 7,
                             child: Material(
                               borderRadius: BorderRadius.circular(5.0),
+                              // TODO: make the dropdownmenu shorter
                               child: DropdownButtonHideUnderline(
                                 child: DropdownButton2(
-                                  items: repeatList.map((String value) {
+                                  items: repeatNames.map((String value) {
                                     return DropdownMenuItem(
                                       value: value,
                                       child: Text(
@@ -163,18 +185,18 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                                     );
                                   }).toList(),
                                   hint: Text(
-                                    repeatList[0],
+                                    repeatNames[0],
                                     style: const TextStyle(
                                       fontSize: 15,
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w600,
                                       color: Colors.black,
                                     )
                                   ),
-                                  value: repeatValue,
+                                  value: customRepeatValue,
                                   onChanged: (String? value) {
                                     
                                     setState(() {
-                                      if (value == "weeks") {
+                                      if (value == "weeks" && weeksSelected == false) {
                                         height = height + weekdayButtonsHeight;
                                         weeksSelected = true;
                                       } else {
@@ -183,7 +205,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                                         }
                                         weeksSelected = false;
                                       }
-                                      repeatValue = value!;
+                                      customRepeatValue = value!;
                                     });
 
                                   },
@@ -206,16 +228,21 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                         itemCount: weekday.length,
                         itemBuilder: (context, index) {
                           return Material(
-                            // borderRadius: BorderRadius.circular(5.0),
-                            color: weekdaySelected != index ?
+                            borderRadius: BorderRadius.circular(5.0),
+                            color: weekdaySelected["$index"] == null ?
                             Colors.white : 
                             const Color.fromRGBO(245, 113, 161, 1.0),
                             child: InkWell(
-                              hoverColor: const Color.fromRGBO(245, 113, 161, .3),
-                              splashColor: const Color.fromRGBO(245, 113, 161, 1.0),
+                              borderRadius: BorderRadius.circular(5.0), 
+                              hoverColor: const Color.fromRGBO(245, 113, 161, .1),
+                              splashColor: Colors.transparent,
                               onTap: () {
                                 setState(() {
-                                  weekdaySelected = index;
+                                  if (weekdaySelected.containsKey("$index") && weekdaySelected.length > 1) {
+                                    weekdaySelected.remove("$index");
+                                  } else {
+                                    weekdaySelected["$index"] = weekday[index];
+                                  }
                                 });
                               },
                               child: Center(
@@ -256,24 +283,32 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                           flex: 5,
                           child: TextButton(
                             style: TextButton.styleFrom(
-                              backgroundColor: Colors.white, // TODO: change to a different color
+                              backgroundColor: formController.text.isNotEmpty ? Colors.white : Colors.grey.withOpacity(0.7),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5.0),
                               )
                             ),
-                            onPressed: () {
-                              // TODO: call the "database" to save and display the new info
-                              //to the Triggered widget -> DropdownButton2{Custom}
+                            // TODO: disable if the textformfield is empty;
+                            onPressed: formController.text.isNotEmpty ? () {
+                              //TODO I need to update the repeat value of the second third (fourth) value the date is past timeNow
+
+
+                              widget.dataList.clear();
+                              widget.dataList.add("Custom");
+                              if(formController.text.isEmpty){
+                                formController.text = "1";
+                              }
+                              widget.dataList.add(formController.text);
+                              widget.dataList.add(customRepeatValue);
+                              if(customRepeatValue == "weeks"){
+                                widget.dataList.add(weekdaySelected);
+                              }
+
                               setState(() {
-                                addToDataList("Custom");
-                                dropValue = dataRepeatList[0];
-
-                                // TODO: add the repeatValue + textformfield value
-
-                                // writeJsonFile(widget.dataList);
+                                widget.onSaved(widget.dataList);
                                 toggleOverlayPortal();
                               });
-                            },
+                            } : null,
                             child: const Text(
                               "Save",
                               style: TextStyle(
@@ -290,7 +325,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
             ),
           );
         },
-        // TODO: FocusNode widget here?
+        // TODO: FocusNode widget here? >
         child: DropdownButtonHideUnderline(
           child: DropdownButton2(
             hint: const Text(
@@ -311,17 +346,19 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                 )
               );
             }).toList(),
-            value: dropValue,
+            value: widget.dataList.isEmpty ? null : widget.dataList[0].toString(),
             onChanged: (String? value) {
               setState(() {
                 if (value == "Custom") {
                   // myFocusNode.requestFocus()
                   toggleOverlayPortal();
                 } else {
-                  addToDataList(value);
-                  dropValue = dataRepeatList[0];
-                  
-                  writeJsonFile(widget.dataList);
+                  if(value != "Repeat"){
+                    widget.dataList.clear();
+                    widget.dataList.add(value);
+                    //addvalue time
+                    widget.onSaved(widget.dataList);
+                  }
                 }
               });
             },
@@ -334,7 +371,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
           
             ),
             buttonStyleData: ButtonStyleData(
-              padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+              // padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
                 color: const Color.fromRGBO(9, 80, 113, 1),
@@ -354,5 +391,5 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
     );
   }
 
-  
 }
+  
