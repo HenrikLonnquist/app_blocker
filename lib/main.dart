@@ -76,7 +76,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   Map dataList = {}; // for the json file
   Map<int, String> tempMap = {}; // from the customgridview, which are selected
-  int currentTab = 1;
+  int currentTab = 2;
   Map<String, dynamic> dummyMap = {};
   final ScrollController _scrollController = ScrollController();
   String time = DateFormat("HHmm").format(DateTime.now());
@@ -91,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
   OverlayEntry? overlayEntry;
   final link = LayerLink();
 
-
+  // TODO: Make a list of variables for colors.
 
   void showOverlayTooltip(){
 
@@ -227,86 +227,73 @@ class _MyHomePageState extends State<MyHomePage> {
           gradient: LinearGradient(
               colors: [backgroundColorGradient1, backgroundColorGradient2]),
         ),
+        //! "HEADER"
         child: Column(
           children: [
             const SizedBox(height: 40),
-            // !"HEADER"
-            Wrap(
-              spacing: 60.0,
-              // TODO: add a widget for these instead DRY with properties when needed to change values.
-              children: [
-                TextButton(
-                    onPressed: () {},
-                    style: const ButtonStyle(
-                      fixedSize: MaterialStatePropertyAll(Size.fromWidth(77)),
-                      backgroundColor: MaterialStatePropertyAll(
-                          Color.fromRGBO(235, 235, 235, 1)),
-                    ),
-                    child: const Text(
-                      "Home",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                      ),
-                    )),
-                TextButton(
-                    onPressed: () {},
-                    style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(
-                          Color.fromRGBO(235, 235, 235, 1)),
-                    ),
-                    child: const Text(
-                      "Settings",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                      ),
-                    )),
-                TextButton(
-                    onPressed: () {},
-                    style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(
-                          Color.fromRGBO(235, 235, 235, 1)),
-                    ),
-                    child: const Text(
-                      "Help",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                      ),
-                    )),
-                TextButton(
-                    onPressed: () {},
-                    style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(
-                          Color.fromRGBO(235, 235, 235, 1)),
-                    ),
-                    child: const Text(
-                      "FAQ",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                      ),
-                    )),
-                SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: IconButton(
-                    padding: const EdgeInsets.all(0.0),
-                    iconSize: 20,
-                    // TODO: add a switch towards different themes and switch the icons as well.
-                    // https://stackoverflow.com/questions/62942430/flutter-change-dark-mode-switch-to-an-icon
-                    icon: const Icon(
-                      Icons.wb_sunny,
-                    ),
-                    style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(
-                          Color.fromRGBO(235, 235, 235, 1)),
-                    ),
-                    onPressed: () {},
-                  ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Material(
+                color: const Color.fromRGBO(217, 217, 217, 1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5)
                 ),
-              ],
+                child: Wrap(
+                  spacing: 60.0,
+                  children: [
+                    TextButton(
+                      onPressed: () {},
+                      child: const Text(
+                        "Home",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                        ),
+                      )),
+                    TextButton(
+                      onPressed: () {},
+                      child: const Text(
+                        "Settings",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                        ),
+                      )),
+                    TextButton(
+                      onPressed: () {},
+                      child: const Text(
+                        "Help",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                        ),
+                      )),
+                    TextButton(
+                      onPressed: () {},
+                      child: const Text(
+                        "FAQ",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
+                      )),
+                    SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: IconButton(
+                        padding: const EdgeInsets.all(0.0),
+                        iconSize: 20,
+                        // TODO: add a switch towards different themes and switch the icons as well.
+                        // https://stackoverflow.com/questions/62942430/flutter-change-dark-mode-switch-to-an-icon
+                        icon: const Icon(
+                          Icons.wb_sunny,
+                        ),
+                        onPressed: (){},
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 40),
             Row(
@@ -439,6 +426,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                   child: CompositedTransformTarget(
                                     link: link,
                                     child: TextFormField( 
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 17,
+                                      ),
                                       focusNode: myFocusNode,
                                       controller: textController,
                                       keyboardType: const TextInputType.numberWithOptions(
@@ -507,65 +498,24 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                           // Repeat option
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(40, 0, 40, 0),
+                            padding: const EdgeInsets.fromLTRB(40, 10, 40, 0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               // crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
-                                  flex: 4,
-                                  //TODO: probably come up with a better name for it
+                                  //TODO: come up with a better name for it
                                   child: CustomOverlayPortal(
                                     dataList: dataList["tab_list"][currentTab]["options"]["repeat"],
                                     currentTab: currentTab,
                                     onSaved: (list){
-
+                          
                                       dataList["tab_list"][currentTab]["options"]["repeat"] = list;
                                       writeJsonFile(dataList);
-
+                          
                                     }
                                   )
                                 ),
-                                Expanded(
-                                  flex: 6,
-                                  child: Material(
-                                    color: const Color.fromRGBO(9, 80, 113, 1),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10)
-                                    ),
-                                    child: Container(
-                                      constraints: BoxConstraints.loose(const Size.fromHeight(50)),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                                        children: [
-                                          //TODO: have to figure out a better way to display custom/repeat list information.
-                                          Text(
-                                            dataList["tab_list"][currentTab]["options"]["repeat"].length > 3 ?
-                                            "Every ${dataList["tab_list"][currentTab]["options"]["repeat"][1]} ${dataList["tab_list"][currentTab]["options"]["repeat"][2]}"
-                                            : "",
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                          Text(
-                                            dataList["tab_list"][currentTab]["options"]["repeat"].length > 3 ?
-                                            "${dataList["tab_list"][currentTab]["options"]["repeat"][3].values}"
-                                            : "",
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 12,
-                                              overflow: TextOverflow.ellipsis
-                                            ),
-                                          ),
-                                        ]
-                                      ),
-                                    ),
-                                  ),
-                                )
                               ],
                             ),
                           )
@@ -628,6 +578,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           color: const Color.fromRGBO(217, 217, 217, 1),
                                           child: Padding(
                                             padding: const EdgeInsets.fromLTRB(8, 0, 14, 8),
+                                            //TODO: able to drag and drop to move around the list order
                                             child: ListTile(
                                               onTap: () {
                                                 setState(() {
