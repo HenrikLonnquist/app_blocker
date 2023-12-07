@@ -39,7 +39,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
   double height = 120;
   double weekdayButtonsHeight = 85;
 
-  Map weekdaySelected = {"0": true};
+  Map weekdaySelected = {"0": "Mon"};
   List<String> repeatNames = ["days", "weeks", "months", "years"];
   bool weeksSelected = false;
   String? customRepeatValue;
@@ -50,6 +50,8 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
   final FocusNode myFocusNode = FocusNode();
   TextEditingController formController = TextEditingController();
 
+  int? tempTab;
+
 
   void toggleOverlayPortal() {
     tooltipController.toggle();
@@ -59,28 +61,16 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    
-    try {
-      formController.text = widget.dataList[1];
-      customRepeatValue = widget.dataList[2];
-      if (widget.dataList[2] == "weeks"){
-        weeksSelected = true;
-        height = height + weekdayButtonsHeight;
-      }
 
-      if(widget.dataList.isNotEmpty && 
-        widget.dataList[0] == "Custom" && 
-        widget.dataList[2] == "weeks" ){
-          
-          weekdaySelected = widget.dataList[3];
-          
-      }
-      
-      
-    } catch (e) {
-      formController.text = "1";
-      customRepeatValue = null;
-    }
+    tempTab = widget.currentTab;
+    formController.text = widget.dataList.isNotEmpty ? widget.dataList[1] : "1";
+    customRepeatValue = widget.dataList.isNotEmpty ? widget.dataList[2] : null;
+    if (widget.dataList.isNotEmpty && widget.dataList[2] == "weeks"){
+      weeksSelected = true;
+      height = height + weekdayButtonsHeight;
+    } 
+
+    weekdaySelected = widget.dataList.length > 3 ? widget.dataList[3] : {"0": "Mon"};
     
   }
 
@@ -94,7 +84,12 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
 
   @override
   Widget build(BuildContext context) {
+    //TODO: might need to change to 4 later with due date/valueTime
 
+    if(tempTab != widget.currentTab){
+      tempTab = widget.currentTab;
+      weekdaySelected = widget.dataList.length > 3 ? widget.dataList[3] : {"0": "Mon"};
+    }
     return CompositedTransformTarget(
       link: _link,
       child: OverlayPortal(
@@ -142,8 +137,6 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                                   ],
                                   onFieldSubmitted: (value){
                                     if (value.isEmpty){
-                                      print("hello2");
-                                      print(formController.text.isEmpty);
                                       myFocusNode.requestFocus();
                                     }
                                   },
@@ -207,7 +200,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                                       }
                                       customRepeatValue = value!;
                                     });
-
+              
                                   },
                                 ),
                               ),
@@ -216,10 +209,12 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                         ],
                       ),
                     ),
+                    // TODO: FocusNode widget here? >
                     if (weeksSelected) Container(
                       margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                       height: weekdayButtonsHeight,
                       child: GridView.builder(
+                        
                         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                           maxCrossAxisExtent: 40,
                           crossAxisSpacing: 4.0,
@@ -233,6 +228,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                             Colors.white : 
                             const Color.fromRGBO(245, 113, 161, 1.0),
                             child: InkWell(
+                              // focusNode: myFocusNode,
                               borderRadius: BorderRadius.circular(5.0), 
                               hoverColor: const Color.fromRGBO(245, 113, 161, .1),
                               splashColor: Colors.transparent,
@@ -291,8 +287,8 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                             // TODO: disable if the textformfield is empty;
                             onPressed: formController.text.isNotEmpty ? () {
                               //TODO I need to update the repeat value of the second third (fourth) value the date is past timeNow
-
-
+              
+              
                               widget.dataList.clear();
                               widget.dataList.add("Custom");
                               if(formController.text.isEmpty){
@@ -303,7 +299,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                               if(customRepeatValue == "weeks"){
                                 widget.dataList.add(weekdaySelected);
                               }
-
+              
                               setState(() {
                                 widget.onSaved(widget.dataList);
                                 toggleOverlayPortal();
@@ -325,7 +321,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
             ),
           );
         },
-        // TODO: FocusNode widget here? >
+        
         child: DropdownButtonHideUnderline(
           child: DropdownButton2(
             hint: const Text(
@@ -334,6 +330,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                 color: Colors.white,
               ),
             ),
+            // Maybe add icons
             items: dropdownList.map((String value) {
               return DropdownMenuItem(
                 value: value,
@@ -346,22 +343,68 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                 )
               );
             }).toList(),
+            customButton: TextButton(
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.fromLTRB(12, 12, 0, 12),
+                backgroundColor: const Color.fromRGBO(217, 217, 217, 1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)
+                )
+              ),
+              //! Fix: Hover color change doesnt work unless have I onPressed not null, but
+              //! then dropdownmenu wont show as well if this is not null
+              onPressed: null,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      widget.dataList.length > 3 ?
+                      "Every ${widget.dataList[1]} ${widget.dataList[2]}"
+                      : widget.dataList.isEmpty ? "Repeat" : widget.dataList[0],
+                      textAlign: TextAlign.start,
+                      style: const TextStyle(
+                        color: Colors.deepPurple,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                    //TODO: I dont know how to remove the brackets from the string
+                    Text(
+                      widget.dataList.length > 3 ?
+                      widget.dataList[3].values.toString()
+                      : "",
+                      style: const TextStyle(
+                        color: Colors.deepPurple,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        overflow: TextOverflow.ellipsis
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            //! TODO: I think remove this as well
             value: widget.dataList.isEmpty ? null : widget.dataList[0].toString(),
+            // todo: add a variable to disable when menu is opened.
             onChanged: (String? value) {
               setState(() {
                 if (value == "Custom") {
-                  // myFocusNode.requestFocus()
                   toggleOverlayPortal();
                 } else {
                   if(value != "Repeat"){
                     widget.dataList.clear();
                     widget.dataList.add(value);
-                    //addvalue time
+                    //addvalue time to json file: weekly, montly yearly, weekdays and so on..
                     widget.onSaved(widget.dataList);
                   }
                 }
               });
             },
+            //! TODO: I can remove this too
             iconStyleData: const IconStyleData(
               icon: Icon(
                 Icons.keyboard_arrow_down_outlined,
@@ -370,6 +413,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
               iconEnabledColor: Colors.white,
           
             ),
+            //! TODO: I can remove this too
             buttonStyleData: ButtonStyleData(
               // padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
               decoration: BoxDecoration(
@@ -379,6 +423,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
             ),
             dropdownStyleData: DropdownStyleData(
               offset: const Offset(0, 150),
+              width: 200,
               maxHeight: 360,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
