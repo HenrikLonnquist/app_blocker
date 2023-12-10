@@ -90,7 +90,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
 
     if(tempTab != widget.currentTab){
       tempTab = widget.currentTab;
-      
+      height = 120;
       if(widget.dataList.length > 3) {
         weekdaySelected = widget.dataList[3];
         customRepeatValue = widget.dataList[2];
@@ -108,7 +108,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
       //TODO: Might not need this if I had focusNode working
       //! temporary fix
       if (tooltipController.isShowing) {
-        Future.delayed(const Duration(milliseconds: 50), () {
+        Future.delayed(const Duration(milliseconds: 30), () {
           tooltipController.hide();
         });
       }
