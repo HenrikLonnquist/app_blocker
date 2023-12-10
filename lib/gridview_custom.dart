@@ -41,6 +41,7 @@ class _CustomGridViewState extends State<CustomGridView> {
             child: Icon(
               Icons.check_box,
               size: 16,
+              color: Color.fromRGBO(217, 217, 217, 1),
         
             ),
           ),
@@ -109,7 +110,7 @@ class _CustomGridViewState extends State<CustomGridView> {
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: Colors.black,
+                color: const Color.fromRGBO(217, 217, 217, 1),
                 width: 1,
               ),
             ),
@@ -118,7 +119,7 @@ class _CustomGridViewState extends State<CustomGridView> {
                 Container(
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Colors.black,
+                      color: const Color.fromRGBO(217, 217, 217, 1),
                       width: 1,
                     )
                   ),
@@ -126,6 +127,7 @@ class _CustomGridViewState extends State<CustomGridView> {
                   child: const Icon(
                     Icons.emergency,
                     size: 26,
+                    color: Color.fromRGBO(217, 217, 217, 1),
                   ),
                 ),
                 Align(
@@ -136,6 +138,7 @@ class _CustomGridViewState extends State<CustomGridView> {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 10,
+                      color: Color.fromRGBO(217, 217, 217, 1),
                       fontWeight: FontWeight.w600,
                     ),
                     textAlign: TextAlign.center,

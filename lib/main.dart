@@ -233,60 +233,138 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        color: const Color.fromRGBO(136, 148, 162, 1),
+        color: const Color.fromRGBO(33, 37, 41, 1),
         child: Column(
           children: [
             const SizedBox(height: 20),
             //! "HEADER"
             //TODO: make its own file?
-            Container(
-              height: 50,
-              width: MediaQuery.of(context).size.width * 0.8,
-              decoration: BoxDecoration(
-                // color: Colors.white,
-                color: const Color.fromRGBO(217, 217, 217, 1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              //TODO: fix the spacing when resizing
-              child: Row(
-                children: [
-                  const SizedBox(width: 20.0),
-                  const Icon(Icons.cabin),
-                  const Spacer(flex:1),
-                  // TODO: make an variable for the style?
-                  InkWell(
-                      onTap: (){
-                        print("here");
-                      },
-                      child: const Text(
-                        "Home",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16, 
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  height: 50,
+                  width: MediaQuery.of(context).size.width * 0.68,
+                  decoration: const BoxDecoration(
+                    color: Color.fromRGBO(49, 56, 64, 1),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(8),
+                      bottomLeft: Radius.circular(8),
+                    )
+                  ),
+                  //TODO: fix the spacing when resizing
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 20.0),
+                        const Icon(
+                          Icons.cabin,
+                          color: Colors.white,
+                        ),
+                        const Spacer(flex:1),
+                        //TODO: animation to shift the selected color to the pressed text/button
+                        // probably need to do a funciton and gesturedectection or inkwell on all the texts.
+                        SizedBox(
+                          height: 50,
+                          child: InkWell(
+                            onTap: (){
+                              print("here");
+                            },
+                            child: const Text(
+                              "Home",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const Spacer(flex:2),
+                        const Text(
+                          "Settings",
+                          style: TextStyle(
+                            //!Only when selected
+                            // fontWeight: FontWeight.w600,
+                            fontSize: 16, 
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Spacer(flex:2),
+                        const Text(
+                          "Help",
+                          style: TextStyle(
+                            //!Only when selected
+                            // fontWeight: FontWeight.w600,
+                            fontSize: 16, 
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Spacer(flex:2),
+                        const Icon(
+                          Icons.wb_sunny_rounded,
+                          color: Colors.red,
+                        ),
+                        const Spacer(flex:1),
+                      ],
+                    ),
+                  )
+                ),
+                Container(
+                  height: 50,
+                  width: 150,
+                  decoration: const BoxDecoration(
+                    color: Color.fromRGBO(172, 172, 172, 1),
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(8),
+                      bottomRight: Radius.circular(8),
+                    )
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Expanded(
+                        flex: 7,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "John Doe",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontFamily: "BerkshireSwash",
+                              ),
+                            ),
+                            Text(
+                              "JohnDoe@email.com",
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: "BerkshireSwash",
+                              ),
+                            )
+                          ],
                         ),
                       ),
-                    ),
-                  const Spacer(flex:2),
-                  const Text(
-                    "Settings",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16, 
-                    ),
+                      Expanded(
+                        flex: 3,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: (){},
+                            child: const Icon(
+                              Icons.account_circle,
+                              size: 40,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const Spacer(flex:2),
-                  const Text(
-                    "Help",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16, 
-                    ),
-                  ),
-                  const Spacer(flex:2),
-                  const Icon(Icons.wb_sunny_rounded),
-                  const Spacer(flex:1),
-                ],
-              )
+                ),
+              ],
             ),
             const SizedBox(height: 20.0),
             SizedBox(
@@ -309,12 +387,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: Column(
                         children: [
                           Container(
-                            width: 337,
-                            height: 266,
+                            width: contextWidth * 0.5,
+                            height: contextHeight * 0.45,
                             padding: const EdgeInsets.fromLTRB(15, 20, 15, 0),
-                            margin: const EdgeInsets.fromLTRB(0, 30, 0, 20),
+                            margin: const EdgeInsets.fromLTRB(53, 44, 53, 40),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: const Color.fromRGBO(53, 53, 53, 1),
                               borderRadius: BorderRadius.circular(8.0),
                             ),
                             child: Column(
@@ -346,12 +424,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                             _pickFile();
                                           },
                                           style: TextButton.styleFrom(
-                                            foregroundColor: Colors.white,
-                                            backgroundColor: const Color.fromRGBO(9, 80, 113, 1)
+                                            backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
                                           ),
                                           child: const Text(
                                             "Add",
-                                            style: TextStyle(fontSize: 12),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -380,12 +461,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                             });
                                           },
                                           style: TextButton.styleFrom(
-                                            foregroundColor: Colors.white,
-                                            backgroundColor: const Color.fromRGBO(9, 80, 113, 1),
+                                            backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
                                           ),
                                           child: const Text(
                                             "Remove",
-                                            style: TextStyle(fontSize: 12),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -395,19 +479,19 @@ class _MyHomePageState extends State<MyHomePage> {
                               ]
                             ),
                           ),
-                          // block options
+                          //* Options
                           Column(
                             children: [
-                              // TextFieldForm
+                              //* TextFieldForm
                               Row(
                                 children: [
                                   Expanded(
                                     child: Container(
-                                      margin: const EdgeInsets.fromLTRB(40, 0, 40, 0),
+                                      margin: const EdgeInsets.fromLTRB(53, 0, 53, 10),
                                       padding: const EdgeInsets.fromLTRB(10, 5, 0, 10),
                                       decoration: BoxDecoration(
                                         
-                                        color: Colors.white,
+                                        color: const Color.fromRGBO(237, 237, 237, 1),
                                         border: validationError ? Border.all(
                                           color: Colors.red
                                         ) : null,
@@ -487,12 +571,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                   )
                                 ],
                               ),
-                              // Repeat option
+                              //* Repeat option
                               Padding(
-                                padding: const EdgeInsets.fromLTRB(40, 10, 40, 0),
+                                padding: const EdgeInsets.fromLTRB(53, 10, 53, 0),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                  // crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Expanded(
                                       //TODO: come up with a better name for it
@@ -506,7 +589,15 @@ class _MyHomePageState extends State<MyHomePage> {
                               
                                         }
                                       )
+                                      //TODO: something else here as well
                                     ),
+                                    Expanded(
+                                      child: Container(
+                                        width: 10,
+                                        height: 10,
+                                        color: Colors.white,
+                                      )
+                                    )
                                   ],
                                 ),
                               )
@@ -550,98 +641,102 @@ class _MyHomePageState extends State<MyHomePage> {
                                 bottomRight: Radius.circular(15.0),
                               )
                             ),
+                            // TODO: make it shift to left and back original position; just change the padding.
+                            // all depending on the scrollbar is showing or not.
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                const SizedBox(height: 10),
+                                Container(
+                                  height: 2.5,
+                                  color: Colors.white,
+                                  //TODO: change right margin when scrollbar is showing; 48 to 24
+                                  margin: const EdgeInsets.fromLTRB(24, 25, 48, 5),
+                                ),
                                 Expanded(
                                   flex: 8,
-                                    child: Container(
-                                        margin: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                                        decoration: BoxDecoration(
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+                                      child: RawScrollbar(
+                                        //TODO: Scroller needs padding, too close to the wall on the rightside of it
+                                        shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(8.0),
-                                          color: const Color.fromRGBO(217, 217, 217, 1),
-                                          // boxShadow: [
-                                          //   BoxShadow(
-                                          //     color: Colors.grey.withOpacity(0.5),
-                                          //     blurRadius: 7,
-                                          //     spreadRadius: 5,
-                                          //     offset: const Offset(0, 4),
-                                          //   ),
-                                          // ]
                                         ),
-                                        child: RawScrollbar(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8.0),
-                                          ),
-                                          thickness: 10,
-                                          thumbColor: Colors.deepPurple,
-                                          trackVisibility: false,
-                                          thumbVisibility: true,
+                                        thickness: 10,
+                                        thumbColor: Colors.deepPurple,
+                                        trackVisibility: false,
+                                        thumbVisibility: true,
+                                        controller: _scrollController,
+                                        child: ListView.builder(
                                           controller: _scrollController,
-                                          child: ListView.builder(
-                                            controller: _scrollController,
-                                            itemCount: dataList["tab_list"].length,
-                                            itemBuilder: (context, index) {
-                                              return Material(
-                                                color: const Color.fromRGBO(217, 217, 217, 1),
-                                                child: Padding(
-                                                  padding: const EdgeInsets.fromLTRB(8, 0, 14, 8),
-                                                  //TODO: able to drag and drop to move around the list order
-                                                  child: ListTile(
-                                                    onTap: () {
+                                          itemCount: dataList["tab_list"].length,
+                                          itemBuilder: (context, index) {
+                                            return Material(
+                                              // color: const Color.fromRGBO(217, 217, 217, 1),
+                                              color: Colors.transparent,
+                                              child: Padding(
+                                                padding: const EdgeInsets.fromLTRB(26, 3, 30, 8),
+                                                //TODO: able to drag and drop to move around the list order
+                                                child: ListTile(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      currentTab = index;
+                                                      textController.text = dataList["tab_list"][currentTab]["options"]["time"];
+                                                      validationError = false;
+                                                      removeOverlay();
+                                                    });
+                                                  },
+                                                  contentPadding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(8.0),
+                                                  ),
+                                                  textColor: Colors.deepPurple,
+                                                  iconColor: Colors.deepPurple,
+                                                  tileColor: currentTab == index ?
+                                                  const Color.fromRGBO(245, 113, 161, 1.0) :
+                                                  const Color.fromRGBO(245, 245, 245, 1.0),
+                                                  title: Text(
+                                                    "${dataList["tab_list"][index]["name"]}",
+                                                    style: const TextStyle(
+                                                      fontSize: 20,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontFamily: "BerkshireSwash",
+                                                    )
+                                                  ),
+                                                  trailing: IconButton(
+                                                    onPressed: (){
                                                       setState(() {
-                                                        currentTab = index;
-                                                        textController.text = dataList["tab_list"][currentTab]["options"]["time"];
-                                                        validationError = false;
-                                                        removeOverlay();
+                                                        dataList["tab_list"].removeAt(index);
+                                                        writeJsonFile(dataList);
                                                       });
                                                     },
-                                                    contentPadding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(8.0),
-                                                    ),
-                                                    textColor: Colors.deepPurple,
-                                                    iconColor: Colors.deepPurple,
-                                                    tileColor: currentTab == index ?
-                                                    const Color.fromRGBO(245, 113, 161, 1.0) :
-                                                    const Color.fromRGBO(245, 245, 245, 1.0),
-                                                    title: Text(
-                                                      "${dataList["tab_list"][index]["name"]}",
-                                                      style: const TextStyle(
-                                                        fontSize: 20,
-                                                        fontWeight: FontWeight.bold,
-                                                        fontFamily: "BerkshireSwash",
-                                                      )
-                                                    ),
-                                                    trailing: IconButton(
-                                                      onPressed: (){
-                                                        setState(() {
-                                                          dataList["tab_list"].removeAt(index);
-                                                          writeJsonFile(dataList);
-                                                        });
-                                                      },
-                                                      icon: const Icon(
-                                                        Icons.remove_circle_outlined,
-                                                        size: 20,
-                                                      ),
+                                                    icon: const Icon(
+                                                      Icons.remove_circle_outlined,
+                                                      size: 20,
                                                     ),
                                                   ),
                                                 ),
-                                              );
-                                            }
-                                          ),
-                                        )
+                                              ),
+                                            );
+                                          }
+                                        ),
+                                      ),
                                     ) 
+                                ),
+                                Container(
+                                  height: 2.5,
+                                  color: Colors.white,
+                                  margin: const EdgeInsets.fromLTRB(24, 5, 48, 0),
                                 ),
                                 Expanded(
                                   flex: 2,
                                   child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
+                                    padding: const EdgeInsets.fromLTRB(12, 12, 30, 12),
                                     child: ElevatedButton(
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(5)
+                                        )
                                       ),
                                       onPressed: () {
                                         // TODO: move this(time) to custom overlay repeat dart file
@@ -706,7 +801,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                         });
                                         
                                       },
-                                      child: const Text("Add TAB"),
+                                      child: const Text(
+                                        "ADD",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 20,
+                                          fontFamily: "KeaniaOne",
+                                        ),
+                                      ),
                                     ),
                                   )
                                 )

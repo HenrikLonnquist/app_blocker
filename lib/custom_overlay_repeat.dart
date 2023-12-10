@@ -369,7 +369,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
             customButton: TextButton(
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.fromLTRB(12, 12, 0, 12),
-                backgroundColor: const Color.fromRGBO(217, 217, 217, 1),
+                backgroundColor: const Color.fromRGBO(71, 71, 71, 1),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)
                 )
@@ -388,7 +388,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                       : widget.dataList.isEmpty ? "Repeat" : widget.dataList[0],
                       textAlign: TextAlign.start,
                       style: const TextStyle(
-                        color: Colors.deepPurple,
+                        color: Colors.white,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -399,7 +399,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                       widget.dataList[3].values.toString()
                       : "",
                       style: const TextStyle(
-                        color: Colors.deepPurple,
+                        color: Colors.white,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                         overflow: TextOverflow.ellipsis

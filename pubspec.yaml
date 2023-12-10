@@ -85,7 +85,9 @@ flutter:
     - family: BerkshireSwash
       fonts:
         - asset: fonts/BerkshireSwash-Regular.ttf
-
+    - family: KeaniaOne
+      fonts:
+        - asset: fonts/KeaniaOne-Regular.ttf
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
