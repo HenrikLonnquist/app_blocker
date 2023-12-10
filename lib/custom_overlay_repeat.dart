@@ -47,7 +47,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
   List<String> weekday = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",];
   List<String> dropdownList = ["Repeat", "Daily", "Weekdays", "Weekly", "Monthly", "Yearly", "Custom",];
 
-  final FocusNode myFocusNode = FocusNode();
+  final FocusNode _myFocusNode = FocusNode();
   TextEditingController formController = TextEditingController();
 
   int? tempTab;
@@ -65,6 +65,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
     tempTab = widget.currentTab;
     formController.text = widget.dataList.isNotEmpty ? widget.dataList[1] : "1";
     customRepeatValue = widget.dataList.isNotEmpty ? widget.dataList[2] : null;
+
     if (widget.dataList.isNotEmpty && widget.dataList[2] == "weeks"){
       weeksSelected = true;
       height = height + weekdayButtonsHeight;
@@ -79,6 +80,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
     // TODO: implement dispose
     super.dispose();
     formController.dispose();
+    _myFocusNode.dispose();
   }
 
 
@@ -88,7 +90,28 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
 
     if(tempTab != widget.currentTab){
       tempTab = widget.currentTab;
-      weekdaySelected = widget.dataList.length > 3 ? widget.dataList[3] : {"0": "Mon"};
+      
+      if(widget.dataList.length > 3) {
+        weekdaySelected = widget.dataList[3];
+        customRepeatValue = widget.dataList[2];
+        weeksSelected = true;
+        height = height + weekdayButtonsHeight;
+      } else {
+        if (height > 130) {
+          height = height - weekdayButtonsHeight;
+        }
+        weekdaySelected = {"0": "Mon"};
+        customRepeatValue = null;
+        weeksSelected = false;
+      }
+
+      //TODO: Might not need this if I had focusNode working
+      //! temporary fix
+      if (tooltipController.isShowing) {
+        Future.delayed(const Duration(milliseconds: 50), () {
+          tooltipController.hide();
+        });
+      }
     }
     return CompositedTransformTarget(
       link: _link,
@@ -130,14 +153,14 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(4, 0, 4, 2),
                                 child: TextFormField(
-                                  focusNode: myFocusNode,
+                                  focusNode: _myFocusNode,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly,
                                   ],
                                   onFieldSubmitted: (value){
                                     if (value.isEmpty){
-                                      myFocusNode.requestFocus();
+                                      _myFocusNode.requestFocus();
                                     }
                                   },
                                   controller: formController,
@@ -187,7 +210,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                                   ),
                                   value: customRepeatValue,
                                   onChanged: (String? value) {
-                                    
+                                    print("change");
                                     setState(() {
                                       if (value == "weeks" && weeksSelected == false) {
                                         height = height + weekdayButtonsHeight;
@@ -213,8 +236,8 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                     if (weeksSelected) Container(
                       margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                       height: weekdayButtonsHeight,
+                      // TODO: maybe try the slivergriddelegateanimation for adding and removing
                       child: GridView.builder(
-                        
                         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                           maxCrossAxisExtent: 40,
                           crossAxisSpacing: 4.0,
@@ -228,7 +251,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                             Colors.white : 
                             const Color.fromRGBO(245, 113, 161, 1.0),
                             child: InkWell(
-                              // focusNode: myFocusNode,
+                              // focusNode: myFocusNode, //! Maybe remove this?
                               borderRadius: BorderRadius.circular(5.0), 
                               hoverColor: const Color.fromRGBO(245, 113, 161, .1),
                               splashColor: Colors.transparent,
