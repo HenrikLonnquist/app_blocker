@@ -20,7 +20,6 @@ import "package:file_picker/file_picker.dart";
 
 import "package:dropdown_button2/dropdown_button2.dart";
 
-// TODO: use the window_manager package to listen for changes on focus states of windows.
 /*
 Different sections:
 - "HEADER"
@@ -33,12 +32,23 @@ Different sections:
  */
 
 
+// TODO: use the window_manager package to listen for changes on focus states of windows.
+// TODO: Emergency trigger, will make you do a mission that is annoying and long.
+/* 
+TODO: able to make some tabs non-negtionable, meaning that the conditions and apps are permanent; Not changeable.
+A workaround would be to re-create it with changed values. Maybe set a condition for deleting it as well. AI? Will ask
+questions about why the user want to delete it(Just an idea, but the other two seems okay). Can have user do a three day trial
+and then it will be changeable again or a quick-preview with the AI and the other features(not able to change or delete 
+it with condition and AI). 
+Condition(s) or task(s) for deleting it: Emergency:
+- Popup with questions or messages about encouraging not to delete and keep it.
+-
+*/
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
 
-  //TODO: Disable the maximize? button and the resize capability
   WindowOptions options = const WindowOptions(
     minimumSize: Size(953, 709),
     // size: Size(953, 709),
@@ -92,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
   OverlayEntry? overlayEntry;
   final link = LayerLink();
   
-  final List headerList = ["Home", "Settings", "Help", "FAQ", "DarkMode"];
+  Map headerButtonSelected = {"Home": true,};
   Color selectedColor = const Color.fromRGBO(217, 217, 217, 1);
 
   late double contextWidth = MediaQuery.of(context).size.width;
@@ -265,40 +275,101 @@ class _MyHomePageState extends State<MyHomePage> {
                         const Spacer(flex:1),
                         //TODO: animation to shift the selected color to the pressed text/button
                         // probably need to do a funciton and gesturedectection or inkwell on all the texts.
-                        SizedBox(
-                          height: 50,
-                          child: InkWell(
-                            onTap: (){
-                              print("here");
-                            },
-                            child: const Text(
-                              "Home",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                                color: Colors.white,
+                        InkWell(
+                          onTap: (){
+                            setState(() {
+                              headerButtonSelected.clear();
+                              headerButtonSelected["Home"] = true;
+                            });
+                            //TODO: add navigation route-pop.
+                          },
+                          splashColor: Colors.transparent,
+                          customBorder: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Container(
+                            height: 50,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              color: headerButtonSelected["Home"] != null ? const Color.fromRGBO(71, 71, 71, 1) : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Home",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  color: headerButtonSelected["Home"] != null ? Colors.red : Colors.white,
+                                ),
                               ),
                             ),
                           ),
                         ),
                         const Spacer(flex:2),
-                        const Text(
-                          "Settings",
-                          style: TextStyle(
-                            //!Only when selected
-                            // fontWeight: FontWeight.w600,
-                            fontSize: 16, 
-                            color: Colors.white,
+                        InkWell(
+                          onTap: (){
+                            print("here");
+                            setState(() {
+                              headerButtonSelected.clear();
+                              headerButtonSelected["Settings"] = true;
+                            });
+                            //TODO: add navigation route-pop.
+                          },
+                          splashColor: Colors.transparent,
+                          customBorder: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Container(
+                            height: 50,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              color: headerButtonSelected["Settings"] != null ? const Color.fromRGBO(71, 71, 71, 1) : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Settings",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  color: headerButtonSelected["Settings"] != null ? Colors.red : Colors.white,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                         const Spacer(flex:2),
-                        const Text(
-                          "Help",
-                          style: TextStyle(
-                            //!Only when selected
-                            // fontWeight: FontWeight.w600,
-                            fontSize: 16, 
-                            color: Colors.white,
+                        InkWell(
+                          onTap: (){
+                            print("here");
+                            setState(() {
+                              headerButtonSelected.clear();
+                              headerButtonSelected["Help"] = true;
+                              //TODO: add navigation route-pop.
+                            });
+                          },
+                          splashColor: Colors.transparent,
+                          customBorder: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Container(
+                            height: 50,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              color: headerButtonSelected["Help"] != null ? const Color.fromRGBO(71, 71, 71, 1) : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Help",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  color: headerButtonSelected["Help"] != null ? Colors.red : Colors.white,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                         const Spacer(flex:2),
