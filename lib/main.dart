@@ -263,6 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     )
                   ),
                   //TODO: fix the spacing when resizing
+                  //TODO: make this into a class and it's file
                   child: Material(
                     color: Colors.transparent,
                     child: Row(
@@ -287,6 +288,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           customBorder: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          highlightColor: Colors.transparent,
                           child: Container(
                             height: 50,
                             width: 100,
@@ -320,6 +322,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           customBorder: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          highlightColor: Colors.transparent,
                           child: Container(
                             height: 50,
                             width: 100,
@@ -353,6 +356,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           customBorder: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          highlightColor: Colors.transparent,
                           child: Container(
                             height: 50,
                             width: 100,
@@ -373,9 +377,22 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                         const Spacer(flex:2),
-                        const Icon(
-                          Icons.wb_sunny_rounded,
-                          color: Colors.red,
+                        InkWell(
+                          onTap: (){
+                            //TODO:
+
+                          },
+                          splashColor: Colors.transparent,
+                          customBorder: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          highlightColor: Colors.transparent,
+                          child: const Icon(
+                            Icons.wb_sunny_rounded,
+                            //TODO: only need to change the color of this
+                            color: Colors.red,
+                            size: 30,
+                          ),
                         ),
                         const Spacer(flex:1),
                       ],
