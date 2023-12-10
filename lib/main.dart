@@ -38,8 +38,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
 
+  //TODO: Disable the maximize? button and the resize capability
   WindowOptions options = const WindowOptions(
-    minimumSize: Size(800, 676),
+    minimumSize: Size(953, 709),
+    // size: Size(953, 709),
     center: true,
     title: "AppBlocker",
   );
@@ -59,7 +61,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
       ),
       home: const MyHomePage(),
     );
@@ -90,8 +91,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   OverlayEntry? overlayEntry;
   final link = LayerLink();
+  
+  final List headerList = ["Home", "Settings", "Help", "FAQ", "DarkMode"];
+  Color selectedColor = const Color.fromRGBO(217, 217, 217, 1);
+
+  late double contextWidth = MediaQuery.of(context).size.width;
+  late double contextHeight = MediaQuery.of(context).size.height;
 
   // TODO: Make a list of variables for colors.
+  Color borderColor = const Color.fromRGBO(255, 0, 0, 1);
 
   void showOverlayTooltip(){
 
@@ -152,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _currentTime(); //! What do I need this for?
+    // _currentTime(); //! What do I need this for?
     callData();
     //! maybe not do this until all is load?
     monitorActiveWindow();
@@ -166,6 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
     textController.dispose();
     removeOverlay();
+    myFocusNode.dispose();
 
   }
   
@@ -217,528 +226,540 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 
-
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          color: Colors.blue,
-          gradient: LinearGradient(
-              colors: [backgroundColorGradient1, backgroundColorGradient2]),
-        ),
-        //! "HEADER"
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        color: const Color.fromRGBO(136, 148, 162, 1),
         child: Column(
           children: [
-            const SizedBox(height: 40),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Material(
+            const SizedBox(height: 20),
+            //! "HEADER"
+            //TODO: make its own file?
+            Container(
+              height: 50,
+              width: MediaQuery.of(context).size.width * 0.8,
+              decoration: BoxDecoration(
+                // color: Colors.white,
                 color: const Color.fromRGBO(217, 217, 217, 1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5)
-                ),
-                child: Wrap(
-                  spacing: 60.0,
-                  children: [
-                    TextButton(
-                      onPressed: () {},
+                borderRadius: BorderRadius.circular(8),
+              ),
+              //TODO: fix the spacing when resizing
+              child: Row(
+                children: [
+                  const SizedBox(width: 20.0),
+                  const Icon(Icons.cabin),
+                  const Spacer(flex:1),
+                  // TODO: make an variable for the style?
+                  InkWell(
+                      onTap: (){
+                        print("here");
+                      },
                       child: const Text(
                         "Home",
-                        textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16, 
                         ),
-                      )),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        "Settings",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                        ),
-                      )),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        "Help",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                        ),
-                      )),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        "FAQ",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      )),
-                    SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: IconButton(
-                        padding: const EdgeInsets.all(0.0),
-                        iconSize: 20,
-                        // TODO: add a switch towards different themes and switch the icons as well.
-                        // https://stackoverflow.com/questions/62942430/flutter-change-dark-mode-switch-to-an-icon
-                        icon: const Icon(
-                          Icons.wb_sunny,
-                        ),
-                        onPressed: (){},
                       ),
                     ),
-                  ],
-                ),
-              ),
+                  const Spacer(flex:2),
+                  const Text(
+                    "Settings",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16, 
+                    ),
+                  ),
+                  const Spacer(flex:2),
+                  const Text(
+                    "Help",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16, 
+                    ),
+                  ),
+                  const Spacer(flex:2),
+                  const Icon(Icons.wb_sunny_rounded),
+                  const Spacer(flex:1),
+                ],
+              )
             ),
-            const SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 427,
-                  height: 441,
-                  decoration: BoxDecoration(
-                    color: const Color.fromRGBO(215, 218, 223, 0.76),
-                    gradient: const LinearGradient(colors: [
-                      Color.fromRGBO(151, 162, 170, 1),
-                      Color.fromRGBO(215, 218, 223, 0.76)
-                    ]),
-                    border: Border.all(
-                      color: const Color.fromRGBO(9, 80, 113, 1),
-                      width: 6.0,
-                    ),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 337,
-                        height: 266,
-                        padding: const EdgeInsets.fromLTRB(15, 20, 15, 0),
-                        margin: const EdgeInsets.fromLTRB(0, 30, 0, 20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        //* Program List
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              //TODO: Show the programs with icons and names
-                              Expanded(
-                                flex: 8,
-                                
-                                //TODO:  I guess another overlay is incoming or maybe a popupmenu
-                                child: CustomGridView(
-                                  itemCount: dataList["tab_list"][currentTab]["program_list"].length,
-                                  programNames: dataList["tab_list"][currentTab]["program_list"],
-                                  onSelectedChanged: (programNames, overlayEntries){
-
-                                    tempOverlayEntries = overlayEntries;
-                                    tempMap = programNames;
-
-                                  }
-                                ),
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Center(
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          _pickFile();
-                                        },
-                                        style: TextButton.styleFrom(
-                                          foregroundColor: Colors.white,
-                                          backgroundColor: const Color.fromRGBO(9, 80, 113, 1)
-                                        ),
-                                        child: const Text(
-                                          "Add",
-                                          style: TextStyle(fontSize: 12),
-                                        ),
-                                      ),
-                                    ),
-                                    // if a program is selected
-                                    Center(
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          var list = dataList["tab_list"][currentTab]["program_list"];
-
-                                          for(var program in tempMap.values){
-                                            var index = list.indexOf(program);
-                                            list.removeAt(index);
-                                          }
-                                          tempMap.clear();
-
-
-                                          for (var entry in tempOverlayEntries.values) {
-                                            entry.remove();
-                                            entry.dispose();
-                                          }
-                                          tempOverlayEntries.clear();
-                                          
-                                          dataList["tab_list"][currentTab]["program_list"] = list;
-                                          setState(() {  
-                                            writeJsonFile(dataList);
-                                          });
-                                        },
-                                        style: TextButton.styleFrom(
-                                          foregroundColor: Colors.white,
-                                          backgroundColor: const Color.fromRGBO(9, 80, 113, 1),
-                                        ),
-                                        child: const Text(
-                                          "Remove",
-                                          style: TextStyle(fontSize: 12),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ]),
-                      ),
-                      // Option block
-                      Column(
-                        children: [
-                          // TextFieldForm
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.fromLTRB(40, 0, 40, 0),
-                                  padding: const EdgeInsets.fromLTRB(10, 5, 0, 10),
-                                  decoration: BoxDecoration(
-                                    
-                                    color: Colors.white,
-                                    border: validationError ? Border.all(
-                                      color: Colors.red
-                                    ) : null,
-                                    borderRadius: BorderRadius.circular(5.0),
-                                  ),
-                                  //TODO: try make it so that when it unfocus, it will the save the input
-                                  child: CompositedTransformTarget(
-                                    link: link,
-                                    child: TextFormField( 
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 17,
-                                      ),
-                                      focusNode: myFocusNode,
-                                      controller: textController,
-                                      keyboardType: const TextInputType.numberWithOptions(
-                                        decimal: true,
-                                        signed: true,
-                                      ),
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.allow(RegExp(r"^[\d\-,]{0,19}")),
-                                      ],
-                                      onFieldSubmitted: (String value){
-                                        
-                                        const snackBar = SnackBar(
-                                          content: Text("Saved"),
-                                          duration: Duration(milliseconds: 1100),
-                                        );
-                                    
-                                        var sameNum = value.split(RegExp(r"\W+"));
-                                        var uniq = [];
-                                        bool noDupl = true;
-                                        for(var i in sameNum) {
-                                          if(uniq.contains(i)) {
-                                            noDupl = false;
-                                          } else {
-                                            uniq.add(i);
-                                          }
-                                        }
-                                    
-                                        // match this: 0900-1230,1330-1700, noduplicates
-                                        if (value.contains(RegExp(r"^\d{4}-\d{4}(?:,\d{4}-\d{4})?$")) && noDupl) {
-                                          validationError = false;
-
-                                          dataList["tab_list"][currentTab]["options"]["time"] = value;
-                                          writeJsonFile(dataList);
-
-                                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-                                          removeOverlay();
-                                            
-                                          
-                                        } else {
-                                          validationError = true;
-                                          myFocusNode.requestFocus();
-                                          
-                                          showOverlayTooltip();
-                                        }
-                                    
-                                      },
-                                      cursorHeight: 24,
-                                      decoration: InputDecoration(
-                                        suffixIcon: validationError ? const Icon(
-                                          Icons.emergency,
-                                          size: 16,
-                                        ) : null,
-                                        errorText: validationError ? "" : null,
-                                        errorStyle: const TextStyle(height: 0),
-                                        hintText: "Ex. 0900-1230,1330-1700",
-                                        constraints: const BoxConstraints(
-                                          maxHeight: 30,
-                                        )
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                          // Repeat option
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(40, 10, 40, 0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              // crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  //TODO: come up with a better name for it
-                                  child: CustomOverlayPortal(
-                                    dataList: dataList["tab_list"][currentTab]["options"]["repeat"],
-                                    currentTab: currentTab,
-                                    onSaved: (list){
-                          
-                                      dataList["tab_list"][currentTab]["options"]["repeat"] = list;
-                                      writeJsonFile(dataList);
-                          
-                                    }
-                                  )
-                                ),
-                              ],
-                            ),
-                          )
-                        ]
-                      ),
-                    ],
-                  ),
-                ),
-                Column(
-                  children: [
-                    Container(
-                      width: 181,
-                      height: 293,
+            const SizedBox(height: 20.0),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.8,
+              child: Row(
+                children: [
+                  //* Program List
+                  Expanded(
+                    flex: 7,
+                    child: Container(
                       decoration: BoxDecoration(
-                        color: const Color.fromRGBO(198, 205, 213, 1),
-                        // TODO: Change left side border to null
+                        color: const Color.fromRGBO(42, 46, 50, 1),
                         border: Border.all(
-                          color: const Color.fromRGBO(9, 80, 113, 1),
-                          width: 6,
+                          color: borderColor,
+                          width: 6.0,
                         ),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      
-                      //* Tab List
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const SizedBox(height: 10),
-                          Expanded(
-                            flex: 8,
-                              child: Container(
-                                  margin: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    color: const Color.fromRGBO(217, 217, 217, 1),
-                                    // boxShadow: [
-                                    //   BoxShadow(
-                                    //     color: Colors.grey.withOpacity(0.5),
-                                    //     blurRadius: 7,
-                                    //     spreadRadius: 5,
-                                    //     offset: const Offset(0, 4),
-                                    //   ),
-                                    // ]
+                          Container(
+                            width: 337,
+                            height: 266,
+                            padding: const EdgeInsets.fromLTRB(15, 20, 15, 0),
+                            margin: const EdgeInsets.fromLTRB(0, 30, 0, 20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                //TODO: Show the programs with icons and names
+                                Expanded(
+                                  flex: 8,
+                                  //TODO:  I guess another overlay is incoming or maybe a popupmenu
+                                  child: CustomGridView(
+                                    itemCount: dataList["tab_list"][currentTab]["program_list"].length,
+                                    programNames: dataList["tab_list"][currentTab]["program_list"],
+                                    onSelectedChanged: (programNames, overlayEntries){
+                                
+                                      tempOverlayEntries = overlayEntries;
+                                      tempMap = programNames;
+                                
+                                    }
                                   ),
-                                  child: RawScrollbar(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    thickness: 10,
-                                    thumbColor: Colors.deepPurple,
-                                    trackVisibility: false,
-                                    thumbVisibility: true,
-                                    controller: _scrollController,
-                                    child: ListView.builder(
-                                      controller: _scrollController,
-                                      itemCount: dataList["tab_list"].length,
-                                      itemBuilder: (context, index) {
-                                        return Material(
-                                          color: const Color.fromRGBO(217, 217, 217, 1),
-                                          child: Padding(
-                                            padding: const EdgeInsets.fromLTRB(8, 0, 14, 8),
-                                            //TODO: able to drag and drop to move around the list order
-                                            child: ListTile(
-                                              onTap: () {
-                                                setState(() {
-                                                  currentTab = index;
-                                                  textController.text = dataList["tab_list"][currentTab]["options"]["time"];
-                                                  validationError = false;
-                                                  removeOverlay();
-                                                });
-                                              },
-                                              contentPadding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(8.0),
-                                              ),
-                                              textColor: Colors.deepPurple,
-                                              iconColor: Colors.deepPurple,
-                                              tileColor: currentTab == index ?
-                                               const Color.fromRGBO(245, 113, 161, 1.0) :
-                                               const Color.fromRGBO(245, 245, 245, 1.0),
-                                              title: Text(
-                                                "${dataList["tab_list"][index]["name"]}",
-                                                style: const TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontFamily: "BerkshireSwash",
-                                                )
-                                              ),
-                                              trailing: IconButton(
-                                                onPressed: (){
-                                                  setState(() {
-                                                    dataList["tab_list"].removeAt(index);
-                                                    writeJsonFile(dataList);
-                                                  });
-                                                },
-                                                icon: const Icon(
-                                                  Icons.remove_circle_outlined,
-                                                  size: 20,
-                                                ),
-                                              ),
-                                            ),
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Center(
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            _pickFile();
+                                          },
+                                          style: TextButton.styleFrom(
+                                            foregroundColor: Colors.white,
+                                            backgroundColor: const Color.fromRGBO(9, 80, 113, 1)
                                           ),
-                                        );
-                                      }
+                                          child: const Text(
+                                            "Add",
+                                            style: TextStyle(fontSize: 12),
+                                          ),
+                                        ),
+                                      ),
+                                      // if a program is selected
+                                      Center(
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            var list = dataList["tab_list"][currentTab]["program_list"];
+                                
+                                            for(var program in tempMap.values){
+                                              var index = list.indexOf(program);
+                                              list.removeAt(index);
+                                            }
+                                            tempMap.clear();
+                                
+                                
+                                            for (var entry in tempOverlayEntries.values) {
+                                              entry.remove();
+                                              entry.dispose();
+                                            }
+                                            tempOverlayEntries.clear();
+                                            
+                                            dataList["tab_list"][currentTab]["program_list"] = list;
+                                            setState(() {  
+                                              writeJsonFile(dataList);
+                                            });
+                                          },
+                                          style: TextButton.styleFrom(
+                                            foregroundColor: Colors.white,
+                                            backgroundColor: const Color.fromRGBO(9, 80, 113, 1),
+                                          ),
+                                          child: const Text(
+                                            "Remove",
+                                            style: TextStyle(fontSize: 12),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ]
+                            ),
+                          ),
+                          // block options
+                          Column(
+                            children: [
+                              // TextFieldForm
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.fromLTRB(40, 0, 40, 0),
+                                      padding: const EdgeInsets.fromLTRB(10, 5, 0, 10),
+                                      decoration: BoxDecoration(
+                                        
+                                        color: Colors.white,
+                                        border: validationError ? Border.all(
+                                          color: Colors.red
+                                        ) : null,
+                                        borderRadius: BorderRadius.circular(5.0),
+                                      ),
+                                      //TODO: try make it so that when it unfocus, it will the save the input
+                                      child: CompositedTransformTarget(
+                                        link: link,
+                                        child: TextFormField( 
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 17,
+                                          ),
+                                          focusNode: myFocusNode,
+                                          controller: textController,
+                                          keyboardType: const TextInputType.numberWithOptions(
+                                            decimal: true,
+                                            signed: true,
+                                          ),
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter.allow(RegExp(r"^[\d\-,]{0,19}")),
+                                          ],
+                                          onFieldSubmitted: (String value){
+                                            
+                                            const snackBar = SnackBar(
+                                              content: Text("Saved"),
+                                              duration: Duration(milliseconds: 1100),
+                                            );
+                                        
+                                            var sameNum = value.split(RegExp(r"\W+"));
+                                            var uniq = [];
+                                            bool noDupl = true;
+                                            for(var i in sameNum) {
+                                              if(uniq.contains(i)) {
+                                                noDupl = false;
+                                              } else {
+                                                uniq.add(i);
+                                              }
+                                            }
+                                        
+                                            // match this: 0900-1230,1330-1700, noduplicates
+                                            if (value.contains(RegExp(r"^\d{4}-\d{4}(?:,\d{4}-\d{4})?$")) && noDupl) {
+                                              validationError = false;
+                                  
+                                              dataList["tab_list"][currentTab]["options"]["time"] = value;
+                                              writeJsonFile(dataList);
+                                  
+                                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                  
+                                              removeOverlay();
+                                                
+                                              
+                                            } else {
+                                              validationError = true;
+                                              myFocusNode.requestFocus();
+                                              
+                                              showOverlayTooltip();
+                                            }
+                                        
+                                          },
+                                          cursorHeight: 24,
+                                          decoration: InputDecoration(
+                                            suffixIcon: validationError ? const Icon(
+                                              Icons.emergency,
+                                              size: 16,
+                                            ) : null,
+                                            errorText: validationError ? "" : null,
+                                            errorStyle: const TextStyle(height: 0),
+                                            hintText: "Ex. 0900-1230,1330-1700",
+                                            constraints: const BoxConstraints(
+                                              maxHeight: 30,
+                                            )
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   )
-                              ) 
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                ),
-                                onPressed: () {
-                                  // TODO: move this(time) to custom overlay repeat dart file
-                                  DateTime timeNow = DateTime.now();
-                                  // these are "repeat options"?
-                                  String hourMin = DateFormat("HHmm").format(timeNow); // Daily: 2300
-                                  String weekday = DateFormat("E").format(timeNow); // Weekly: Tue - 2300
-                                  String month = DateFormat("d/M").format(timeNow); // Monthly: 5/12 - 2300
-                                  String year = DateFormat("d/M/y").format(timeNow); // : 5/12/2023 - 2300
-                                  /*
-                                  dat structure: 
-                                  #DAILY
-                                  time is required or it wont block
-                                  repeat: [
-                                    "Daily" - everyday at 2300-2400
-                                  ],
-                                  time: "2300-2400"
-                                  
-                                  #Weekly
-                                  repeat: [
-                                    "Weekly"
-                                    "Tue" - every Tuesday at 2300-2400
-                                  ],
-                                  time: "2300-2400"
-
-                                  #Monthly
-                                  repeat: [
-                                    "Monthly",
-                                    "5" - every 5h of the month block at 2300-2400
-                                  ],
-                                  time: "2300-2400"
-
-                                  #Yearly
-                                  repeat: [
-                                    "Yearly",
-                                    "5/12" - every year on the 5th of Dec at 2300-2400
-                                  ],
-                                  time: "2300-2400"
-
-                                  #Custom
-                                  repeat: [
-
-                                  ],
-                                  time: 2300-2400
-                                   */
-                                  print(hourMin);
-                                  print(weekday);
-                                  print(month);
-                                  print(year);
-                                  
-                                  dummyMap = {
-                                    "name": "Tab ${dataList["tab_list"].length + 1}",
-                                    "program_list": [],
-                                    "options": {
-                                      "repeat": [],
-                                      "time": "",
-                                    }
-                                  }; 
-                                  dataList["tab_list"].add(dummyMap);
-                                  setState(() {
-                                    // writeJsonFile(dataList);
-                                  });
-                                  
-                                },
-                                child: const Text("Add TAB"),
+                                ],
                               ),
-                            )
-                          )
+                              // Repeat option
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(40, 10, 40, 0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  // crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      //TODO: come up with a better name for it
+                                      child: CustomOverlayPortal(
+                                        dataList: dataList["tab_list"][currentTab]["options"]["repeat"],
+                                        currentTab: currentTab,
+                                        onSaved: (list){
+                              
+                                          dataList["tab_list"][currentTab]["options"]["repeat"] = list;
+                                          writeJsonFile(dataList);
+                              
+                                        }
+                                      )
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ]
+                          ),
                         ],
                       ),
                     ),
-                    Container(
-                      width: 181,
-                      height: 148,
-                      decoration: BoxDecoration(
-                        color: const Color.fromRGBO(198, 205, 213, 1),
-                        // TODO: change the top and left border side to null
-                        border: Border.all(
-                          color: const Color.fromRGBO(9, 80, 113, 1),
-                          width: 6,
-                        ),
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: Center(
-                        child: TextButton(
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.all(0.0),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  //* tab list
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          flex: 7,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color.fromRGBO(42, 46, 50, 1),
+                              border: Border(
+                                left: BorderSide.none,
+                                
+                                top: BorderSide(
+                                  color: borderColor,
+                                  width: 6,
+                                ),
+                                bottom: BorderSide(
+                                  color: borderColor,
+                                  width: 6,
+                                ),
+                                right: BorderSide(
+                                  color: borderColor,
+                                  width: 6,
+                                ),
                               ),
-                              backgroundColor: Colors.white,
+                              borderRadius: const BorderRadius.only(
+                                bottomLeft: Radius.zero,
+                                topRight: Radius.circular(15.0),
+                                topLeft: Radius.circular(15.0),
+                                bottomRight: Radius.circular(15.0),
+                              )
                             ),
-                            onPressed: () {},
-                            child: const Icon(
-                              Icons.data_thresholding_rounded,
-                              size: 80,
-                              color: Color.fromRGBO(9, 80, 113, 1),
-                            )),
-                      ),
-                    ),
-                  ],
-                )
-              ],
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const SizedBox(height: 10),
+                                Expanded(
+                                  flex: 8,
+                                    child: Container(
+                                        margin: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(8.0),
+                                          color: const Color.fromRGBO(217, 217, 217, 1),
+                                          // boxShadow: [
+                                          //   BoxShadow(
+                                          //     color: Colors.grey.withOpacity(0.5),
+                                          //     blurRadius: 7,
+                                          //     spreadRadius: 5,
+                                          //     offset: const Offset(0, 4),
+                                          //   ),
+                                          // ]
+                                        ),
+                                        child: RawScrollbar(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8.0),
+                                          ),
+                                          thickness: 10,
+                                          thumbColor: Colors.deepPurple,
+                                          trackVisibility: false,
+                                          thumbVisibility: true,
+                                          controller: _scrollController,
+                                          child: ListView.builder(
+                                            controller: _scrollController,
+                                            itemCount: dataList["tab_list"].length,
+                                            itemBuilder: (context, index) {
+                                              return Material(
+                                                color: const Color.fromRGBO(217, 217, 217, 1),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.fromLTRB(8, 0, 14, 8),
+                                                  //TODO: able to drag and drop to move around the list order
+                                                  child: ListTile(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        currentTab = index;
+                                                        textController.text = dataList["tab_list"][currentTab]["options"]["time"];
+                                                        validationError = false;
+                                                        removeOverlay();
+                                                      });
+                                                    },
+                                                    contentPadding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(8.0),
+                                                    ),
+                                                    textColor: Colors.deepPurple,
+                                                    iconColor: Colors.deepPurple,
+                                                    tileColor: currentTab == index ?
+                                                    const Color.fromRGBO(245, 113, 161, 1.0) :
+                                                    const Color.fromRGBO(245, 245, 245, 1.0),
+                                                    title: Text(
+                                                      "${dataList["tab_list"][index]["name"]}",
+                                                      style: const TextStyle(
+                                                        fontSize: 20,
+                                                        fontWeight: FontWeight.bold,
+                                                        fontFamily: "BerkshireSwash",
+                                                      )
+                                                    ),
+                                                    trailing: IconButton(
+                                                      onPressed: (){
+                                                        setState(() {
+                                                          dataList["tab_list"].removeAt(index);
+                                                          writeJsonFile(dataList);
+                                                        });
+                                                      },
+                                                      icon: const Icon(
+                                                        Icons.remove_circle_outlined,
+                                                        size: 20,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          ),
+                                        )
+                                    ) 
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                      ),
+                                      onPressed: () {
+                                        // TODO: move this(time) to custom overlay repeat dart file
+                                        DateTime timeNow = DateTime.now();
+                                        // these are "repeat options"?
+                                        String hourMin = DateFormat("HHmm").format(timeNow); // Daily: 2300
+                                        String weekday = DateFormat("E").format(timeNow); // Weekly: Tue - 2300
+                                        String month = DateFormat("d/M").format(timeNow); // Monthly: 5/12 - 2300
+                                        String year = DateFormat("d/M/y").format(timeNow); // : 5/12/2023 - 2300
+                                        /*
+                                        dat structure: 
+                                        #DAILY
+                                        time is required or it wont block
+                                        repeat: [
+                                          "Daily" - everyday at 2300-2400
+                                        ],
+                                        time: "2300-2400"
+                                        
+                                        #Weekly
+                                        repeat: [
+                                          "Weekly"
+                                          "Tue" - every Tuesday at 2300-2400
+                                        ],
+                                        time: "2300-2400"
+                                          
+                                        #Monthly
+                                        repeat: [
+                                          "Monthly",
+                                          "5" - every 5h of the month block at 2300-2400
+                                        ],
+                                        time: "2300-2400"
+                                          
+                                        #Yearly
+                                        repeat: [
+                                          "Yearly",
+                                          "5/12" - every year on the 5th of Dec at 2300-2400
+                                        ],
+                                        time: "2300-2400"
+                                          
+                                        #Custom
+                                        repeat: [
+                                          
+                                        ],
+                                        time: 2300-2400
+                                        */
+                                        print(hourMin);
+                                        print(weekday);
+                                        print(month);
+                                        print(year);
+                                        
+                                        dummyMap = {
+                                          "name": "Tab ${dataList["tab_list"].length + 1}",
+                                          "program_list": [],
+                                          "options": {
+                                            "repeat": [],
+                                            "time": "",
+                                          }
+                                        }; 
+                                        dataList["tab_list"].add(dummyMap);
+                                        setState(() {
+                                          // writeJsonFile(dataList);
+                                        });
+                                        
+                                      },
+                                      child: const Text("Add TAB"),
+                                    ),
+                                  )
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        //* Statistics
+                        Expanded(
+                          flex: 3,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color.fromRGBO(42, 46, 50, 1),
+                              border:  Border(
+                                left: BorderSide.none,
+                                top: BorderSide.none,
+                                bottom: BorderSide(
+                                  color: borderColor,
+                                  width: 6,
+                                ),
+                                right: BorderSide(
+                                  color: borderColor,
+                                  width: 6,
+                                ),
+                              ),
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.zero,
+                                topRight: Radius.circular(15.0),
+                                bottomLeft: Radius.circular(15.0),
+                                bottomRight: Radius.circular(15.0),
+                              ),
+                            ),
+                            child: Center(
+                              child: IconButton(
+                                onPressed: (){},
+                                //TODO: switch to figma icon(download and create icon folder in assets)
+                                icon: const Icon(Icons.data_thresholding_rounded),
+                                iconSize: 76,
+                                color: const Color.fromRGBO(253, 65, 60, 1),
+                              ),
+                            )
+                          ),
+                        ),
+                      ],
+                    )
+                  ),
+                ],
+              )
             ),
           ],
         ),
       ),
     );
   }
+
 }
