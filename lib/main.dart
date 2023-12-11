@@ -87,7 +87,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   Map dataList = {}; // for the json file
   Map<int, String> tempMap = {}; // from the customgridview, which are selected
-  int currentTab = 2;
+  int currentTab = 0;
   Map<String, dynamic> dummyMap = {};
   final ScrollController _scrollController = ScrollController();
   String time = DateFormat("HHmm").format(DateTime.now());
@@ -97,7 +97,6 @@ class _MyHomePageState extends State<MyHomePage> {
   final FocusNode myFocusNode = FocusNode();
   bool validationError = false;
   
-  Map<int, OverlayEntry> tempOverlayEntries = {};
 
   OverlayEntry? overlayEntry;
   final link = LayerLink();
@@ -181,11 +180,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
-    super.dispose();
     textController.dispose();
     removeOverlay();
     myFocusNode.dispose();
 
+    super.dispose();
   }
   
   void callData() {
@@ -311,7 +310,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         const Spacer(flex:2),
                         InkWell(
                           onTap: (){
-                            print("here");
                             setState(() {
                               headerButtonSelected.clear();
                               headerButtonSelected["Settings"] = true;
@@ -345,17 +343,16 @@ class _MyHomePageState extends State<MyHomePage> {
                         const Spacer(flex:2),
                         InkWell(
                           onTap: (){
-                            print("here");
                             setState(() {
                               headerButtonSelected.clear();
                               headerButtonSelected["Help"] = true;
                               //TODO: add navigation route-pop.
                             });
                           },
-                          splashColor: Colors.transparent,
                           customBorder: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          splashColor: Colors.transparent,
                           highlightColor: Colors.transparent,
                           child: Container(
                             height: 50,
@@ -382,10 +379,10 @@ class _MyHomePageState extends State<MyHomePage> {
                             //TODO:
 
                           },
-                          splashColor: Colors.transparent,
                           customBorder: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          splashColor: Colors.transparent,
                           highlightColor: Colors.transparent,
                           child: const Icon(
                             Icons.wb_sunny_rounded,
@@ -420,6 +417,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           children: [
                             Text(
                               "John Doe",
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontFamily: "BerkshireSwash",
@@ -427,6 +425,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                             Text(
                               "JohnDoe@email.com",
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -442,6 +441,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: (){},
+                            customBorder: const CircleBorder(),
+                            // splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
                             child: const Icon(
                               Icons.account_circle,
                               size: 40,
@@ -472,6 +474,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
+                      //TODO: maybe wrap this inside a container, it's contents wont resize with the parent container(above)
                       child: Column(
                         children: [
                           Container(
@@ -493,9 +496,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   child: CustomGridView(
                                     itemCount: dataList["tab_list"][currentTab]["program_list"].length,
                                     programNames: dataList["tab_list"][currentTab]["program_list"],
-                                    onSelectedChanged: (programNames, overlayEntries){
+                                    onSelectedChanged: (programNames){
                                 
-                                      tempOverlayEntries = overlayEntries;
                                       tempMap = programNames;
                                 
                                     }
@@ -536,13 +538,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                             }
                                             tempMap.clear();
                                 
-                                
-                                            for (var entry in tempOverlayEntries.values) {
-                                              entry.remove();
-                                              entry.dispose();
-                                            }
-                                            tempOverlayEntries.clear();
-                                            
                                             dataList["tab_list"][currentTab]["program_list"] = list;
                                             setState(() {  
                                               writeJsonFile(dataList);
@@ -679,6 +674,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                       )
                                       //TODO: something else here as well
                                     ),
+                                    //TODO: add a button for removing current repeat info/chosen options
+                                    // to default "Repeat"/Null
+                                    //! probably better to have it inside the customoverlayrepeat file
+
                                     Expanded(
                                       child: Container(
                                         width: 10,
@@ -784,6 +783,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   const Color.fromRGBO(245, 245, 245, 1.0),
                                                   title: Text(
                                                     "${dataList["tab_list"][index]["name"]}",
+                                                    overflow: TextOverflow.ellipsis,
                                                     style: const TextStyle(
                                                       fontSize: 20,
                                                       fontWeight: FontWeight.bold,
