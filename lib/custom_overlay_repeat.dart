@@ -45,12 +45,14 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
   String? customRepeatValue;
 
   List<String> weekday = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",];
-  List<String> dropdownList = ["Repeat", "Daily", "Weekdays", "Weekly", "Monthly", "Yearly", "Custom",];
+  List<String> dropdownList = ["Daily", "Weekdays", "Weekly", "Monthly", "Yearly", "Custom",];
 
   final FocusNode _myFocusNode = FocusNode();
+  final FocusScopeNode _myFocusNode2 = FocusScopeNode();
   TextEditingController formController = TextEditingController();
 
   int? tempTab;
+
 
 
   void toggleOverlayPortal() {
@@ -59,14 +61,13 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     tempTab = widget.currentTab;
-    formController.text = widget.dataList.isNotEmpty ? widget.dataList[1] : "1";
-    customRepeatValue = widget.dataList.isNotEmpty ? widget.dataList[2] : null;
+    formController.text = widget.dataList.isNotEmpty && widget.dataList.length > 1 ? widget.dataList[1] : "1";
+    customRepeatValue = widget.dataList.isNotEmpty && widget.dataList.length > 3 ? widget.dataList[2] : null;
 
-    if (widget.dataList.isNotEmpty && widget.dataList[2] == "weeks"){
+    if (widget.dataList.isNotEmpty && widget.dataList.length > 3 && widget.dataList[2] == "weeks"){
       weeksSelected = true;
       height = height + weekdayButtonsHeight;
     } 
@@ -77,10 +78,10 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
-    super.dispose();
     formController.dispose();
     _myFocusNode.dispose();
+    _myFocusNode2.dispose();
+    super.dispose();
   }
 
 
@@ -113,6 +114,8 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
         });
       }
     }
+    //TODO: make it animated, just like the dropdownbutton2 when the menu is shown/opened
+    //TODO: Focus widget here?
     return CompositedTransformTarget(
       link: _link,
       child: OverlayPortal(
@@ -120,7 +123,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
         overlayChildBuilder: (context) {
           return CompositedTransformFollower(
             link: _link,
-            targetAnchor: const Alignment(-1, -3.8),
+            targetAnchor: const Alignment(-1, -4.0),
             child: Align(
               alignment: AlignmentDirectional.topStart,
               child: Container(
@@ -128,8 +131,9 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                 height: height,
                 padding: const EdgeInsets.all(5.0),
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0),
-                    color: const Color.fromRGBO(9, 80, 113, 1)),
+                  borderRadius: BorderRadius.circular(8.0),
+                  color: const Color.fromRGBO(71, 71, 71, 1)
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -175,8 +179,6 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                                     isDense: true,
                                     contentPadding: EdgeInsets.fromLTRB(0, 4, 4, 4)
                                   ),
-                                  
-                                  // TODO: add to datalist on save or similar
                                 ),
                               ),
                             ),
@@ -210,7 +212,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                                   ),
                                   value: customRepeatValue,
                                   onChanged: (String? value) {
-                                    print("change");
+                    
                                     setState(() {
                                       if (value == "weeks" && weeksSelected == false) {
                                         height = height + weekdayButtonsHeight;
@@ -223,8 +225,15 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                                       }
                                       customRepeatValue = value!;
                                     });
-              
+                    
                                   },
+                                  dropdownStyleData: DropdownStyleData(
+                                    offset: const Offset(0, 80),
+                                    isOverButton: true,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                    )
+                                  ),
                                 ),
                               ),
                             ),
@@ -232,7 +241,6 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                         ],
                       ),
                     ),
-                    // TODO: FocusNode widget here? >
                     if (weeksSelected) Container(
                       margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                       height: weekdayButtonsHeight,
@@ -251,7 +259,6 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                             Colors.white : 
                             const Color.fromRGBO(245, 113, 161, 1.0),
                             child: InkWell(
-                              // focusNode: myFocusNode, //! Maybe remove this?
                               borderRadius: BorderRadius.circular(5.0), 
                               hoverColor: const Color.fromRGBO(245, 113, 161, .1),
                               splashColor: Colors.transparent,
@@ -366,56 +373,92 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                 )
               );
             }).toList(),
-            customButton: TextButton(
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.fromLTRB(12, 12, 0, 12),
-                backgroundColor: const Color.fromRGBO(71, 71, 71, 1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)
-                )
-              ),
-              //! Fix: Hover color change doesnt work unless have I onPressed not null, but
-              //! then dropdownmenu wont show as well if this is not null
-              onPressed: null,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+            customButton: Material(
+              color: Colors.transparent,
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 0, 12),
+                  backgroundColor: const Color.fromRGBO(71, 71, 71, 1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)
+                  )
+                ),
+                onPressed: null,
+                child: Row(
                   children: [
-                    Text(
-                      widget.dataList.length > 3 ?
-                      "Every ${widget.dataList[1]} ${widget.dataList[2]}"
-                      : widget.dataList.isEmpty ? "Repeat" : widget.dataList[0],
-                      textAlign: TextAlign.start,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: widget.dataList.length > 3 ?
+                          const EdgeInsets.all(0) : 
+                          const EdgeInsets.all(5.5),
+                          child: Text(
+                            widget.dataList.length > 3 ?
+                            "Every ${widget.dataList[1]} ${widget.dataList[2]}"
+                            : widget.dataList.isEmpty ? "Repeat" : widget.dataList[0],
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: widget.dataList.length > 3 ? 14 : 20,
+                            ),
+                          ),
+                        ),
+                        if(widget.dataList.length > 3)
+                        Text(
+                          widget.dataList[3].values.toList().join(", "),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            overflow: TextOverflow.ellipsis
+                          ),
+                        ),
+                      ],
                     ),
-                    //TODO: I dont know how to remove the brackets from the string
-                    Text(
-                      widget.dataList.length > 3 ?
-                      widget.dataList[3].values.toString()
-                      : "",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        overflow: TextOverflow.ellipsis
+                    const Spacer(),
+                    if(widget.dataList.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                      child: Material(
+                        color: const Color.fromRGBO(71, 71, 71, 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: InkWell(
+                          onTap: (){
+      
+                            setState(() {
+                              widget.dataList.clear();
+                              widget.onSaved(widget.dataList);
+                            });
+      
+                          },
+                          customBorder: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: const Icon(
+                            Icons.delete_forever,
+                            color: Colors.white,
+                            size: 30,
+                          )
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-
+        
             //! TODO: I think remove this as well
-            value: widget.dataList.isEmpty ? null : widget.dataList[0].toString(),
+            // value: widget.dataList.isEmpty ? null : widget.dataList[0].toString(),
             // todo: add a variable to disable when menu is opened.
-            onChanged: (String? value) {
+            onChanged: (value) {
               setState(() {
                 if (value == "Custom") {
+                  _myFocusNode.requestFocus();
+                  // _myFocusNode2.requestFocus();
                   toggleOverlayPortal();
                 } else {
                   if(value != "Repeat"){
@@ -427,7 +470,7 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
                 }
               });
             },
-            //! TODO: I can remove this too
+            //TODO: add this to the custombutton property
             iconStyleData: const IconStyleData(
               icon: Icon(
                 Icons.keyboard_arrow_down_outlined,
@@ -436,21 +479,13 @@ class CustomOverlayPortalState extends State<CustomOverlayPortal> {
               iconEnabledColor: Colors.white,
           
             ),
-            //! TODO: I can remove this too
-            buttonStyleData: ButtonStyleData(
-              // padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.0),
-                color: const Color.fromRGBO(9, 80, 113, 1),
-              )
-            ),
             dropdownStyleData: DropdownStyleData(
               offset: const Offset(0, 150),
               width: 200,
               maxHeight: 360,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
-                color: const Color.fromRGBO(9, 80, 113, 1),
+                color: const Color.fromRGBO(71, 71, 71, 1),
               )
             ),
           ),
