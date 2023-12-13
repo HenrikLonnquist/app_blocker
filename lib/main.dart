@@ -87,7 +87,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   Map dataList = {}; // for the json file
   Map<int, String> tempMap = {}; // from the customgridview, which are selected
-  int currentTab = 0;
+  int currentTab = 2;
   Map<String, dynamic> dummyMap = {};
   final ScrollController _scrollController = ScrollController();
   String time = DateFormat("HHmm").format(DateTime.now());
@@ -100,6 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   OverlayEntry? overlayEntry;
   final link = LayerLink();
+  final link2 = LayerLink();
   
   Map headerButtonSelected = {"Home": true,};
   Color selectedColor = const Color.fromRGBO(217, 217, 217, 1);
@@ -662,15 +663,19 @@ class _MyHomePageState extends State<MyHomePage> {
                                   children: [
                                     Expanded(
                                       //TODO: come up with a better name for it
-                                      child: CustomOverlayPortal(
-                                        dataList: dataList["tab_list"][currentTab]["options"]["repeat"],
-                                        currentTab: currentTab,
-                                        onSaved: (list){
-                              
-                                          dataList["tab_list"][currentTab]["options"]["repeat"] = list;
-                                          writeJsonFile(dataList);
-                              
-                                        }
+                                      child: CompositedTransformTarget(
+                                        link: link2,
+                                        child: CustomOverlayPortal(
+                                          link: link2,
+                                          dataList: dataList["tab_list"][currentTab]["options"]["repeat"],
+                                          currentTab: currentTab,
+                                          onSaved: (list){
+                                                                      
+                                            dataList["tab_list"][currentTab]["options"]["repeat"] = list;
+                                            writeJsonFile(dataList);
+                                                                      
+                                          }
+                                        ),
                                       )
                                       //TODO: something else here as well
                                     ),
