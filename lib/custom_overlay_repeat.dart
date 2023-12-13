@@ -530,7 +530,7 @@ class _CustomMenuState extends State<CustomMenu> {
             
                             setState(() {
                               widget.onSaved(widget.dataList);
-                              // toggleOverlayPortal();
+                              Navigator.pop(context);
                             });
                           } : null,
                           child: const Text(

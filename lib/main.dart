@@ -464,6 +464,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Row(
                 children: [
                   //* Program List
+                  // TODO: test with only program list box to, because its contents wont resize with window
                   Expanded(
                     flex: 7,
                     child: Container(
@@ -616,7 +617,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                               }
                                             }
                                         
-                                            // match this: 0900-1230,1330-1700, noduplicates
+                                            // matches this: 0900-1230,1330-1700, noduplicates
+                                            //! should be able to have more than 2 time periods, ex; 0000-1200,1800-2000,2245-2359
                                             if (value.contains(RegExp(r"^\d{4}-\d{4}(?:,\d{4}-\d{4})?$")) && noDupl) {
                                               validationError = false;
                                   
@@ -671,9 +673,17 @@ class _MyHomePageState extends State<MyHomePage> {
                                           currentTab: currentTab,
                                           onSaved: (list){
                                                                       
+                                            if(list.length > 3){
+                                              var sortedKeys = list[3].keys.toList()..sort((a, b) => int.parse(a).compareTo(int.parse(b)));
+                                              var sortedMap = {for (var key in sortedKeys) key:list[3][key]};
+                                              list[3] = sortedMap;
+                                            }
+                                            
                                             dataList["tab_list"][currentTab]["options"]["repeat"] = list;
-                                            writeJsonFile(dataList);
-                                                                      
+                                            setState(() {
+                                              writeJsonFile(dataList);
+                                            });
+                                            
                                           }
                                         ),
                                       )
