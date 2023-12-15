@@ -45,6 +45,8 @@ Condition(s) or task(s) for deleting it: Emergency:
 -
 */
 
+//TODO: make a loading screen...
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
@@ -110,6 +112,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // TODO: Make a list of variables for colors.
   Color borderColor = const Color.fromRGBO(255, 0, 0, 1);
+  
+  bool activeTab = false;
+  ActiveWindowManager winManager = ActiveWindowManager();
 
   void showOverlayTooltip(){
 
@@ -170,10 +175,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    // _currentTime(); //! What do I need this for?
+    //! What do I need this for?
+    //! maybe for the current time left or something similar
+    // _currentTime(); 
     callData();
     //! maybe not do this until all is load?
-    monitorActiveWindow();
+    winManager.monitorActiveWindow();
 
     textController.text = dataList["tab_list"][currentTab]["options"]["time"];
 
@@ -188,6 +195,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
   
+  //TODO: probably just move this to the initstate directly, no need for a method?
   void callData() {
     dataList = readJsonFile();
   }
@@ -231,6 +239,8 @@ class _MyHomePageState extends State<MyHomePage> {
       if (dupl == false) {
         dataList["tab_list"]["$currentTab"]["program_list"].add(file.name);
         writeJsonFile(dataList);
+        winManager.cancelTimer();
+        winManager.monitorActiveWindow();
       }
     });
   }
@@ -543,6 +553,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                             dataList["tab_list"][currentTab]["program_list"] = list;
                                             setState(() {  
                                               writeJsonFile(dataList);
+                                              winManager.cancelTimer();
+                                              winManager.monitorActiveWindow();
                                             });
                                           },
                                           style: TextButton.styleFrom(
@@ -618,6 +630,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             }
                                         
                                             // matches this: 0900-1230,1330-1700, noduplicates
+                                            //TODO: //!
                                             //! should be able to have more than 2 time periods, ex; 0000-1200,1800-2000,2245-2359
                                             if (value.contains(RegExp(r"^\d{4}-\d{4}(?:,\d{4}-\d{4})?$")) && noDupl) {
                                               validationError = false;
@@ -628,6 +641,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                               ScaffoldMessenger.of(context).showSnackBar(snackBar);
                                   
                                               removeOverlay();
+                                              winManager.cancelTimer();
+                                              winManager.monitorActiveWindow();
                                                 
                                               
                                             } else {
@@ -682,6 +697,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                             dataList["tab_list"][currentTab]["options"]["repeat"] = list;
                                             setState(() {
                                               writeJsonFile(dataList);
+                                              winManager.cancelTimer();
+                                              winManager.monitorActiveWindow();
                                             });
                                             
                                           }
@@ -778,7 +795,31 @@ class _MyHomePageState extends State<MyHomePage> {
                                               child: Padding(
                                                 padding: const EdgeInsets.fromLTRB(26, 3, 30, 8),
                                                 //TODO: able to drag and drop to move around the list order
+                                                
+                                                 
                                                 child: ListTile(
+                                                  //TODO: change switch widget to something else, too big
+                                                  leading: Switch(
+                                                    value: dataList["tab_list"][index]["active"],
+                                                    splashRadius: 0.0,
+                                                    focusColor: Colors.transparent,
+                                                    hoverColor: Colors.transparent,
+                                                    onChanged: (value){
+
+                                                      dataList["tab_list"][index]["active"] = value;
+
+                                                      //TODO: validation for all the blocking options;
+                                                      //* textformfield time + repeat dropdown
+                                                      
+                                                      setState(() {
+                                                        writeJsonFile(dataList);
+                                                        winManager.cancelTimer();
+                                                        winManager.monitorActiveWindow();
+                                                      });
+
+                                                    },
+                                                  ),
+                                                  // leading: Icon(Icons.toggle_off_outlined),
                                                   onTap: () {
                                                     setState(() {
                                                       currentTab = index;
@@ -842,56 +883,30 @@ class _MyHomePageState extends State<MyHomePage> {
                                         )
                                       ),
                                       onPressed: () {
-                                        // TODO: move this(time) to custom overlay repeat dart file
-                                        DateTime timeNow = DateTime.now();
-                                        // these are "repeat options"?
-                                        String hourMin = DateFormat("HHmm").format(timeNow); // Daily: 2300
-                                        String weekday = DateFormat("E").format(timeNow); // Weekly: Tue - 2300
-                                        String month = DateFormat("d/M").format(timeNow); // Monthly: 5/12 - 2300
-                                        String year = DateFormat("d/M/y").format(timeNow); // : 5/12/2023 - 2300
+                                        
                                         /*
                                         dat structure: 
                                         #DAILY
                                         time is required or it wont block
+                                        active: false,
                                         repeat: [
                                           "Daily" - everyday at 2300-2400
                                         ],
                                         time: "2300-2400"
-                                        
-                                        #Weekly
-                                        repeat: [
-                                          "Weekly"
-                                          "Tue" - every Tuesday at 2300-2400
-                                        ],
-                                        time: "2300-2400"
-                                          
-                                        #Monthly
-                                        repeat: [
-                                          "Monthly",
-                                          "5" - every 5h of the month block at 2300-2400
-                                        ],
-                                        time: "2300-2400"
-                                          
-                                        #Yearly
-                                        repeat: [
-                                          "Yearly",
-                                          "5/12" - every year on the 5th of Dec at 2300-2400
-                                        ],
-                                        time: "2300-2400"
-                                          
-                                        #Custom
-                                        repeat: [
-                                          
-                                        ],
-                                        time: 2300-2400
                                         */
-                                        print(hourMin);
-                                        print(weekday);
-                                        print(month);
-                                        print(year);
+                                        
+                                        /*
+                                        (?) == maybe
+                                        TODO: able to name the tab; 
+                                        * default value: tab + number
+                                        * request focus when textfield created
+                                        * ?double tap on text to rename
+                                        * ?remove textfield on submit and replace it with the listtile
+                                        */
                                         
                                         dummyMap = {
                                           "name": "Tab ${dataList["tab_list"].length + 1}",
+                                          "active": false,
                                           "program_list": [],
                                           "options": {
                                             "repeat": [],
@@ -902,7 +917,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         setState(() {
                                           // writeJsonFile(dataList);
                                         });
-                                        
+
                                       },
                                       child: const Text(
                                         "ADD",
