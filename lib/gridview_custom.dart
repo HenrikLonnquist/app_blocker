@@ -81,6 +81,7 @@ class _CustomGridViewState extends State<CustomGridView> {
                   Align(
                     alignment: Alignment.bottomCenter,
                     // TODO: get the program actual name: It's not called CalculatorApp, right?
+                    // I think its fine, not a big problem. You still know what program it is.
                     child: Text(
                       widget.programNames![index].split(".")[0],
                       overflow: TextOverflow.ellipsis,

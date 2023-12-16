@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 //! probably because of the monitoring logic/file. So maybe
 //! it also rebuilds the whole program every 1 second.
 //TODO: I should customize so that I can re-use it
-
+//TODO: rename the class, i'm not using overlayportal anymore
 class CustomOverlayPortal extends StatefulWidget {
   const CustomOverlayPortal({
     super.key,
@@ -33,7 +33,7 @@ class CustomOverlayPortal extends StatefulWidget {
 }
 
 class _CustomOverlayPortalState extends State<CustomOverlayPortal> {
-  List<String> dropdownList = ["Daily", "Weekdays", "Weekly", "Monthly", "Yearly", "Custom",]; // need this
+  List<String> dropdownList = ["Daily", "Weekdays", "Weekly", "Custom",]; 
 
 
   @override
@@ -158,7 +158,8 @@ class _CustomOverlayPortalState extends State<CustomOverlayPortal> {
             }
           });
         },
-        //TODO: add this to the custombutton property
+        //TODO: add this to the custombutton property, add what?
+        // the entire iconstyledata?
         iconStyleData: const IconStyleData(
           icon: Icon(
             Icons.keyboard_arrow_down_outlined,
@@ -303,6 +304,7 @@ class _CustomMenuState extends State<CustomMenu> {
 
   @override
   Widget build(BuildContext context) {
+    
     if(tempTab != widget.currentTab){
         tempTab = widget.currentTab;
         height = 120;
@@ -322,6 +324,9 @@ class _CustomMenuState extends State<CustomMenu> {
       }
 
     }
+
+    _myFocusNode.requestFocus();
+
     return Container(
             width: width,
               height: height,
@@ -440,7 +445,7 @@ class _CustomMenuState extends State<CustomMenu> {
                   if (weeksSelected) Container(
                     margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                     height: weekdayButtonsHeight,
-                    // TODO: maybe try the slivergriddelegateanimation for adding and removing
+                    //TODO: switch to a toggleButtons widget instead.
                     child: GridView.builder(
                       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: 40,
@@ -512,7 +517,6 @@ class _CustomMenuState extends State<CustomMenu> {
                               borderRadius: BorderRadius.circular(5.0),
                             )
                           ),
-                          // TODO: disable if the textformfield is empty;
                           onPressed: formController.text.isNotEmpty ? () {
                             //TODO I need to update the repeat value of the second third (fourth) value the date is past timeNow
             

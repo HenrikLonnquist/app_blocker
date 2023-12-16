@@ -13,7 +13,7 @@ import 'package:win32/win32.dart';
 
 class ActiveWindowManager{
   // Why do I need this?
-  late Timer _timer;
+  Timer? _timer;
   static var _lastChild = "";
 
   static String _getExePathfromHWND(int hWnd) {
@@ -60,17 +60,10 @@ class ActiveWindowManager{
   }
 
   
-  void _matchAndMinimize(int hWnd, List storageList, String last, int index) {
+  static void _matchAndMinimize(int hWnd, List storageList, String last) {
 
     
     // print("match: $storageList[index]");
-
-    // TODO: read the options/conditions for closing/minimizing/blocking program
-    // ! Do i do conditions first or match programs first? = Condition first
-    // ! maybe not do condition here but where the Timer function is.
-    // * So conditions first and match program while condition is true/false
-    // Example: condition to block == 8.00-17.00 while this is true, it will monitor
-    // programs for matches from the tab where the condition is true
 
     for (var i = 0; i < storageList.length; i++) {
       if (_lastChild != "" && storageList[i] == _lastChild) {
@@ -85,16 +78,117 @@ class ActiveWindowManager{
   }
 
   void cancelTimer(){
-    _timer.cancel();
+    if(_timer != null){
+      _timer!.cancel();
+    }
+  }
+
+  static bool conditionChecks(List repeatOptions, List timePeriods, DateTime timeNow){
+    
+    //TODO: maybe create variable outside the function and inside the class, maybe?
+    var timeNowFormatted = int.parse(DateFormat("HHmm").format(timeNow));
+    timeNowFormatted = 0619; //For testing
+    int counter = 0;
+    
+    for(var dataTime in timePeriods){
+
+      if (timeNowFormatted >= dataTime[0] && timeNowFormatted <= dataTime[1]){
+        // print("within time periods");
+        break;
+        
+      } else {
+        // print("outside of time periods");
+        counter ++; // valid time periods count
+      }
+
+    }
+
+    if (counter >= 2){
+      return false;
+    }
+
+
+    switch (repeatOptions[0]) {
+      case "Daily":
+        //Check only time
+        return true;
+      case "Weekdays":
+      case "Weekly":
+        //Check the day>time
+        var weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri",];
+        var weekly = repeatOptions.length >= 2 ? repeatOptions[1] : null;
+        var dayNowFormatted = DateFormat("E").format(timeNow);
+        
+        if (weekly == dayNowFormatted || weekDays.contains(dayNowFormatted)){
+          return true;
+        }
+        return false;
+
+      case "Custom":
+      //TODO: remove custom and replace with an array of checkboxes of weekdays
+        //Check the date>time
+        // maybe add another item
+        /*
+        Custom
+        2
+        weeks
+        {
+            "0": "Mon",
+            "1": "Tue",
+            "2": "Wed",
+            "3": "Thu",
+            "4": "Fri",
+            "5": "Sat",
+            "6": "Sun"
+        }
+        */
+        // cal 2 "weeks" into days, re-cal if the dateNowFormatted is true
+        // dateNow.add(const Duration(days: n))
+
+
+        return false;
+      default:
+        //Error?
+    }
+    print("It shouldnt get to here");
+    return false;
+  }
+
+
+  static void blockPrograms(int currentHwnd, List storageList){
+    if (currentHwnd == 0) {
+      currentHwnd = GetForegroundWindow();
+    }
+
+    if (currentHwnd != GetForegroundWindow()) {
+      
+      currentHwnd = GetForegroundWindow();
+
+      _lastChild = "";
+      final String exePath = _getExePathfromHWND(currentHwnd);
+      final String last = exePath.split("\\").last;
+
+      if (last == "ApplicationFrameHost.exe") {
+        final int processID = getProcessID(currentHwnd);
+        final winproc3 = Pointer.fromFunction<EnumWindowsProc>(_enumChildren, 0);
+        EnumChildWindows(currentHwnd, winproc3, processID);
+      }
+
+      //TODO: change storageList to validDataTabs inside a for-loop(maybe something else)?
+      _matchAndMinimize(currentHwnd, storageList, last);
+      // stdout.write("Current program: ${_lastChild.isNotEmpty ? _lastChild : last} \n");
+      
+      
+    }
   }
 
   //! Not necessary - can add this to the function later maybe.
   // Will check all the opened programs and then minimize if matches are found in the storage list
   // final winproc2 = Pointer.fromFunction<EnumWindowsProc>(_enumWinProc, 0);
   // EnumWindows(winproc2, 0);
-  //* Could loop through all the windows every interval but maybe later.
+  
   //! Cant show exe+/path of task manager, not showing up as anything.
-  //! not very accurate and reliable but works most of the time. Sometimes it wont work 
+  //! not very accurate and reliable but works most of the time. 
   //! when it checks the "ApplicationFrameHost.exe" <- it's not fast enough.
   //! Maybe I can optimize it or something.
   // TODO: Optimize the "ApplicationFrameHost.exe"?
@@ -102,21 +196,9 @@ class ActiveWindowManager{
   void monitorActiveWindow() async {
     final List storageList = readJsonFile()["tab_list"];
     var currentHwnd = 0;
-    int index = 0;
-    
-    DateTime timeNow = DateTime.now();
-    
-    String hourMin = DateFormat("HHmm").format(timeNow); // Daily: 2300 || only time
-    String weekday = DateFormat("E").format(timeNow); // Weekly: Tue - 2300 || if Day -> time
-    // String month = DateFormat("d/M").format(timeNow); // Monthly: 5(date) - 2300 || Date of the month - time
-    // String year = DateFormat("d/M/y").format(timeNow); // Yearly: 12/5 || month/date - time 
-    
-    // print(hourMin);
-    // print(weekday);
-    // print(month);
-    // print(year); 
 
-    List validData = [];
+    DateTime timeNow = DateTime.now();
+    List validDataTabs = [];
 
     for ( var tab in storageList) {
       if ( tab["program_list"].isEmpty
@@ -125,62 +207,37 @@ class ActiveWindowManager{
       || tab["active"] == false){
         continue;
       }
-      //TODO: maybe make sure when data is stored to validate then.
-      //* Or I can have a active button to active the tab,
-      validData.add(tab);
+      
+      validDataTabs.add(tab);
     }
     
-    // print(validData);
-    
-    if (validData.isNotEmpty) {
-      _timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
+    //* Could try to switch it to only check conditions if a program 
+    //* match in the data list is/are true.
 
+    if (validDataTabs.isNotEmpty) {
 
-        timeNow = DateTime.now();
-        // print(timeNow);
-        print(validData);
-
-        if (validData[0]["options"]["repeat"]){
-          // Daily, Weekdays, Weekly, Custom
-          
+      List timePeriods = [];
+      for (var index = 0; index < validDataTabs.length; index++){
+          var splitTimeData = validDataTabs[index]["options"]["time"].split(RegExp(r"[\,]")); //"1000-1100,1200-1300".split...
+        for (var time in splitTimeData){
+          var intRange = time.split("-").map((item) => int.parse(item)).toList();
+          timePeriods.add(intRange);
         }
         
+      }
+      
+      
+      _timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
 
+        timeNow = DateTime.now();
 
-        //TODO: make below a function instead
-        if (currentHwnd == 0) {
-          currentHwnd = GetForegroundWindow();
+        for (var tab in validDataTabs){
+          bool block = conditionChecks(tab["options"]["repeat"], timePeriods, timeNow);
+          if (block){
+            blockPrograms(currentHwnd, validDataTabs);
+          } 
         }
 
-
-        //! Do I gather all the conditions outisde of timer function in a variable?'
-        //! or what? just loop inside here? Maybe I can make use of the timer function?
-        // conditions = storageList[index]["condtions"]   -- havent thought of what to call it
-        // or the structure for it; it also needs the take from the repeat option, not just the textformfield
-        // I need to loop this
-        // IF condition statement should wrap below
-        // 
-
-
-        if (currentHwnd != GetForegroundWindow()) {
-          
-          currentHwnd = GetForegroundWindow();
-
-          _lastChild = "";
-          final String exePath = _getExePathfromHWND(currentHwnd);
-          final String last = exePath.split("\\").last;
-
-          if (last == "ApplicationFrameHost.exe") {
-            final int processID = getProcessID(currentHwnd);
-            final winproc3 = Pointer.fromFunction<EnumWindowsProc>(_enumChildren, 0);
-            EnumChildWindows(currentHwnd, winproc3, processID);
-          }
-
-          _matchAndMinimize(currentHwnd, storageList, last, index);
-          // stdout.write("Current program: ${_lastChild.isNotEmpty ? _lastChild : last} \n");
-          
-          
-        }
       });
     }
 

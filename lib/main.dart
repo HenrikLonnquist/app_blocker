@@ -54,7 +54,7 @@ void main() async {
   WindowOptions options = const WindowOptions(
     minimumSize: Size(953, 709),
     // size: Size(953, 709),
-    center: true,
+    // center: true,
     title: "AppBlocker",
   );
   windowManager.waitUntilReadyToShow(options, () async {
@@ -609,7 +609,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             signed: true,
                                           ),
                                           inputFormatters: [
-                                            FilteringTextInputFormatter.allow(RegExp(r"^[\d\-,]{0,19}")),
+                                            FilteringTextInputFormatter.allow(RegExp(r"^[\d\-,]{0,}")),
                                           ],
                                           onFieldSubmitted: (String value){
                                             
@@ -628,22 +628,62 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 uniq.add(i);
                                               }
                                             }
-                                        
+
+
                                             // matches this: 0900-1230,1330-1700, noduplicates
-                                            //TODO: //!
-                                            //! should be able to have more than 2 time periods, ex; 0000-1200,1800-2000,2245-2359
-                                            if (value.contains(RegExp(r"^\d{4}-\d{4}(?:,\d{4}-\d{4})?$")) && noDupl) {
+                                            //* and the first number cannot be higher the second number; 2200-2100 <- invalid
+                                            
+                                            //! should be able to have more than 2 time periods, ex; 0000-1200,1800-2000,2245-2359--Should work now
+                                            if (RegExp(r"^\d{4}-\d{4}(,\d{4}-\d{4})*$").hasMatch(value) && noDupl) {
+                                              
+                                              var temp = value.split(RegExp(r"[\,]+"));
+                                              var sortTemp = [];
+                                              for (var time in temp){
+
+                                                var splitTime = time.split("-")..sort((a, b) {
+
+                                                  var intA = int.parse(a);
+                                                  var intB = int.parse(b);
+                                                  return intA.compareTo(intB);
+
+                                                });
+                                                sortTemp.add(splitTime);
+
+                                              }
+                                              value = [ for(var item in sortTemp) "${item[0]}-${item[1]}" ].join(",");
+                                              
+                                              // Check for valid time
+                                              for (var time in temp){
+
+                                                var hour = int.parse(time.substring(0, 2));
+                                                var min = int.parse(time.substring(2, 4));
+
+                                                if ( hour > 24|| min >= 60){
+
+                                                  myFocusNode.requestFocus();
+                                                  validationError = true;
+                                                  print("validation error");
+                                                  showOverlayTooltip();
+                                                  return;
+
+                                                }
+                                              }
+                                              
                                               validationError = false;
+
+                                              removeOverlay();
                                   
                                               dataList["tab_list"][currentTab]["options"]["time"] = value;
-                                              writeJsonFile(dataList);
-                                  
-                                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                                  
-                                              removeOverlay();
+                                              setState(() {
+                                                writeJsonFile(dataList);
+                                                textController.text = value;
+                                              });
+                                              
+                                              //Updating the monitor dataList
                                               winManager.cancelTimer();
                                               winManager.monitorActiveWindow();
-                                                
+
+                                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
                                               
                                             } else {
                                               validationError = true;
@@ -655,6 +695,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           },
                                           cursorHeight: 24,
                                           decoration: InputDecoration(
+                                            focusedErrorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
                                             suffixIcon: validationError ? const Icon(
                                               Icons.emergency,
                                               size: 16,
@@ -806,16 +847,62 @@ class _MyHomePageState extends State<MyHomePage> {
                                                     hoverColor: Colors.transparent,
                                                     onChanged: (value){
 
-                                                      dataList["tab_list"][index]["active"] = value;
 
                                                       //TODO: validation for all the blocking options;
                                                       //* textformfield time + repeat dropdown
+                                                      var programList = dataList["tab_list"][index];
+                                                      var options = dataList["tab_list"][index]["options"];
+
+                                                      // print(textController.text.isNotEmpty);
+                                                      // print(programList["program_list"].isNotEmpty);
+                                                      // print(options["repeat"].isNotEmpty);
+                                                      // print(options["time"] == null);
+
+                                                      if (textController.text.isNotEmpty 
+                                                      && programList["program_list"].isNotEmpty 
+                                                      && options["repeat"].isNotEmpty
+                                                      && options["time"] != null ){
+
+                                                        dataList["tab_list"][index]["active"] = value;
+                                                        print("Valid");
+                                                        setState(() {
+                                                          writeJsonFile(dataList);
+                                                          winManager.cancelTimer();
+                                                          winManager.monitorActiveWindow();
+                                                        });
+                                                      } else {
+
+                                                        print("Not valid");
+                                                        //Snackbar? 
+                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                          action: SnackBarAction(
+                                                            textColor: Colors.black,
+                                                            label: "label",
+                                                            onPressed: () {
+                                                              
+                                                            },
+                                                          ),
+                                                          content: const Center(
+                                                            child: Text(
+                                                              "Missing inputs",
+                                                              style: TextStyle(
+                                                                color: Colors.black,
+                                                                fontWeight: FontWeight.w600,
+                                                              )
+                                                            )
+                                                          ),
+                                                          duration: const Duration(seconds: 5),
+                                                          width: 300,
+                                                          backgroundColor: Colors.white,
+                                                          behavior: SnackBarBehavior.floating,
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius: BorderRadius.circular(10),
+                                                          ),
+                                                        ));
+
+                                                      }
+
                                                       
-                                                      setState(() {
-                                                        writeJsonFile(dataList);
-                                                        winManager.cancelTimer();
-                                                        winManager.monitorActiveWindow();
-                                                      });
 
                                                     },
                                                   ),
