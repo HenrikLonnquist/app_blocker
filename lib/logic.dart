@@ -2,8 +2,9 @@
 
 import 'dart:async';
 import 'dart:ffi';
-// import 'dart:io';
 
+import 'package:app_blocker/gridview_custom.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'dart_functions.dart';
@@ -11,17 +12,73 @@ import 'dart_functions.dart';
 import "package:ffi/ffi.dart";
 import 'package:win32/win32.dart';
 
+
 class ActiveWindowManager{
-  // Why do I need this?
   Timer? _timer;
-  static var _lastChild = "";
+  static String _lastChild = "";
+  static int currentHwnd = 0;
+  static String? exePath;
 
-  static String _getExePathfromHWND(int hWnd) {
+  static Map allActiveProgramsList = {};
+  static List filterProgram = [
+    "ApplicationFrameHost.exe",
+    "explorer.exe",
+    "TextInputHost.exe",
+  ];
+
+
+
+  static int _enumWinProc(int hwnd, int lParam){
+    
+    if (IsWindowVisible(hwnd) == 1){
+      
+      int style = GetWindowLongPtr(hwnd, GWL_STYLE);
+      _getExePathfromHWND(hwnd);
+
+      if (exePath!.contains(".exe") 
+      && style & WS_CAPTION != 0
+      && !filterProgram.contains(exePath)
+      // && !allActiveProgramsList.containsValue(exePath) 
+      ){
+        final length = GetWindowTextLength(hwnd);
+        if (length == 0) return TRUE;
+        
+        final buffer = wsalloc(length + 1);
+        GetWindowText(hwnd, buffer, length + 1);
+        
+        final title = buffer.toDartString();
+        free(buffer);
+
+        allActiveProgramsList[title] = exePath;
+        
+      }
+    }
+
+    return TRUE;
+  }
+
+  List getAllActivePrograms(List dataList){
+    
+    final winproc = Pointer.fromFunction<EnumWindowsProc>(_enumWinProc, 0);
+    EnumWindows(winproc, 0);
+    
+    List convertedList = [];
+    allActiveProgramsList.forEach((key, value) {
+      if (!dataList.contains(value)){
+        convertedList.add(value);
+      }
+    });
+
+
+    
+    return convertedList;
+  }
+
+  static void _getExePathfromHWND(int hWnd) {
     final int processID = getProcessID(hWnd);
-    final int hProcess = OpenProcess(
-        PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
+    final int hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
 
-    final String exePath;
+
     final LPWSTR imgName = wsalloc(MAX_PATH);
     final Pointer<Uint32> buff = calloc<Uint32>()..value = MAX_PATH;
     if (QueryFullProcessImageName(hProcess, 0, imgName, buff) != 0) {
@@ -36,9 +93,16 @@ class ActiveWindowManager{
     free(imgName);
     free(buff);
     CloseHandle(hProcess);
+    
+    exePath = exePath!.split("\\").last;
+    
+    if (exePath == "ApplicationFrameHost.exe"){
+      final winProc = Pointer.fromFunction<EnumWindowsProc>(_enumWinChildren, 0);
+      EnumChildWindows(hWnd, winProc, processID);
+    }
 
-    return exePath;
   }
+
 
   static int getProcessID(int hWnd) {
     final Pointer<Uint32> pId = calloc<Uint32>();
@@ -48,31 +112,38 @@ class ActiveWindowManager{
     return processID;
   }
 
-  static int _enumChildren(int hWnd, int pID) {
+
+  static int _enumWinChildren(int hWnd, int pID) {
     final int processID2 = getProcessID(hWnd);
 
     if (pID != processID2) {
-      final String exePath2 = _getExePathfromHWND(hWnd);
-      _lastChild = exePath2.split("\\").last;
+      _getExePathfromHWND(hWnd);
+      _lastChild = exePath!;
+      return FALSE;
     }
 
     return TRUE;
   }
 
   
-  static void _matchAndMinimize(int hWnd, List storageList, String last) {
-
+  static void _matchAndMinimize(int hWnd, List storageList) {
     
-    // print("match: $storageList[index]");
-
     for (var i = 0; i < storageList.length; i++) {
-      if (_lastChild != "" && storageList[i] == _lastChild) {
-        SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
-        break;
-      } else if (storageList[i] == last) {
-        // ShowWindow(hWnd, 11);
-        SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
-        break;
+      for (var j = 0; j < storageList[i]["program_list"].length; j++) {
+
+        // ApplicationFrameHose.exe it's child
+        if (_lastChild != "" && storageList[i]["program_list"][j] == _lastChild) {
+          
+          SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+          break;
+
+        } else if (storageList[i]["program_list"][j] == exePath) { 
+          
+          // ShowWindow(hWnd, 11);
+          SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+          break;
+
+        }
       }
     }
   }
@@ -87,7 +158,6 @@ class ActiveWindowManager{
     
     //TODO: maybe create variable outside the function and inside the class, maybe?
     var timeNowFormatted = int.parse(DateFormat("HHmm").format(timeNow));
-    timeNowFormatted = 0619; //For testing
     int counter = 0;
     
     for(var dataTime in timePeriods){
@@ -103,7 +173,7 @@ class ActiveWindowManager{
 
     }
 
-    if (counter >= 2){
+    if (counter == timePeriods.length){
       return false;
     }
 
@@ -125,7 +195,6 @@ class ActiveWindowManager{
         return false;
 
       case "Custom":
-      //TODO: remove custom and replace with an array of checkboxes of weekdays
         //Check the date>time
         // maybe add another item
         /*
@@ -142,6 +211,7 @@ class ActiveWindowManager{
             "6": "Sun"
         }
         */
+        // Need a field/box to show next due date
         // cal 2 "weeks" into days, re-cal if the dateNowFormatted is true
         // dateNow.add(const Duration(days: n))
 
@@ -150,43 +220,10 @@ class ActiveWindowManager{
       default:
         //Error?
     }
-    print("It shouldnt get to here");
+    print("It shouldnt get to here... Maybe Error?");
     return false;
   }
 
-
-  static void blockPrograms(int currentHwnd, List storageList){
-    if (currentHwnd == 0) {
-      currentHwnd = GetForegroundWindow();
-    }
-
-    if (currentHwnd != GetForegroundWindow()) {
-      
-      currentHwnd = GetForegroundWindow();
-
-      _lastChild = "";
-      final String exePath = _getExePathfromHWND(currentHwnd);
-      final String last = exePath.split("\\").last;
-
-      if (last == "ApplicationFrameHost.exe") {
-        final int processID = getProcessID(currentHwnd);
-        final winproc3 = Pointer.fromFunction<EnumWindowsProc>(_enumChildren, 0);
-        EnumChildWindows(currentHwnd, winproc3, processID);
-      }
-
-      //TODO: change storageList to validDataTabs inside a for-loop(maybe something else)?
-      _matchAndMinimize(currentHwnd, storageList, last);
-      // stdout.write("Current program: ${_lastChild.isNotEmpty ? _lastChild : last} \n");
-      
-      
-    }
-  }
-
-  //! Not necessary - can add this to the function later maybe.
-  // Will check all the opened programs and then minimize if matches are found in the storage list
-  // final winproc2 = Pointer.fromFunction<EnumWindowsProc>(_enumWinProc, 0);
-  // EnumWindows(winproc2, 0);
-  
   //! Cant show exe+/path of task manager, not showing up as anything.
   //! not very accurate and reliable but works most of the time. 
   //! when it checks the "ApplicationFrameHost.exe" <- it's not fast enough.
@@ -195,7 +232,7 @@ class ActiveWindowManager{
 
   void monitorActiveWindow() async {
     final List storageList = readJsonFile()["tab_list"];
-    var currentHwnd = 0;
+    
 
     DateTime timeNow = DateTime.now();
     List validDataTabs = [];
@@ -226,18 +263,28 @@ class ActiveWindowManager{
         
       }
       
-      
-      _timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
+         
+      _timer = Timer.periodic(const Duration(microseconds: 50000), (timer) {
 
         timeNow = DateTime.now();
 
-        for (var tab in validDataTabs){
-          bool block = conditionChecks(tab["options"]["repeat"], timePeriods, timeNow);
-          if (block){
-            blockPrograms(currentHwnd, validDataTabs);
-          } 
-        }
+        if (currentHwnd != GetForegroundWindow()) {
+          
+          currentHwnd = GetForegroundWindow();
 
+          _lastChild = "";
+          _getExePathfromHWND(currentHwnd);
+
+          for (var tab in validDataTabs){
+            bool condition = conditionChecks(tab["options"]["repeat"], timePeriods, timeNow);
+            if (!condition){
+              _matchAndMinimize(currentHwnd, validDataTabs);
+            } 
+          }
+          
+        }
+        
+        //! maybe a done message for removing the loading screen?
       });
     }
 
@@ -246,3 +293,112 @@ class ActiveWindowManager{
 
 }
 
+class ActiveProgramSelection extends PopupRoute {
+
+  ActiveProgramSelection({
+    required this.dataList,
+    required this.onSaved,
+  });
+
+  final List dataList;
+  final void Function(List) onSaved;
+  
+  
+  List selectedList = [];
+  
+
+  @override
+  Color? get barrierColor => Colors.black.withOpacity(0.5);
+
+  @override
+  bool get barrierDismissible => true;
+
+  @override
+  String? get barrierLabel => "";
+
+  @override
+  Duration get transitionDuration => const Duration(milliseconds: 30);
+  
+
+  @override
+  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+    final List currentActivePrograms = ActiveWindowManager().getAllActivePrograms(dataList);
+    
+    return Center(
+      child: Container(
+        height: MediaQuery.of(context).size.width / 3,
+        width: MediaQuery.of(context).size.width / 2,
+        decoration: BoxDecoration(
+          //TODO: change the color to be the same as program box/list
+          color: const Color.fromRGBO(42, 46, 50, 1),
+          // boxShadow: const [
+          //   BoxShadow(
+          //     color: Colors.white,
+          //     offset: Offset(-8, 8),
+          //     blurRadius: 8.0,
+          //     blurStyle: BlurStyle.inner
+          //   )
+          // ],
+          border: Border.all(
+            color: Colors.redAccent,
+            width: 6.0,
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: 9,
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color.fromRGBO(53, 53, 53, 1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: CustomGridView(
+                    itemCount: currentActivePrograms.length,
+                    programNames: currentActivePrograms,
+                    onSelectedChanged: (onSelectedChanged){
+                      print(onSelectedChanged);
+                      selectedList = onSelectedChanged.values.toList();
+                    },
+                  )
+                )
+              ),
+              Expanded(
+                flex: 1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: (){
+                        // send back to main? callback from onSelectedChanged value of CustomGridView
+
+                        onSaved(selectedList);
+                        Navigator.pop(context);
+                        
+                      },
+                      child: const Text("Save/Add"),
+                    ),
+                    ElevatedButton(
+                      onPressed: (){
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Cancel"),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      )
+    );
+  }
+
+  
+}

@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:collection';
 import "dart:io";
+import 'dart:ui';
 
 import 'package:app_blocker/gridview_custom.dart';
 import 'package:flutter/services.dart';
@@ -101,8 +102,8 @@ class _MyHomePageState extends State<MyHomePage> {
   
 
   OverlayEntry? overlayEntry;
-  final link = LayerLink();
-  final link2 = LayerLink();
+  final link = LayerLink(); // tooltip textformfield
+  final link2 = LayerLink(); // dropdownbutton/custom selected
   
   Map headerButtonSelected = {"Home": true,};
   Color selectedColor = const Color.fromRGBO(217, 217, 217, 1);
@@ -207,44 +208,6 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     });
   }
-
-  void _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ["exe"],
-        initialDirectory: "Desktop" // TODO: change back to C:
-        );
-
-    // TODO: need to check if the dialog is open and then return null
-    // just hade the dialog open repeatedly after clicking many times on it.
-    // Maybe I could set a disable timer  after clicking it once but then it needs to show that it's loading the dialog.
-    if (result == null) return;
-
-    PlatformFile file = result.files.single;
-    setState(() {
-      // Will check for duplicates and then alert the user if there are.
-      final List dupList = [];
-      bool dupl = false;
-      for (var i = 0; i < dataList.length; i++) {
-        if (dupList.contains(dataList[i])) {
-          dupl = true;
-          //alert the user that it already exists in the list.
-          print("duplates in the list:");
-          break;
-        } else {
-          dupList.add(dataList[i]);
-        }
-      }
-
-      if (dupl == false) {
-        dataList["tab_list"]["$currentTab"]["program_list"].add(file.name);
-        writeJsonFile(dataList);
-        winManager.cancelTimer();
-        winManager.monitorActiveWindow();
-      }
-    });
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -510,7 +473,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                     programNames: dataList["tab_list"][currentTab]["program_list"],
                                     onSelectedChanged: (programNames){
                                 
-                                      tempMap = programNames;
+                                      setState(() {
+                                        tempMap = programNames;
+                                      });
                                 
                                     }
                                   ),
@@ -523,7 +488,26 @@ class _MyHomePageState extends State<MyHomePage> {
                                       Center(
                                         child: ElevatedButton(
                                           onPressed: () {
-                                            _pickFile();
+                                            // _pickFile();
+                                            
+                                            //call the class for activeProgramselection
+                                            Navigator.of(context).push(ActiveProgramSelection(
+                                              dataList: dataList["tab_list"][currentTab]["program_list"],
+                                              onSaved: (saved){
+
+                                                for (var program in saved){
+                                                  dataList["tab_list"][currentTab]["program_list"].add(program);
+                                                }
+
+                                                print(dataList["tab_list"][currentTab]["program_list"]);
+                                                setState(() {
+                                                  writeJsonFile(dataList);
+                                                });
+
+                                              },
+                                            ));
+
+
                                           },
                                           style: TextButton.styleFrom(
                                             backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
@@ -541,13 +525,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                       // if a program is selected
                                       Center(
                                         child: ElevatedButton(
-                                          onPressed: () {
+                                          onPressed: tempMap.isNotEmpty ? () {
                                             var list = dataList["tab_list"][currentTab]["program_list"];
                                 
                                             for(var program in tempMap.values){
                                               var index = list.indexOf(program);
                                               list.removeAt(index);
                                             }
+                                            
                                             tempMap.clear();
                                 
                                             dataList["tab_list"][currentTab]["program_list"] = list;
@@ -556,9 +541,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                               winManager.cancelTimer();
                                               winManager.monitorActiveWindow();
                                             });
-                                          },
+                                          } : null,
                                           style: TextButton.styleFrom(
-                                            backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
+                                            backgroundColor: tempMap.isNotEmpty ?
+                                            const Color.fromRGBO(255, 255, 255, 1) :
+                                            const Color.fromRGBO(255, 255, 255, 0.5),
                                           ),
                                           child: const Text(
                                             "Remove",
@@ -826,18 +813,27 @@ class _MyHomePageState extends State<MyHomePage> {
                                         trackVisibility: false,
                                         thumbVisibility: true,
                                         controller: _scrollController,
-                                        child: ListView.builder(
-                                          controller: _scrollController,
-                                          itemCount: dataList["tab_list"].length,
-                                          itemBuilder: (context, index) {
-                                            return Material(
-                                              // color: const Color.fromRGBO(217, 217, 217, 1),
-                                              color: Colors.transparent,
-                                              child: Padding(
-                                                padding: const EdgeInsets.fromLTRB(26, 3, 30, 8),
-                                                //TODO: able to drag and drop to move around the list order
-                                                
-                                                 
+                                        child: Material(
+                                          color: Colors.transparent,
+                                          // color: const Color.fromRGBO(217, 217, 217, 1),
+                                          child: ReorderableListView.builder(
+                                            buildDefaultDragHandles: false,
+                                            padding: const EdgeInsets.fromLTRB(26, 3, 30, 8),
+                                            scrollController: _scrollController,
+                                            onReorder: (oldIndex, newIndex) {
+                                              if (oldIndex < newIndex){
+                                                newIndex -= 1;
+                                              }
+                                              final Map item = dataList["tab_list"].removeAt(oldIndex);
+                                              dataList["tab_list"].insert(newIndex, item);
+                                              currentTab = newIndex;
+                                          
+                                            },
+                                            itemCount: dataList["tab_list"].length,
+                                            itemBuilder: (context, index) {
+                                              //TODO: need to remove background color when dragging.
+                                              return Card(
+                                                key: Key("$index"),
                                                 child: ListTile(
                                                   //TODO: change switch widget to something else, too big
                                                   leading: Switch(
@@ -846,23 +842,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                                     focusColor: Colors.transparent,
                                                     hoverColor: Colors.transparent,
                                                     onChanged: (value){
-
-
+                                                                                                
+                                                                                                
                                                       //TODO: validation for all the blocking options;
                                                       //* textformfield time + repeat dropdown
                                                       var programList = dataList["tab_list"][index];
                                                       var options = dataList["tab_list"][index]["options"];
-
-                                                      // print(textController.text.isNotEmpty);
-                                                      // print(programList["program_list"].isNotEmpty);
-                                                      // print(options["repeat"].isNotEmpty);
-                                                      // print(options["time"] == null);
-
+                                                                                                
                                                       if (textController.text.isNotEmpty 
                                                       && programList["program_list"].isNotEmpty 
                                                       && options["repeat"].isNotEmpty
                                                       && options["time"] != null ){
-
+                                                                                                
                                                         dataList["tab_list"][index]["active"] = value;
                                                         print("Valid");
                                                         setState(() {
@@ -871,7 +862,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                           winManager.monitorActiveWindow();
                                                         });
                                                       } else {
-
+                                                                                                
                                                         print("Not valid");
                                                         //Snackbar? 
                                                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -899,14 +890,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                                             borderRadius: BorderRadius.circular(10),
                                                           ),
                                                         ));
-
+                                                                                                
                                                       }
-
-                                                      
-
                                                     },
                                                   ),
-                                                  // leading: Icon(Icons.toggle_off_outlined),
                                                   onTap: () {
                                                     setState(() {
                                                       currentTab = index;
@@ -933,22 +920,35 @@ class _MyHomePageState extends State<MyHomePage> {
                                                       fontFamily: "BerkshireSwash",
                                                     )
                                                   ),
-                                                  trailing: IconButton(
-                                                    onPressed: (){
-                                                      setState(() {
-                                                        dataList["tab_list"].removeAt(index);
-                                                        writeJsonFile(dataList);
-                                                      });
-                                                    },
-                                                    icon: const Icon(
-                                                      Icons.remove_circle_outlined,
-                                                      size: 20,
-                                                    ),
+                                                  trailing: Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      IconButton(
+                                                        hoverColor: Colors.transparent,
+                                                        onPressed: (){
+                                                          setState(() {
+                                                            dataList["tab_list"].removeAt(index);
+                                                            writeJsonFile(dataList);
+                                                          });
+                                                        },
+                                                        icon: const Icon(
+                                                          Icons.remove_circle_outlined,
+                                                          // size: 20,
+                                                        ),
+                                                      ),
+                                                      ReorderableDragStartListener(
+                                                        index: index,
+                                                        child: const Icon(
+                                                          Icons.drag_handle,
+                                                          // size: 20,
+                                                        ),
+                                                      )
+                                                    ],
                                                   ),
                                                 ),
-                                              ),
-                                            );
-                                          }
+                                              );
+                                            }
+                                          ),
                                         ),
                                       ),
                                     ) 
@@ -1047,12 +1047,23 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                             child: Center(
+                              //TODO: want box shape, instead of a circle
                               child: IconButton(
+                                style: IconButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  padding: const EdgeInsets.all(0),
+                                  hoverColor: Colors.grey.shade800,
+                                  visualDensity: VisualDensity.compact,
+                                ),
                                 onPressed: (){},
                                 //TODO: switch to figma icon(download and create icon folder in assets)
-                                icon: const Icon(Icons.data_thresholding_rounded),
-                                iconSize: 76,
-                                color: const Color.fromRGBO(253, 65, 60, 1),
+                                icon: const Icon(
+                                  Icons.data_thresholding_rounded,
+                                  size: 60,
+                                  color: Color.fromRGBO(253, 65, 60, 1),
+                                ),
                               ),
                             )
                           ),

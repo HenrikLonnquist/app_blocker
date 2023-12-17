@@ -5,13 +5,13 @@ class CustomGridView extends StatefulWidget {
     super.key,
     this.programNames,
     required this.itemCount,
-    required this.onSelectedChanged,
+    this.onSelectedChanged,
   });
 
   final int itemCount;
   final List? programNames;
   // maybe together the function to send overlayentries as well
-  final void Function(Map<int, String>) onSelectedChanged;
+  final void Function(Map<int, String>)? onSelectedChanged;
 
   @override
   State<CustomGridView> createState() => _CustomGridViewState();
@@ -21,11 +21,6 @@ class _CustomGridViewState extends State<CustomGridView> {
   Map<int, String> selectedProgramList = {};
   bool selectedProgram = false;
   
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -45,10 +40,10 @@ class _CustomGridViewState extends State<CustomGridView> {
               setState(() {
                 if(selectedProgramList.containsKey(index)){
                   selectedProgramList.remove(index);
-                  widget.onSelectedChanged(selectedProgramList);
+                  widget.onSelectedChanged!(selectedProgramList);
                 } else {
                   selectedProgramList[index] = widget.programNames![index];
-                  widget.onSelectedChanged(selectedProgramList);
+                  widget.onSelectedChanged!(selectedProgramList);
                 }
               });
               
