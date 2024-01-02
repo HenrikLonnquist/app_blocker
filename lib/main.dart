@@ -3,7 +3,7 @@
 import 'dart:async';
 import 'dart:collection';
 import "dart:io";
-import 'dart:ui';
+import "package:image/image.dart" as img;
 
 import 'package:app_blocker/gridview_custom.dart';
 import 'package:flutter/services.dart';
@@ -11,7 +11,7 @@ import 'package:win32/win32.dart';
 
 import 'dart_functions.dart';
 import 'logic.dart';
-import "custom_overlay_repeat.dart";
+import 'custom_button.dart';
 
 import 'package:intl/intl.dart';
 import "package:window_manager/window_manager.dart";
@@ -33,10 +33,11 @@ Different sections:
  */
 
 
-// TODO: use the window_manager package to listen for changes on focus states of windows.
-// TODO: Emergency trigger, will make you do a mission that is annoying and long.
+// TODO: IMPROVEMENT?: use the window_manager package to listen for changes on focus states of windows. Together with setwinhookevent, i guess.
+// TODO: FEATURE: Emergency trigger, will make you do a mission that is annoying and long.
+// TODO: add the fonts folder to the assets folder.
 /* 
-TODO: able to make some tabs non-negtionable, meaning that the conditions and apps are permanent; Not changeable.
+TODO: able to make some tabs non-negtionable, meaning that the conditions and apps are permanent; Immutable.
 A workaround would be to re-create it with changed values. Maybe set a condition for deleting it as well. AI? Will ask
 questions about why the user want to delete it(Just an idea, but the other two seems okay). Can have user do a three day trial
 and then it will be changeable again or a quick-preview with the AI and the other features(not able to change or delete 
@@ -46,7 +47,8 @@ Condition(s) or task(s) for deleting it: Emergency:
 -
 */
 
-//TODO: make a loading screen...
+// TODO: make a loading screen... During the start of the app or loading of the contents.
+// Try to open the window as fast as possible and have a loading screen. So like a delay for the contents?
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -89,8 +91,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Map dataList = {}; // for the json file
-  Map<int, String> tempMap = {}; // from the customgridview, which are selected
-  int currentTab = 2;
+  Map<int, dynamic> tempMap = {}; // from the customgridview, which are selected
+  int currentTab = 0;
   Map<String, dynamic> dummyMap = {};
   final ScrollController _scrollController = ScrollController();
   String time = DateFormat("HHmm").format(DateTime.now());
@@ -103,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   OverlayEntry? overlayEntry;
   final link = LayerLink(); // tooltip textformfield
-  final link2 = LayerLink(); // dropdownbutton/custom selected
+  final linkToCustomButton = LayerLink(); // dropdownbutton/custom selected
   
   Map headerButtonSelected = {"Home": true,};
   Color selectedColor = const Color.fromRGBO(217, 217, 217, 1);
@@ -176,11 +178,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    //! What do I need this for?
-    //! maybe for the current time left or something similar
-    // _currentTime(); 
+    
     callData();
-    //! maybe not do this until all is load?
+    //! maybe not do this until all is load? Faster startup?
     winManager.monitorActiveWindow();
 
     textController.text = dataList["tab_list"][currentTab]["options"]["time"];
@@ -196,18 +196,10 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
   
-  //TODO: probably just move this to the initstate directly, no need for a method?
   void callData() {
     dataList = readJsonFile();
   }
 
-  void _currentTime() {
-    Timer.periodic(const Duration(seconds: 1), (updatetime) {
-      setState(() {
-        time = DateFormat("HHmm").format(DateTime.now());
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +213,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             const SizedBox(height: 20),
             //! "HEADER"
-            //TODO: make its own file?
+            //TODO: LATER: make its own file?
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -235,8 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       bottomLeft: Radius.circular(8),
                     )
                   ),
-                  //TODO: fix the spacing when resizing
-                  //TODO: make this into a class and it's file
+                  //TODO: fix the spacing when resizing. Between what?
                   child: Material(
                     color: Colors.transparent,
                     child: Row(
@@ -247,15 +238,14 @@ class _MyHomePageState extends State<MyHomePage> {
                           color: Colors.white,
                         ),
                         const Spacer(flex:1),
-                        //TODO: animation to shift the selected color to the pressed text/button
-                        // probably need to do a funciton and gesturedectection or inkwell on all the texts.
                         InkWell(
                           onTap: (){
                             setState(() {
                               headerButtonSelected.clear();
                               headerButtonSelected["Home"] = true;
                             });
-                            //TODO: add navigation route-pop.
+                            // TODO: add navigation route-pop.
+                            // When the layout or settings design is finished.
                           },
                           splashColor: Colors.transparent,
                           customBorder: RoundedRectangleBorder(
@@ -350,7 +340,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         const Spacer(flex:2),
                         InkWell(
                           onTap: (){
-                            //TODO:
+                            //TODO: DARKMODE.
 
                           },
                           customBorder: RoundedRectangleBorder(
@@ -437,7 +427,8 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Row(
                 children: [
                   //* Program List
-                  // TODO: test with only program list box to, because its contents wont resize with window
+                  // TODO: test only the program list container, because its contents wont resize with window
+                  
                   Expanded(
                     flex: 7,
                     child: Container(
@@ -449,14 +440,51 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      //TODO: maybe wrap this inside a container, it's contents wont resize with the parent container(above)
                       child: Column(
                         children: [
+                          Container(
+                            padding: const EdgeInsets.fromLTRB(55, 10, 0, 10),
+                            alignment: Alignment.centerLeft,
+                            /*
+                              TODO: able to (+re)name the tab; 
+                              * default value: tab + number
+                              * ?double tap on text to rename -- Sounds good! Gesturedetector?
+                            */
+                            child: Row(
+                              children: [
+                                Text(
+                                  dataList["tab_list"][currentTab]["name"],
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 25,
+                                    fontFamily: "BerkshireSwash",
+                                  ),
+                                ),
+                                const SizedBox(width: 20),
+                                InkWell(
+                                  onTap: (){
+                                    print("here");
+                                    // TODO: on tap it will switch to textfield without the underline.
+
+
+                                  },
+                                  child: const Padding(
+                                    padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                    child: Icon(
+                                      Icons.edit_square,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
                           Container(
                             width: contextWidth * 0.5,
                             height: contextHeight * 0.45,
                             padding: const EdgeInsets.fromLTRB(15, 20, 15, 0),
-                            margin: const EdgeInsets.fromLTRB(53, 44, 53, 40),
+                            margin: const EdgeInsets.fromLTRB(53, 0, 53, 40),
                             decoration: BoxDecoration(
                               color: const Color.fromRGBO(53, 53, 53, 1),
                               borderRadius: BorderRadius.circular(8.0),
@@ -464,10 +492,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                //TODO: Show the programs with icons and names
                                 Expanded(
                                   flex: 8,
-                                  //TODO:  I guess another overlay is incoming or maybe a popupmenu
                                   child: CustomGridView(
                                     itemCount: dataList["tab_list"][currentTab]["program_list"].length,
                                     programNames: dataList["tab_list"][currentTab]["program_list"],
@@ -496,10 +522,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                               onSaved: (saved){
 
                                                 for (var program in saved){
-                                                  dataList["tab_list"][currentTab]["program_list"].add(program);
+                                                  File("assets/program_icons/i_${program["name"].split(".")[0]}.png").writeAsBytesSync(img.encodePng(program["icon"]));
+                                                  dataList["tab_list"][currentTab]["program_list"].add(
+                                                    {
+                                                      "name": program["name"],
+                                                      "icon": "assets/program_icons/i_${program["name"].split(".")[0]}.png"
+                                                    }
+                                                  );
                                                 }
 
-                                                print(dataList["tab_list"][currentTab]["program_list"]);
+                                                // print(dataList["tab_list"][currentTab]["program_list"]);
                                                 setState(() {
                                                   writeJsonFile(dataList);
                                                 });
@@ -527,9 +559,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                         child: ElevatedButton(
                                           onPressed: tempMap.isNotEmpty ? () {
                                             var list = dataList["tab_list"][currentTab]["program_list"];
-                                
+
                                             for(var program in tempMap.values){
                                               var index = list.indexOf(program);
+                                              File(program["icon"]).delete();
                                               list.removeAt(index);
                                             }
                                             
@@ -581,7 +614,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                         ) : null,
                                         borderRadius: BorderRadius.circular(5.0),
                                       ),
-                                      //TODO: try make it so that when it unfocus, it will the save the input
+                                      // TODO: try make it so that when it unfocus, it will the save the input.
+                                      // Reminder to "save" or popup do you want to save the textformfield?
                                       child: CompositedTransformTarget(
                                         link: link,
                                         child: TextFormField( 
@@ -617,12 +651,23 @@ class _MyHomePageState extends State<MyHomePage> {
                                             }
 
 
-                                            // matches this: 0900-1230,1330-1700, noduplicates
-                                            //* and the first number cannot be higher the second number; 2200-2100 <- invalid
                                             
-                                            //! should be able to have more than 2 time periods, ex; 0000-1200,1800-2000,2245-2359--Should work now
+                                            //* and the first number cannot be higher the second number; 2200-2100 <- invalid
+                                            //* maybe above should work
+                                            //!  0000-0615 this wont work, I think
+                                            
+                                            //! should be able to have more than 2 time periods, 
+                                            //! ex; 0000-1200,1800-2000,2245-2359--Should work now
+                                            //! 0000 & 2400 should be the same,
+                                            // look up the github repo on leechblock.
+                                            //! maybe I should not switch if the second number is lower
+
+
+                                            // TODO: LATER: need a better solution for this, more robust and complete towards valid time
+                                            // matches this: 0900-1230,1330-1700, noduplicates
                                             if (RegExp(r"^\d{4}-\d{4}(,\d{4}-\d{4})*$").hasMatch(value) && noDupl) {
                                               
+                                              // Splits the value into 2 lists if there are more than 1 time periods
                                               var temp = value.split(RegExp(r"[\,]+"));
                                               var sortTemp = [];
                                               for (var time in temp){
@@ -639,7 +684,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                               }
                                               value = [ for(var item in sortTemp) "${item[0]}-${item[1]}" ].join(",");
                                               
-                                              // Check for valid time
+                                              // Check for valid time "numbers"
                                               for (var time in temp){
 
                                                 var hour = int.parse(time.substring(0, 2));
@@ -707,11 +752,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                   children: [
                                     Expanded(
-                                      //TODO: come up with a better name for it
                                       child: CompositedTransformTarget(
-                                        link: link2,
-                                        child: CustomOverlayPortal(
-                                          link: link2,
+                                        link: linkToCustomButton,
+                                        child: CustomDropdownButton(
+                                          link: linkToCustomButton,
                                           dataList: dataList["tab_list"][currentTab]["options"]["repeat"],
                                           currentTab: currentTab,
                                           onSaved: (list){
@@ -732,12 +776,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           }
                                         ),
                                       )
-                                      //TODO: something else here as well
                                     ),
-                                    //TODO: add a button for removing current repeat info/chosen options
-                                    // to default "Repeat"/Null
-                                    //! probably better to have it inside the customoverlayrepeat file
-
                                     Expanded(
                                       child: Container(
                                         width: 10,
@@ -754,7 +793,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                   ),
-                  //* tab list
+                  //* tab "box"
                   Expanded(
                     flex: 3,
                     child: Column(
@@ -788,15 +827,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                 bottomRight: Radius.circular(15.0),
                               )
                             ),
-                            // TODO: make it shift to left and back original position; just change the padding.
-                            // all depending on the scrollbar is showing or not.
+                            //* TAB list
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Container(
                                   height: 2.5,
                                   color: Colors.white,
-                                  //TODO: change right margin when scrollbar is showing; 48 to 24
                                   margin: const EdgeInsets.fromLTRB(24, 25, 48, 5),
                                 ),
                                 Expanded(
@@ -804,7 +841,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                     child: Padding(
                                       padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
                                       child: RawScrollbar(
-                                        //TODO: Scroller needs padding, too close to the wall on the rightside of it
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(8.0),
                                         ),
@@ -831,21 +867,24 @@ class _MyHomePageState extends State<MyHomePage> {
                                             },
                                             itemCount: dataList["tab_list"].length,
                                             itemBuilder: (context, index) {
-                                              //TODO: need to remove background color when dragging.
                                               return Card(
                                                 key: Key("$index"),
                                                 child: ListTile(
-                                                  //TODO: change switch widget to something else, too big
-                                                  leading: Switch(
-                                                    value: dataList["tab_list"][index]["active"],
-                                                    splashRadius: 0.0,
-                                                    focusColor: Colors.transparent,
-                                                    hoverColor: Colors.transparent,
+                                                  leading: Checkbox(
+                                                    value: false,
+                                                    // value: dataList["tab_list"][index]["active"],
+                                                    fillColor: dataList["tab_list"][index]["active"] ?
+                                                    const MaterialStatePropertyAll(Colors.green) : 
+                                                    const MaterialStatePropertyAll(Colors.red),
+                                                    // focusColor: Colors.transparent,
+                                                    // hoverColor: Colors.transparent,
+                                                    side: const BorderSide(
+                                                      width: 2,
+                                                    ),
+                                                    shape: const CircleBorder(),
                                                     onChanged: (value){
                                                                                                 
-                                                                                                
-                                                      //TODO: validation for all the blocking options;
-                                                      //* textformfield time + repeat dropdown
+                                                      //* Validate textformfield time + repeat dropdown + program list
                                                       var programList = dataList["tab_list"][index];
                                                       var options = dataList["tab_list"][index]["options"];
                                                                                                 
@@ -864,7 +903,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                                       } else {
                                                                                                 
                                                         print("Not valid");
-                                                        //Snackbar? 
+
+                                                        //TODO: Alert user, what exactly was not valid.
                                                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                                           action: SnackBarAction(
                                                             textColor: Colors.black,
@@ -911,6 +951,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   tileColor: currentTab == index ?
                                                   const Color.fromRGBO(245, 113, 161, 1.0) :
                                                   const Color.fromRGBO(245, 245, 245, 1.0),
+                                                  
                                                   title: Text(
                                                     "${dataList["tab_list"][index]["name"]}",
                                                     overflow: TextOverflow.ellipsis,
@@ -971,26 +1012,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                       ),
                                       onPressed: () {
                                         
-                                        /*
-                                        dat structure: 
-                                        #DAILY
-                                        time is required or it wont block
-                                        active: false,
-                                        repeat: [
-                                          "Daily" - everyday at 2300-2400
-                                        ],
-                                        time: "2300-2400"
-                                        */
-                                        
-                                        /*
-                                        (?) == maybe
-                                        TODO: able to name the tab; 
-                                        * default value: tab + number
-                                        * request focus when textfield created
-                                        * ?double tap on text to rename
-                                        * ?remove textfield on submit and replace it with the listtile
-                                        */
-                                        
                                         dummyMap = {
                                           "name": "Tab ${dataList["tab_list"].length + 1}",
                                           "active": false,
@@ -1002,10 +1023,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                         }; 
                                         dataList["tab_list"].add(dummyMap);
                                         setState(() {
-                                          // writeJsonFile(dataList);
+                                          writeJsonFile(dataList);
                                         });
 
                                       },
+                                      
                                       child: const Text(
                                         "ADD",
                                         style: TextStyle(
@@ -1021,10 +1043,11 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                           ),
                         ),
-                        //* Statistics
+                        //* Bottom right box
                         Expanded(
                           flex: 3,
                           child: Container(
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: const Color.fromRGBO(42, 46, 50, 1),
                               border:  Border(
@@ -1046,24 +1069,130 @@ class _MyHomePageState extends State<MyHomePage> {
                                 bottomRight: Radius.circular(15.0),
                               ),
                             ),
-                            child: Center(
-                              //TODO: want box shape, instead of a circle
-                              child: IconButton(
-                                style: IconButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  //* Statistics
+                              
+                                  // TODO: make an class or something(variable) for the elevatedbutton. If
+                                  // their will be more then it will probably have the same properties
+                                  // other than the icon and text name.
+                                  // But probably a class, seeing as I will push a new window onto the existing
+                                  // So the class will take a child widget to desgin the layout.
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      foregroundColor: Colors.red,
+                                      backgroundColor: const Color.fromRGBO(42, 46, 50, 1),
+                                      shadowColor: Colors.transparent,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8.0),
+                                      ),
+                                      padding: const EdgeInsets.all(8),
+                                    ),
+                                    onPressed: (){
+                              
+                                      //TODO: new page? statistics
+                                      
+                                    },
+                                    child: const Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        //TODO: switch to figma icon(download and create icon folder in assets)
+                                        Icon(
+                                          Icons.data_thresholding_rounded,
+                                          size: 55,
+                                          color: Color.fromRGBO(253, 65, 60, 1),
+                                        ),
+                                        Text(
+                                          "Statistics",
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  padding: const EdgeInsets.all(0),
-                                  hoverColor: Colors.grey.shade800,
-                                  visualDensity: VisualDensity.compact,
-                                ),
-                                onPressed: (){},
-                                //TODO: switch to figma icon(download and create icon folder in assets)
-                                icon: const Icon(
-                                  Icons.data_thresholding_rounded,
-                                  size: 60,
-                                  color: Color.fromRGBO(253, 65, 60, 1),
-                                ),
+                                  //* File picker button
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      foregroundColor: Colors.red,
+                                      backgroundColor: const Color.fromRGBO(42, 46, 50, 1),
+                                      shadowColor: Colors.transparent,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8.0),
+                                      ),
+                                      padding: const EdgeInsets.all(8),
+                                    ),
+                                    onPressed: (){
+                              
+                                      //TODO: add file_picker or write my own to the winapi
+                                      //How would I write my own to do that?
+                                      //look up the file picker github
+                                      //
+                                      
+                                    },
+                                    child: const Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        //TODO: switch to figma icon(download and create icon folder in assets)
+                                        Icon(
+                                          Icons.drive_file_move_rtl,
+                                          size: 55,
+                                          color: Color.fromRGBO(253, 65, 60, 1),
+                                        ),
+                                        Text(
+                                          "File Picker",
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  //* Block info button
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      // splashFactory: NoSplash.splashFactory,
+                                      foregroundColor: Colors.red,
+                                      backgroundColor: const Color.fromRGBO(42, 46, 50, 1),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8.0),
+                                      ),
+                                      padding: const EdgeInsets.all(8),
+                                    ),
+                                    onPressed: (){
+                                      print("hello");
+                                      // TODO: Show list of currently blocking(database/storage/dataList)
+                                      
+                                    },
+                                    child: const Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        //TODO: switch to figma icon(download and create icon folder in assets)
+                                        Icon(
+                                          Icons.block_sharp,
+                                          size: 55,
+                                          color: Color.fromRGBO(253, 65, 60, 1),
+                                        ),
+                                        Text(
+                                          "Block info",
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ]
                               ),
                             )
                           ),

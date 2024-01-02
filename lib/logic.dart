@@ -1,32 +1,130 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, constant_identifier_names
 
 import 'dart:async';
 import 'dart:ffi';
 
 import 'package:app_blocker/gridview_custom.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
 import 'dart_functions.dart';
 
+import "package:image/image.dart" as img;
+import 'package:intl/intl.dart';
 import "package:ffi/ffi.dart";
 import 'package:win32/win32.dart';
 
 
 class ActiveWindowManager{
+
   Timer? _timer;
+
   static String _lastChild = "";
+
   static int currentHwnd = 0;
+
   static String? exePath;
 
-  static Map allActiveProgramsList = {};
+  static String? fullPath;
+
+  static img.Image? imageIcon;
+
+  static List allActiveProgramsList = [];
+
   static List filterProgram = [
     "ApplicationFrameHost.exe",
     "explorer.exe",
     "TextInputHost.exe",
   ];
+  
 
 
+  static void iconToImage(int hwnd) {    
+
+    // if (fullPath!.contains("WindowsApp")){
+    //   print("icontoImage: $exePath $fullPath ");
+    // }
+
+    final fileInfo = calloc<SHFILEINFO>();
+    const SHGFI_LARGEICON = 0x000000000;
+    const SHGFI_ICON = 0x000000100;
+
+    
+    SHGetFileInfo(fullPath!.toNativeUtf16(), 0, fileInfo, sizeOf<SHFILEINFO>(), 
+    SHGFI_ICON | SHGFI_LARGEICON);
+
+    final hIcon = fileInfo.ref.hIcon;
+
+    // TODO: LATER: fix the windows app icon, not able to show the correct one.
+    // var hIcon = GetClassLongPtr(hwnd, GCL_HICON);
+    // if (fullPath!.contains("WindowsApp")){
+
+    // }
+    // if (hIcon == 0) {
+    //   print("here");
+    //   hIcon = SendMessage(hwnd, WM_GETICON, 2, 0);
+    // }
+    // print(hIcon);
+
+
+    final iconInfo = calloc<ICONINFO>();
+    GetIconInfo(hIcon, iconInfo);
+
+
+    final hdc = GetDC(0);
+    final hBitmap = iconInfo.ref.hbmColor;
+
+    
+    final bitmap = calloc<BITMAP>();
+    GetObject(hBitmap, sizeOf<BITMAP>(), bitmap);
+    
+    final bitmapInfo = calloc<BITMAPINFOHEADER>()
+      ..ref.biSize = sizeOf<BITMAPINFOHEADER>()
+      ..ref.biWidth = bitmap.ref.bmWidth
+      ..ref.biHeight = -bitmap.ref.bmHeight
+      ..ref.biPlanes = 1
+      ..ref.biBitCount = 32
+      ..ref.biCompression = BI_RGB;
+
+
+
+    int bufferSize = bitmap.ref.bmWidth * bitmap.ref.bmHeight * 4;
+    final buffer = calloc<Uint8>(bufferSize);
+    GetDIBits(hdc, hBitmap, 0, bitmapInfo.ref.biHeight, buffer, bitmapInfo.cast(), DIB_RGB_COLORS);
+    
+    
+    final alphaBuffer = calloc<Uint8>(bufferSize);
+    for (var i = 0; i < bufferSize; i += 4) {
+      final alpha = buffer[i + 3];
+      
+      // Copy BGR channels instead of RGB channels
+      alphaBuffer[i] = buffer[i + 2]; // Blue
+      alphaBuffer[i + 1] = buffer[i + 1]; // Green
+      alphaBuffer[i + 2] = buffer[i]; // Red
+      alphaBuffer[i + 3] = alpha; // Alpha
+    }
+
+
+    imageIcon = img.Image.fromBytes(
+      width: 32,
+      height: 32,
+      numChannels: 4,
+      bytes: alphaBuffer.asTypedList(bufferSize).buffer
+    );
+    
+  
+
+    free(fileInfo);
+    DestroyIcon(fileInfo.ref.hIcon);
+    DestroyIcon(hIcon);
+    DeleteObject(iconInfo.ref.hbmColor);
+    DeleteObject(iconInfo.ref.hbmMask);
+    free(iconInfo);
+    free(bitmapInfo);
+    free(bitmap);
+    free(buffer);
+    free(alphaBuffer);
+
+
+  }
 
   static int _enumWinProc(int hwnd, int lParam){
     
@@ -38,18 +136,23 @@ class ActiveWindowManager{
       if (exePath!.contains(".exe") 
       && style & WS_CAPTION != 0
       && !filterProgram.contains(exePath)
-      // && !allActiveProgramsList.containsValue(exePath) 
       ){
+        //! Can be removed If needed to be: title
         final length = GetWindowTextLength(hwnd);
         if (length == 0) return TRUE;
         
-        final buffer = wsalloc(length + 1);
-        GetWindowText(hwnd, buffer, length + 1);
+        // final buffer = wsalloc(length + 1);
+        // GetWindowText(hwnd, buffer, length + 1);
         
-        final title = buffer.toDartString();
-        free(buffer);
+        // final title = buffer.toDartString();
+        // free(buffer);
 
-        allActiveProgramsList[title] = exePath;
+        iconToImage(hwnd);
+        allActiveProgramsList.add({
+          "name": exePath, //Name of the program; "Notion.exe"
+          "icon": imageIcon
+        });
+        // allActiveProgramsList[title] = exePath;
         
       }
     }
@@ -57,21 +160,35 @@ class ActiveWindowManager{
     return TRUE;
   }
 
-  List getAllActivePrograms(List dataList){
+  List getAllActiveProgramsWithIcon(List dataList){
     
     final winproc = Pointer.fromFunction<EnumWindowsProc>(_enumWinProc, 0);
     EnumWindows(winproc, 0);
     
-    List convertedList = [];
-    allActiveProgramsList.forEach((key, value) {
-      if (!dataList.contains(value)){
-        convertedList.add(value);
-      }
-    });
-
-
     
+    List convertedList = [];
+    List uniqueList = [];
+    List dataListNames = []; // To not show already added programs
+
+    for (var i = 0; i < dataList.length; i++) {
+      dataListNames.add(dataList[i]["name"]);
+    }
+    
+
+    for (var i = 0; i < allActiveProgramsList.length; i++){
+      var name = allActiveProgramsList[i]["name"];
+      var map = allActiveProgramsList[i];
+
+
+      if (!uniqueList.contains(name) && !dataListNames.contains(name)) {
+        uniqueList.add(name);
+        convertedList.add(map);
+      }
+      
+    }
+
     return convertedList;
+
   }
 
   static void _getExePathfromHWND(int hWnd) {
@@ -94,7 +211,9 @@ class ActiveWindowManager{
     free(buff);
     CloseHandle(hProcess);
     
+    fullPath = exePath;
     exePath = exePath!.split("\\").last;
+    
     
     if (exePath == "ApplicationFrameHost.exe"){
       final winProc = Pointer.fromFunction<EnumWindowsProc>(_enumWinChildren, 0);
@@ -128,16 +247,17 @@ class ActiveWindowManager{
   
   static void _matchAndMinimize(int hWnd, List storageList) {
     
+    // Loops through all the active tabs.
     for (var i = 0; i < storageList.length; i++) {
       for (var j = 0; j < storageList[i]["program_list"].length; j++) {
 
-        // ApplicationFrameHose.exe it's child
-        if (_lastChild != "" && storageList[i]["program_list"][j] == _lastChild) {
+        // ApplicationFrameHose.exe; it's child
+        if (_lastChild != "" && storageList[i]["program_list"][j]["name"] == _lastChild) {
           
           SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
           break;
 
-        } else if (storageList[i]["program_list"][j] == exePath) { 
+        } else if (storageList[i]["program_list"][j]["name"] == exePath) { 
           
           // ShowWindow(hWnd, 11);
           SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
@@ -154,29 +274,27 @@ class ActiveWindowManager{
     }
   }
 
-  static bool conditionChecks(List repeatOptions, List timePeriods, DateTime timeNow){
+  static bool conditionCheck(List repeatOptions, List timePeriods, DateTime timeNow){
     
-    //TODO: maybe create variable outside the function and inside the class, maybe?
     var timeNowFormatted = int.parse(DateFormat("HHmm").format(timeNow));
-    int counter = 0;
+    int notWithinTimePeriodsCount = 0;
     
     for(var dataTime in timePeriods){
 
       if (timeNowFormatted >= dataTime[0] && timeNowFormatted <= dataTime[1]){
-        // print("within time periods");
+        //within time periods;
         break;
         
       } else {
-        // print("outside of time periods");
-        counter ++; // valid time periods count
+        //outside of time periods;
+        notWithinTimePeriodsCount++;
       }
 
     }
 
-    if (counter == timePeriods.length){
+    if (notWithinTimePeriodsCount == timePeriods.length){
       return false;
     }
-
 
     switch (repeatOptions[0]) {
       case "Daily":
@@ -195,6 +313,7 @@ class ActiveWindowManager{
         return false;
 
       case "Custom":
+        //* Should try to make it work, seeing as I might use something similar in the todo project.
         //Check the date>time
         // maybe add another item
         /*
@@ -224,11 +343,8 @@ class ActiveWindowManager{
     return false;
   }
 
-  //! Cant show exe+/path of task manager, not showing up as anything.
-  //! not very accurate and reliable but works most of the time. 
-  //! when it checks the "ApplicationFrameHost.exe" <- it's not fast enough.
-  //! Maybe I can optimize it or something.
-  // TODO: Optimize the "ApplicationFrameHost.exe"?
+  // TODO: LATER: change to SetWinEventHook. Dont know if its better to switch. 
+  // Seems to work pretty decently right.
 
   void monitorActiveWindow() async {
     final List storageList = readJsonFile()["tab_list"];
@@ -248,17 +364,20 @@ class ActiveWindowManager{
       validDataTabs.add(tab);
     }
     
-    //* Could try to switch it to only check conditions if a program 
-    //* match in the data list is/are true.
 
     if (validDataTabs.isNotEmpty) {
 
       List timePeriods = [];
+
       for (var index = 0; index < validDataTabs.length; index++){
-          var splitTimeData = validDataTabs[index]["options"]["time"].split(RegExp(r"[\,]")); //"1000-1100,1200-1300".split...
+
+        var splitTimeData = validDataTabs[index]["options"]["time"].split(RegExp(r"[\,]")); //"1000-1100,1200-1300".split...
+
         for (var time in splitTimeData){
+
           var intRange = time.split("-").map((item) => int.parse(item)).toList();
           timePeriods.add(intRange);
+
         }
         
       }
@@ -268,23 +387,29 @@ class ActiveWindowManager{
 
         timeNow = DateTime.now();
 
+
         if (currentHwnd != GetForegroundWindow()) {
           
           currentHwnd = GetForegroundWindow();
 
           _lastChild = "";
-          _getExePathfromHWND(currentHwnd);
+          _getExePathfromHWND(currentHwnd); // Used for matching against database/storage
 
           for (var tab in validDataTabs){
-            bool condition = conditionChecks(tab["options"]["repeat"], timePeriods, timeNow);
-            if (!condition){
+            
+            bool condition = conditionCheck(tab["options"]["repeat"], timePeriods, timeNow);
+
+            // TODO: FEATURE: the settings for blocking outside of time periods is true 
+            // then just replace "condition" with "!condition". Instead of the default, 
+            // blocking within time periods.
+            if (condition){
               _matchAndMinimize(currentHwnd, validDataTabs);
             } 
           }
           
         }
         
-        //! maybe a done message for removing the loading screen?
+        //! maybe a done message to remove the loading screen?
       });
     }
 
@@ -322,23 +447,15 @@ class ActiveProgramSelection extends PopupRoute {
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
-    final List currentActivePrograms = ActiveWindowManager().getAllActivePrograms(dataList);
-    
+
+    final List currentActivePrograms = ActiveWindowManager().getAllActiveProgramsWithIcon(dataList);
+
     return Center(
       child: Container(
         height: MediaQuery.of(context).size.width / 3,
         width: MediaQuery.of(context).size.width / 2,
         decoration: BoxDecoration(
-          //TODO: change the color to be the same as program box/list
           color: const Color.fromRGBO(42, 46, 50, 1),
-          // boxShadow: const [
-          //   BoxShadow(
-          //     color: Colors.white,
-          //     offset: Offset(-8, 8),
-          //     blurRadius: 8.0,
-          //     blurStyle: BlurStyle.inner
-          //   )
-          // ],
           border: Border.all(
             color: Colors.redAccent,
             width: 6.0,
@@ -350,21 +467,38 @@ class ActiveProgramSelection extends PopupRoute {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const Padding(
+                padding: EdgeInsets.only(bottom: 8),
+                child: Text(
+                  "Currently active programs",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    decoration: TextDecoration.none,
+                    fontSize: 22,
+                    color: Color.fromRGBO(217, 217, 217, 1),
+                  ),
+                ),
+              ),
               Expanded(
                 flex: 9,
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 16),
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.fromLTRB(10, 12, 10, 12),
                   decoration: BoxDecoration(
                     color: const Color.fromRGBO(53, 53, 53, 1),
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      width: 1,
+                      color: const Color.fromRGBO(200, 2000, 200, 1)
+                    )
                   ),
                   child: CustomGridView(
                     itemCount: currentActivePrograms.length,
                     programNames: currentActivePrograms,
                     onSelectedChanged: (onSelectedChanged){
-                      print(onSelectedChanged);
+
                       selectedList = onSelectedChanged.values.toList();
+
                     },
                   )
                 )
@@ -376,7 +510,6 @@ class ActiveProgramSelection extends PopupRoute {
                   children: [
                     ElevatedButton(
                       onPressed: (){
-                        // send back to main? callback from onSelectedChanged value of CustomGridView
 
                         onSaved(selectedList);
                         Navigator.pop(context);
@@ -399,6 +532,4 @@ class ActiveProgramSelection extends PopupRoute {
       )
     );
   }
-
-  
 }

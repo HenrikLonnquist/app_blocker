@@ -3,13 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 
-//! Seems to be rebuilding the overlayentry every second,
-//! probably because of the monitoring logic/file. So maybe
-//! it also rebuilds the whole program every 1 second.
-//TODO: I should customize so that I can re-use it
-//TODO: rename the class, i'm not using overlayportal anymore
-class CustomOverlayPortal extends StatefulWidget {
-  const CustomOverlayPortal({
+//TODO: LATER: I should customize so that I can re-use it
+class CustomDropdownButton extends StatefulWidget {
+  const CustomDropdownButton({
     super.key,
     required this.dataList,
     required this.onSaved,
@@ -29,16 +25,15 @@ class CustomOverlayPortal extends StatefulWidget {
 
 
   @override
-  State<CustomOverlayPortal> createState() => _CustomOverlayPortalState();
+  State<CustomDropdownButton> createState() => _CustomDropdownButtonState();
 }
 
-class _CustomOverlayPortalState extends State<CustomOverlayPortal> {
+class _CustomDropdownButtonState extends State<CustomDropdownButton> {
   List<String> dropdownList = ["Daily", "Weekdays", "Weekly", "Custom",]; 
 
 
   @override
   Widget build(BuildContext context) {
-    //TODO: might need to change to 4 later with due date/valueTime
     return DropdownButtonHideUnderline(
       child: DropdownButton2(
         hint: const Text(
@@ -158,8 +153,6 @@ class _CustomOverlayPortalState extends State<CustomOverlayPortal> {
             }
           });
         },
-        //TODO: add this to the custombutton property, add what?
-        // the entire iconstyledata?
         iconStyleData: const IconStyleData(
           icon: Icon(
             Icons.keyboard_arrow_down_outlined,
@@ -427,7 +420,6 @@ class _CustomMenuState extends State<CustomMenu> {
                                   });
                   
                                 },
-                                // TODO: make the dropdownmenu shorter
                                 dropdownStyleData: DropdownStyleData(
                                   offset: const Offset(0, 80),
                                   isOverButton: true,
@@ -442,10 +434,10 @@ class _CustomMenuState extends State<CustomMenu> {
                       ],
                     ),
                   ),
+                  //* Weeks
                   if (weeksSelected) Container(
                     margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                     height: weekdayButtonsHeight,
-                    //TODO: switch to a toggleButtons widget instead.
                     child: GridView.builder(
                       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: 40,
@@ -491,7 +483,7 @@ class _CustomMenuState extends State<CustomMenu> {
                     children: [
                       Expanded(
                         flex: 5,
-                        child: TextButton( // TODO: fix the borderRadius? What wrong with it?
+                        child: TextButton( 
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
@@ -518,8 +510,10 @@ class _CustomMenuState extends State<CustomMenu> {
                             )
                           ),
                           onPressed: formController.text.isNotEmpty ? () {
-                            //TODO I need to update the repeat value of the second third (fourth) value the date is past timeNow
-            
+
+                            // TODO: I need to update the repeat value of the second third (fourth) value if the date is past timeNow
+                            // But this is not where I check for conditions tho..
+                            // Here I only need choose or specify the repeat settings?. The calculations should be done in the logic file.
             
                             widget.dataList.clear();
                             widget.dataList.add("Custom");
