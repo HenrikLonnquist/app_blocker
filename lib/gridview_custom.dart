@@ -6,25 +6,77 @@ class CustomGridView extends StatefulWidget {
   const CustomGridView({
     super.key,
     this.programNames,
-    required this.itemCount,
+    this.itemCount = 0,
     this.onSelectedChanged,
+    this.currentTab = 0,
+    this.selectState,
   });
 
+  final bool? selectState;
+
+  final int currentTab;
+
   final int itemCount;
+
   final List? programNames;
-  // maybe together the function to send overlayentries as well
+  
   final void Function(Map<int, dynamic>)? onSelectedChanged;
+  
+  
+
 
   @override
   State<CustomGridView> createState() => _CustomGridViewState();
 }
 
 class _CustomGridViewState extends State<CustomGridView> {
+  int currTab = 0;
+
   Map<int, dynamic> selectedProgramList = {};
-  bool selectedProgram = false;
+
+  void selectAllPrograms(){
+
+    selectedProgramList.clear();
+
+    for (var i = 0; i < widget.programNames!.length; i++) {
+      selectedProgramList[i] = widget.programNames![i];
+    }
+
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+  
   
   @override
   Widget build(BuildContext context) {
+    
+    if (currTab != widget.currentTab){
+      currTab = widget.currentTab;
+      selectedProgramList.clear();
+    }
+
+    
+    if (widget.selectState == true) {   // Select All
+      
+      selectAllPrograms();
+      
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        widget.onSelectedChanged!(selectedProgramList);
+      });
+
+    } else if (widget.selectState == false) {   // Deselect All
+      
+      selectedProgramList.clear();
+      
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        widget.onSelectedChanged!(selectedProgramList);
+      });
+
+    }
+
     return Material(
       color: Colors.transparent,
       child: GridView.builder(
@@ -38,9 +90,10 @@ class _CustomGridViewState extends State<CustomGridView> {
         itemCount: widget.itemCount,
         itemBuilder: (context, index) {
           return InkWell(
-            onTapDown: (details){
+            onTap: (){
 
               setState(() {
+                
                 if(selectedProgramList.containsKey(index)){
                   selectedProgramList.remove(index);
                   widget.onSelectedChanged!(selectedProgramList);
@@ -48,6 +101,7 @@ class _CustomGridViewState extends State<CustomGridView> {
                   selectedProgramList[index] = widget.programNames![index];
                   widget.onSelectedChanged!(selectedProgramList);
                 }
+
               });
               
             },

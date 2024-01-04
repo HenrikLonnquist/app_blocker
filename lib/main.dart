@@ -90,34 +90,54 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  
   Map dataList = {}; // for the json file
+  
   Map<int, dynamic> tempMap = {}; // from the customgridview, which are selected
+  
   int currentTab = 0;
+  
   Map<String, dynamic> dummyMap = {};
+  
   final ScrollController _scrollController = ScrollController();
+  
   String time = DateFormat("HHmm").format(DateTime.now());
+  
   final backgroundColorGradient1 = const Color.fromRGBO(136, 148, 162, 1.0);
+  
   final backgroundColorGradient2 = const Color.fromRGBO(188, 202, 219, 0.56);
+  
   TextEditingController textController = TextEditingController();
+  
   final FocusNode myFocusNode = FocusNode();
+  
   bool validationError = false;
   
 
   OverlayEntry? overlayEntry;
+
   final link = LayerLink(); // tooltip textformfield
+
   final linkToCustomButton = LayerLink(); // dropdownbutton/custom selected
   
+
   Map headerButtonSelected = {"Home": true,};
+
   Color selectedColor = const Color.fromRGBO(217, 217, 217, 1);
 
+
   late double contextWidth = MediaQuery.of(context).size.width;
+
   late double contextHeight = MediaQuery.of(context).size.height;
 
   // TODO: Make a list of variables for colors.
   Color borderColor = const Color.fromRGBO(255, 0, 0, 1);
   
   bool activeTab = false;
+
   ActiveWindowManager winManager = ActiveWindowManager();
+
+  bool? selectState;
 
   void showOverlayTooltip(){
 
@@ -443,7 +463,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: Column(
                         children: [
                           Container(
-                            padding: const EdgeInsets.fromLTRB(55, 10, 0, 10),
+                            padding: const EdgeInsets.fromLTRB(55, 10, 55, 10),
                             alignment: Alignment.centerLeft,
                             /*
                               TODO: able to (+re)name the tab; 
@@ -451,6 +471,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               * ?double tap on text to rename -- Sounds good! Gesturedetector?
                             */
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   dataList["tab_list"][currentTab]["name"],
@@ -464,7 +485,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 InkWell(
                                   onTap: (){
                                     print("here");
-                                    // TODO: on tap it will switch to textfield without the underline.
+                                    // TODO: on tap it will switch to a textfield without the underline.
 
 
                                   },
@@ -475,6 +496,32 @@ class _MyHomePageState extends State<MyHomePage> {
                                       color: Colors.white,
                                       size: 18,
                                     ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      SizedBox(
+                                        width: 130,
+                                        child: ElevatedButton(
+                                          onPressed: (){
+
+                                            setState(() {
+                                              if (tempMap.length == dataList["tab_list"][currentTab]["program_list"].length){
+                                                selectState = false; // Deselect All
+                                              } else {
+                                                selectState = true; // Select All
+                                              }
+                                            });
+                                          },
+                                          // TOOD: will rename to deselect all if there is programs
+                                          child: tempMap.isEmpty ? 
+                                          const Text("Select All") :
+                                          const Text("Deselect All"),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 )
                               ],
@@ -497,10 +544,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                   child: CustomGridView(
                                     itemCount: dataList["tab_list"][currentTab]["program_list"].length,
                                     programNames: dataList["tab_list"][currentTab]["program_list"],
+                                    currentTab: currentTab,
+                                    selectState: selectState!,
                                     onSelectedChanged: (programNames){
                                 
                                       setState(() {
                                         tempMap = programNames;
+                                        selectState = null;
                                       });
                                 
                                     }
@@ -513,16 +563,21 @@ class _MyHomePageState extends State<MyHomePage> {
                                     children: [
                                       Center(
                                         child: ElevatedButton(
-                                          onPressed: () {
-                                            // _pickFile();
+                                          onPressed: () async {
                                             
-                                            //call the class for activeProgramselection
                                             Navigator.of(context).push(ActiveProgramSelection(
                                               dataList: dataList["tab_list"][currentTab]["program_list"],
                                               onSaved: (saved){
 
-                                                for (var program in saved){
-                                                  File("assets/program_icons/i_${program["name"].split(".")[0]}.png").writeAsBytesSync(img.encodePng(program["icon"]));
+                                                for (var program in saved) {
+
+                                                  String iconName = "i_${program["name"].split(".")[0]}.png";
+                                                  File file = File("assets/program_icons/$iconName");
+
+                                                  if (!file.existsSync()){
+                                                    file.writeAsBytesSync(img.encodePng(program["icon"]));
+                                                  }
+                                                  
                                                   dataList["tab_list"][currentTab]["program_list"].add(
                                                     {
                                                       "name": program["name"],
@@ -558,11 +613,34 @@ class _MyHomePageState extends State<MyHomePage> {
                                       Center(
                                         child: ElevatedButton(
                                           onPressed: tempMap.isNotEmpty ? () {
+
                                             var list = dataList["tab_list"][currentTab]["program_list"];
+                                            
+                                            // Looking for duplicates that might use the same icon == do not delete icon
+                                            List tempList = []; 
+                                            List duplicates = [];
+
+                                            for (var i = 0; i < dataList["tab_list"].length; i++) {
+                                              
+                                              var tab = dataList["tab_list"][i];
+
+                                              for (var j = 0; j < tab["program_list"].length; j++) {
+                                                
+                                                var program = tab["program_list"][j]["name"];
+                                                tempList.add(program);
+
+                                                if (tempList.contains(program)){
+                                                  duplicates.add(program);
+                                                }
+                                              }
+                                              
+                                            }
 
                                             for(var program in tempMap.values){
                                               var index = list.indexOf(program);
-                                              File(program["icon"]).delete();
+                                              if (!duplicates.contains(program["name"])){
+                                                File(program["icon"]).delete();
+                                              }
                                               list.removeAt(index);
                                             }
                                             
