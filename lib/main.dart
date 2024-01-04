@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:collection';
 import "dart:io";
+import 'package:flutter/cupertino.dart';
 import "package:image/image.dart" as img;
 
 import 'package:app_blocker/gridview_custom.dart';
@@ -138,6 +139,10 @@ class _MyHomePageState extends State<MyHomePage> {
   ActiveWindowManager winManager = ActiveWindowManager();
 
   bool? selectState;
+  
+  TextEditingController _tabTitleTextController = TextEditingController();
+  
+  bool isEditing = true;
 
   void showOverlayTooltip(){
 
@@ -204,14 +209,17 @@ class _MyHomePageState extends State<MyHomePage> {
     winManager.monitorActiveWindow();
 
     textController.text = dataList["tab_list"][currentTab]["options"]["time"];
+    _tabTitleTextController.text = dataList["tab_list"][currentTab]["name"];
 
   }
 
   @override
   void dispose() {
+    
     textController.dispose();
     removeOverlay();
     myFocusNode.dispose();
+    _tabTitleTextController.dispose();
 
     super.dispose();
   }
@@ -473,6 +481,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
+                                isEditing ?
                                 Text(
                                   dataList["tab_list"][currentTab]["name"],
                                   style: const TextStyle(
@@ -480,12 +489,49 @@ class _MyHomePageState extends State<MyHomePage> {
                                     fontSize: 25,
                                     fontFamily: "BerkshireSwash",
                                   ),
+                                ) :
+                                Expanded(
+                                  flex: 3,
+                                  child: TextField(
+                                    controller: _tabTitleTextController,
+                                    autofocus: true,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 21,
+                                      fontFamily: "BerkshireSwash"
+                                    ),
+                                    onTapOutside: (event){
+                                      setState(() {
+                                        isEditing = true;
+                                      });
+                                    },
+                                    onSubmitted: (value){
+                                      setState(() {
+                                  
+                                        isEditing = true;
+                                  
+                                        dataList["tab_list"][currentTab]["name"] = value;
+                                  
+                                        writeJsonFile(dataList);
+                                      });
+                                    },
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(width: 20),
-                                InkWell(
+                                if (isEditing)InkWell(
                                   onTap: (){
                                     print("here");
                                     // TODO: on tap it will switch to a textfield without the underline.
+                                    setState(() {
+                                      
+                                      _tabTitleTextController.text = dataList["tab_list"][currentTab]["name"];
+                                      isEditing = false;
+                                      
+                                    });
 
 
                                   },
@@ -1032,7 +1078,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   const Color.fromRGBO(245, 245, 245, 1.0),
                                                   
                                                   title: Text(
-                                                    "${dataList["tab_list"][index]["name"]}",
+                                                    dataList["tab_list"][index]["name"],
                                                     overflow: TextOverflow.ellipsis,
                                                     style: const TextStyle(
                                                       fontSize: 20,
