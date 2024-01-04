@@ -545,7 +545,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     itemCount: dataList["tab_list"][currentTab]["program_list"].length,
                                     programNames: dataList["tab_list"][currentTab]["program_list"],
                                     currentTab: currentTab,
-                                    selectState: selectState!,
+                                    selectState: selectState,
                                     onSelectedChanged: (programNames){
                                 
                                       setState(() {
@@ -1015,6 +1015,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   onTap: () {
                                                     setState(() {
                                                       currentTab = index;
+                                                      tempMap.clear();
                                                       textController.text = dataList["tab_list"][currentTab]["options"]["time"];
                                                       validationError = false;
                                                       removeOverlay();
