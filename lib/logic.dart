@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:ffi';
+import 'dart:typed_data';
 
 import 'package:app_blocker/gridview_custom.dart';
 import 'package:flutter/material.dart';
@@ -110,7 +111,6 @@ class ActiveWindowManager{
       bytes: alphaBuffer.asTypedList(bufferSize).buffer
     );
     
-  
 
     free(fileInfo);
     DestroyIcon(fileInfo.ref.hIcon);
@@ -176,13 +176,13 @@ class ActiveWindowManager{
     
 
     for (var i = 0; i < allActiveProgramsList.length; i++){
-      var name = allActiveProgramsList[i]["name"];
-      var map = allActiveProgramsList[i];
+      String name = allActiveProgramsList[i]["name"];
+      Map mapNameAndIcon = allActiveProgramsList[i];
 
 
       if (!uniqueList.contains(name) && !dataListNames.contains(name)) {
         uniqueList.add(name);
-        convertedList.add(map);
+        convertedList.add(mapNameAndIcon);
       }
       
     }
@@ -448,8 +448,20 @@ class ActiveProgramSelection extends PopupRoute {
   @override
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
 
-    final List currentActivePrograms = ActiveWindowManager().getAllActiveProgramsWithIcon(dataList);
+    final List<dynamic> currentActivePrograms = ActiveWindowManager().getAllActiveProgramsWithIcon(dataList);
+    currentActivePrograms.insert(0, {
+      "name": "All Programs.exe",
+      "icon": "assets/program_icons/i_allprograms.png"
+    });
 
+    // Storing for when I'm re-building(setstate) during de+/selecting programs. Would otherwise cause "flickering"
+    List imageList = [];
+    for (var i = 1; i < currentActivePrograms.length; i++) {
+      imageList.add(Image.memory(Uint8List.fromList(img.encodePng(currentActivePrograms[i]["icon"])), ));
+      currentActivePrograms[i]["icon"] = imageList[i - 1];
+    }
+
+    
     return Center(
       child: Container(
         height: MediaQuery.of(context).size.width / 3,
@@ -509,7 +521,8 @@ class ActiveProgramSelection extends PopupRoute {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton(
-                      onPressed: (){
+                      onPressed: () async {
+
 
                         onSaved(selectedList);
                         Navigator.pop(context);

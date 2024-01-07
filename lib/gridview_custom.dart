@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-import "package:image/image.dart" as img;
 import 'package:flutter/material.dart';
 
 class CustomGridView extends StatefulWidget {
@@ -33,6 +31,7 @@ class _CustomGridViewState extends State<CustomGridView> {
   int currTab = 0;
 
   Map<int, dynamic> selectedProgramList = {};
+  
 
   void selectAllPrograms(){
 
@@ -115,11 +114,12 @@ class _CustomGridViewState extends State<CustomGridView> {
                 ),
               ),
               child: Column(
+
                 children: [
                   Container(
                     child: widget.programNames![index]["icon"].runtimeType == String ?
-                    Image(image: AssetImage(widget.programNames![index]["icon"]),) :
-                    Image.memory(Uint8List.fromList(img.encodePng(widget.programNames![index]["icon"])))
+                    Image(image: AssetImage(widget.programNames![index]["icon"])) :
+                    widget.programNames![index]["icon"]
                   ),
                   Align(
                     alignment: Alignment.bottomCenter,
