@@ -1,6 +1,8 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+import 'package:win32/win32.dart';
 
 
 //TODO: LATER: I should customize so that I can re-use it
@@ -72,23 +74,27 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: widget.dataList.length > 3 ?
+                      padding: widget.dataList.length >= 2 ?
                       const EdgeInsets.all(0) : 
                       const EdgeInsets.all(5.5),
                       child: Text(
-                        widget.dataList.length > 3 ?
-                        "Every ${widget.dataList[1]} ${widget.dataList[2]}"
-                        : widget.dataList.isEmpty ? "Repeat" : widget.dataList[0],
+                        widget.dataList.length > 3 ?  // Checks if the data is "Custom"
+                        "Every ${widget.dataList[1]} ${widget.dataList[2]}" :
+                        widget.dataList.isEmpty ? 
+                        "Repeat" : 
+                        widget.dataList[0],
                         textAlign: TextAlign.start,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
-                          fontSize: widget.dataList.length > 3 ? 14 : 20,
+                          fontSize: widget.dataList.length >= 2 ? 14 : 20,
                         ),
                       ),
                     ),
-                    if(widget.dataList.length > 3)
+                    if(widget.dataList.length >= 2)
                     Text(
+                      widget.dataList.length == 2 ? 
+                      widget.dataList[1] :
                       widget.dataList[3].values.toList().join(", "),
                       style: const TextStyle(
                         color: Colors.white,
@@ -147,7 +153,11 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
               if(value != "Repeat"){
                 widget.dataList.clear();
                 widget.dataList.add(value);
-                //addvalue time to json file: weekly, montly yearly, weekdays and so on..
+                if(value == "Weekly") {
+                  var timeNow = DateTime.now();
+                  var formattedDate = DateFormat("E").format(timeNow);
+                  widget.dataList.add(formattedDate);
+                }
                 widget.onSaved(widget.dataList);
               }
             }
@@ -511,7 +521,7 @@ class _CustomMenuState extends State<CustomMenu> {
                           ),
                           onPressed: formController.text.isNotEmpty ? () {
 
-                            // TODO: I need to update the repeat value of the second third (fourth) value if the date is past timeNow
+                            // TODO: I need to update the repeat value(custom?) of the second third (fourth) value if the date is past timeNow
                             // But this is not where I check for conditions tho..
                             // Here I only need choose or specify the repeat settings?. The calculations should be done in the logic file.
             
