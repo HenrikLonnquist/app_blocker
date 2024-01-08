@@ -479,12 +479,19 @@ class _MyHomePageState extends State<MyHomePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 isEditing ?
-                                Text(
-                                  dataList["tab_list"][currentTab]["name"],
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 25,
-                                    fontFamily: "BerkshireSwash",
+                                GestureDetector(
+                                  onDoubleTap: (){
+                                    setState(() {
+                                      isEditing = false;
+                                    });
+                                  },
+                                  child: Text(
+                                    dataList["tab_list"][currentTab]["name"],
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 25,
+                                      fontFamily: "BerkshireSwash",
+                                    ),
                                   ),
                                 ) :
                                 Expanded(
