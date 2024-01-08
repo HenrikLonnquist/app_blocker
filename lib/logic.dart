@@ -30,6 +30,11 @@ class ActiveWindowManager{
 
   static List allActiveProgramsList = [];
 
+  // static List exceptionsList = [
+  //   "Code.exe",
+
+  // ];
+
   static List filterProgram = [
     "ApplicationFrameHost.exe",
     "explorer.exe",
@@ -164,8 +169,13 @@ class ActiveWindowManager{
     
     final winproc = Pointer.fromFunction<EnumWindowsProc>(_enumWinProc, 0);
     EnumWindows(winproc, 0);
+
+    allActiveProgramsList.insert(0, {
+      "name": "allPrograms.exe",
+      "icon": "assets/program_icons/i_allPrograms.png"
+    });
     
-    
+
     List convertedList = [];
     List uniqueList = [];
     List dataListNames = []; // To not show already added programs
@@ -186,6 +196,8 @@ class ActiveWindowManager{
       }
       
     }
+
+    allActiveProgramsList.clear();
 
     return convertedList;
 
@@ -246,26 +258,50 @@ class ActiveWindowManager{
 
   
   static void _matchAndMinimize(int hWnd, List storageList) {
+
     
-    // Loops through all the active tabs.
     for (var i = 0; i < storageList.length; i++) {
-      for (var j = 0; j < storageList[i]["program_list"].length; j++) {
 
-        // ApplicationFrameHose.exe; it's child
-        if (_lastChild != "" && storageList[i]["program_list"][j]["name"] == _lastChild) {
-          
-          SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
-          break;
+      if (storageList[i]["name"] == "allPrograms.exe"){
 
-        } else if (storageList[i]["program_list"][j]["name"] == exePath) { 
-          
-          // ShowWindow(hWnd, 11);
-          SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
-          break;
+        final length = GetWindowTextLength(hWnd);
+        final buffer = wsalloc(length + 1);
+        GetWindowText(hWnd, buffer, length + 1);
+        
+        final title = buffer.toDartString();
+        free(buffer);
 
-        }
+        
+        var test = title.split(" ").join("");
+        print(test);
+        print(test.contains("TaskSwitching"));
+
+        // TODO: Exceptions unless checked in settings. Only when all program is picked.
+        // Exceptions: For now: vscode
+        // definitely: window explorer, taskmanager?
+
+        // SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+        print("block");
+        break;
+        
+      }  
+
+      // ApplicationFrameHost.exe; it's child(ren)
+      if (_lastChild != "" && storageList[i]["name"] == _lastChild) {
+        
+        SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+        break;
+
+      } else if (storageList[i]["name"] == exePath) { 
+        
+        // ShowWindow(hWnd, 11);
+        SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+        break;
+
       }
+      
     }
+
   }
 
   void cancelTimer(){
@@ -396,14 +432,14 @@ class ActiveWindowManager{
           _getExePathfromHWND(currentHwnd); // Used for matching against database/storage
 
           for (var tab in validDataTabs){
-            
+
             bool condition = conditionCheck(tab["options"]["repeat"], timePeriods, timeNow);
 
             // TODO: FEATURE: the settings for blocking outside of time periods is true 
             // then just replace "condition" with "!condition". Instead of the default, 
             // blocking within time periods.
             if (condition){
-              _matchAndMinimize(currentHwnd, validDataTabs);
+              _matchAndMinimize(currentHwnd, tab["program_list"]);
             } 
           }
           
@@ -426,11 +462,12 @@ class ActiveProgramSelection extends PopupRoute {
   });
 
   final List dataList;
+
   final void Function(List) onSaved;
   
-  
   List selectedList = [];
-  
+
+
 
   @override
   Color? get barrierColor => Colors.black.withOpacity(0.5);
@@ -443,22 +480,21 @@ class ActiveProgramSelection extends PopupRoute {
 
   @override
   Duration get transitionDuration => const Duration(milliseconds: 30);
-  
+
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
 
-    final List<dynamic> currentActivePrograms = ActiveWindowManager().getAllActiveProgramsWithIcon(dataList);
-    currentActivePrograms.insert(0, {
-      "name": "All Programs.exe",
-      "icon": "assets/program_icons/i_allprograms.png"
-    });
+    List<dynamic> currentActivePrograms = ActiveWindowManager().getAllActiveProgramsWithIcon(dataList);
 
     // Storing for when I'm re-building(setstate) during de+/selecting programs. Would otherwise cause "flickering"
-    List imageList = [];
-    for (var i = 1; i < currentActivePrograms.length; i++) {
-      imageList.add(Image.memory(Uint8List.fromList(img.encodePng(currentActivePrograms[i]["icon"])), ));
-      currentActivePrograms[i]["icon"] = imageList[i - 1];
+    for (var i = 0; i < currentActivePrograms.length; i++) {
+
+      if (currentActivePrograms[i]["name"] != "allPrograms.exe"){
+        
+        currentActivePrograms[i]["icon"] = Image.memory(Uint8List.fromList(img.encodePng(currentActivePrograms[i]["icon"])));
+
+      }
     }
 
     
@@ -510,6 +546,14 @@ class ActiveProgramSelection extends PopupRoute {
                     onSelectedChanged: (onSelectedChanged){
 
                       selectedList = onSelectedChanged.values.toList();
+                      if (onSelectedChanged.containsKey(0)){
+                        selectedList.clear();
+                        final allPrograms = {
+                          "name": "allPrograms.exe",
+                          "icon": "assets/program_icon/i_allPrograms.png"
+                        };
+                        selectedList.add(allPrograms);
+                      }
 
                     },
                   )
@@ -523,13 +567,13 @@ class ActiveProgramSelection extends PopupRoute {
                     ElevatedButton(
                       onPressed: () async {
 
-
                         onSaved(selectedList);
                         Navigator.pop(context);
                         
                       },
                       child: const Text("Save/Add"),
                     ),
+                    const SizedBox(width: 15),
                     ElevatedButton(
                       onPressed: (){
                         Navigator.pop(context);

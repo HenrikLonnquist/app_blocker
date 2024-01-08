@@ -8,6 +8,7 @@ class CustomGridView extends StatefulWidget {
     this.onSelectedChanged,
     this.currentTab = 0,
     this.selectState,
+    this.checkForAllPrograms = false,
   });
 
   final bool? selectState;
@@ -17,6 +18,9 @@ class CustomGridView extends StatefulWidget {
   final int itemCount;
 
   final List? programNames;
+
+  // TODO: need a better name
+  final bool checkForAllPrograms;
   
   final void Function(Map<int, dynamic>)? onSelectedChanged;
   
@@ -89,10 +93,14 @@ class _CustomGridViewState extends State<CustomGridView> {
         itemCount: widget.itemCount,
         itemBuilder: (context, index) {
           return InkWell(
-            onTap: (){
+            onTap: widget.programNames![0]["name"] == "allPrograms.exe" 
+            && widget.checkForAllPrograms && widget.programNames![index]["name"] != "allPrograms.exe"
+            ?
+            null :
+            (){
 
               setState(() {
-                
+
                 if(selectedProgramList.containsKey(index)){
                   selectedProgramList.remove(index);
                   widget.onSelectedChanged!(selectedProgramList);
@@ -104,41 +112,56 @@ class _CustomGridViewState extends State<CustomGridView> {
               });
               
             },
-            child: Container(
-              decoration: BoxDecoration(
-                color: selectedProgramList[index] == null ? Colors.transparent : Colors.grey.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(
-                  color: const Color.fromRGBO(217, 217, 217, 1),
-                  width: 1,
-                ),
-              ),
-              child: Column(
-
-                children: [
-                  Container(
-                    child: widget.programNames![index]["icon"].runtimeType == String ?
-                    Image(image: AssetImage(widget.programNames![index]["icon"])) :
-                    widget.programNames![index]["icon"]
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    // TODO: LATER: get the program actual name: It's not called CalculatorApp, right?
-                    // I think its fine, not a big problem. You still know what program it is. 
-                    // Yes, look into it later.
-                    child: Text(
-                      widget.programNames![index]["name"].split(".")[0],
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Color.fromRGBO(217, 217, 217, 1),
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
+            child: Stack(
+              children: [
+                
+                Container(
+                  //widget.programNames![index]["name"] == "allPrograms.exe"
+                  decoration: BoxDecoration(
+                    color: selectedProgramList[index] == null ?
+                    Colors.transparent :
+                    Colors.grey.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(
+                      color: const Color.fromRGBO(217, 217, 217, 1),
+                      width: 1,
                     ),
                   ),
-                ],
-              ),
+                  child: Column(
+                    children: [
+                      Container(
+                        child: widget.programNames![index]["icon"].runtimeType == String ?
+                        Image(image: AssetImage(widget.programNames![index]["icon"])) :
+                        widget.programNames![index]["icon"]
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        // TODO: LATER: get the program actual name: It's not called CalculatorApp, right?
+                        // I think its fine, not a big problem. You still know what program it is. 
+                        // Yes, I can look into it later.
+                        child: Text(
+                          widget.programNames![index]["name"].split(".")[0],
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Color.fromRGBO(217, 217, 217, 1),
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if(widget.programNames![0]["name"] == "allPrograms.exe" 
+                && widget.programNames![index]["name"] != "allPrograms.exe"
+                && widget.checkForAllPrograms)Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+              ]
             ),
           );
         },

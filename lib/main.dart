@@ -10,6 +10,7 @@ import 'package:app_blocker/gridview_custom.dart';
 import 'package:flutter/services.dart';
 import 'package:win32/win32.dart';
 
+import "block_info.dart";
 import 'dart_functions.dart';
 import 'logic.dart';
 import 'custom_button.dart';
@@ -138,9 +139,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   ActiveWindowManager winManager = ActiveWindowManager();
 
+  //! Better naming please
   bool? selectState;
   
-  TextEditingController _tabTitleTextController = TextEditingController();
+  final TextEditingController _tabTitleTextController = TextEditingController();
   
   bool isEditing = true;
 
@@ -473,11 +475,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           Container(
                             padding: const EdgeInsets.fromLTRB(55, 10, 55, 10),
                             alignment: Alignment.centerLeft,
-                            /*
-                              TODO: able to (+re)name the tab; 
-                              * default value: tab + number
-                              * ?double tap on text to rename -- Sounds good! Gesturedetector?
-                            */
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -497,7 +494,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     autofocus: true,
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 21,
+                                      fontSize: 25,
                                       fontFamily: "BerkshireSwash"
                                     ),
                                     onTapOutside: (event){
@@ -515,25 +512,25 @@ class _MyHomePageState extends State<MyHomePage> {
                                         writeJsonFile(dataList);
                                       });
                                     },
+                                    cursorColor: Colors.white,
+                                    // TODO: LATER: keyboard ESC-key to exit input/textfield
+                                    // TODO: BUG?: Problem with slight movement when switching between text and textfield.
                                     decoration: const InputDecoration(
                                       border: InputBorder.none,
                                       isDense: true,
+                                      contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 6),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 20),
                                 if (isEditing)InkWell(
                                   onTap: (){
-                                    print("here");
-                                    // TODO: on tap it will switch to a textfield without the underline.
                                     setState(() {
                                       
                                       _tabTitleTextController.text = dataList["tab_list"][currentTab]["name"];
                                       isEditing = false;
                                       
                                     });
-
-
                                   },
                                   child: const Padding(
                                     padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
@@ -592,6 +589,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     programNames: dataList["tab_list"][currentTab]["program_list"],
                                     currentTab: currentTab,
                                     selectState: selectState,
+                                    checkForAllPrograms: true,
                                     onSelectedChanged: (programNames){
                                 
                                       setState(() {
@@ -623,16 +621,32 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   if (!file.existsSync()){
                                                     file.writeAsBytesSync(img.encodePng(program["icon"]));
                                                   }
-                                                  
-                                                  dataList["tab_list"][currentTab]["program_list"].add(
-                                                    {
-                                                      "name": program["name"],
-                                                      "icon": "assets/program_icons/i_${program["name"].split(".")[0]}.png"
-                                                    }
-                                                  );
+
+                                                  if (program["name"] == "allPrograms.exe"){
+                                                    
+                                                    dataList["tab_list"][currentTab]["program_list"].insert(0,
+                                                      {
+                                                        "name": program["name"],
+                                                        "icon": "assets/program_icons/i_${program["name"].split(".")[0]}.png"
+                                                      }
+                                                    );
+
+                                                  } else {
+                                                    
+                                                    dataList["tab_list"][currentTab]["program_list"].add(
+                                                      {
+                                                        "name": program["name"],
+                                                        "icon": "assets/program_icons/i_${program["name"].split(".")[0]}.png"
+                                                      }
+                                                    );
+
+                                                  }
+
+                                                  //TODO: Snackbar or showdialog to ask if the user wants to remove the existing program in the list?
+
                                                 }
 
-                                                // print(dataList["tab_list"][currentTab]["program_list"]);
+                                                
                                                 setState(() {
                                                   writeJsonFile(dataList);
                                                 });
@@ -738,8 +752,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         ) : null,
                                         borderRadius: BorderRadius.circular(5.0),
                                       ),
-                                      // TODO: try make it so that when it unfocus, it will the save the input.
-                                      // Reminder to "save" or popup do you want to save the textformfield?
+                                      
                                       child: CompositedTransformTarget(
                                         link: link,
                                         child: TextFormField( 
@@ -747,6 +760,40 @@ class _MyHomePageState extends State<MyHomePage> {
                                             fontWeight: FontWeight.w600,
                                             fontSize: 17,
                                           ),
+                                          // onTapOutside: (event) {
+                                            
+                                          //   // TODO: try make it so that when it unfocus, it will the save the input.
+                                          //   // Reminder to "save" or popup do you want to save the textformfield?
+                                          //   var snackBar = SnackBar(
+                                          //     content: const Center(
+                                          //       child: Text(
+                                          //         "Do you want to save the input?",
+                                          //         style: TextStyle(
+                                          //           color: Colors.black,
+                                          //           fontWeight: FontWeight.w600,
+                                          //         ),
+                                          //       )
+                                          //     ),
+                                          //     duration: const Duration(milliseconds: 3000),
+                                          //     width: 300,
+                                          //     backgroundColor: Colors.white,
+                                          //     behavior: SnackBarBehavior.floating,
+                                          //     shape: RoundedRectangleBorder(
+                                          //       borderRadius: BorderRadius.circular(10),
+                                          //     ),
+                                          //     action: SnackBarAction(
+                                          //       label: "Save",
+                                          //       onPressed: (){
+                                          //         print("saved");
+                                          //       },
+                                          //     )
+                                          //   );
+
+                                          //   //! But this needs validation first.
+
+                                          //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+                                          // },
                                           focusNode: myFocusNode,
                                           controller: textController,
                                           keyboardType: const TextInputType.numberWithOptions(
@@ -758,11 +805,29 @@ class _MyHomePageState extends State<MyHomePage> {
                                           ],
                                           onFieldSubmitted: (String value){
                                             
-                                            const snackBar = SnackBar(
-                                              content: Text("Saved"),
-                                              duration: Duration(milliseconds: 1100),
+                                            // TODO: Probably good to make this into a function.
+                                            var snackBar = SnackBar(
+                                              content: const Center(
+                                                child: Text(
+                                                  "Saved",
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ),
+                                              // TODO: LATER-FIX: dont like the animation when it disappears.
+                                              duration: const Duration(milliseconds: 1100),
+                                              width: 300,
+                                              backgroundColor: Colors.white,
+                                              behavior: SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(10),
+                                              ),
                                             );
-                                        
+
+                                            
+
                                             var sameNum = value.split(RegExp(r"\W+"));
                                             var uniq = [];
                                             bool noDupl = true;
@@ -883,7 +948,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                           dataList: dataList["tab_list"][currentTab]["options"]["repeat"],
                                           currentTab: currentTab,
                                           onSaved: (list){
-                                                                      
+
+                                            //! What am I doing here?
                                             if(list.length > 3){
                                               var sortedKeys = list[3].keys.toList()..sort((a, b) => int.parse(a).compareTo(int.parse(b)));
                                               var sortedMap = {for (var key in sortedKeys) key:list[3][key]};
@@ -1011,7 +1077,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                                       //* Validate textformfield time + repeat dropdown + program list
                                                       var programList = dataList["tab_list"][index];
                                                       var options = dataList["tab_list"][index]["options"];
-                                                                                                
+
+                                                      // TODO: maybe just check if time and dropdown is empty, just dont
+                                                      // add the empty active tab to condition or "watch" list.
                                                       if (textController.text.isNotEmpty 
                                                       && programList["program_list"].isNotEmpty 
                                                       && options["repeat"].isNotEmpty
@@ -1059,6 +1127,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                                     },
                                                   ),
                                                   onTap: () {
+
+
+                                                    // TODO: check if time input is invalid, then ask if the user want
+                                                    // to go back and edit/change. If no, keep the change but will 
+                                                    // de-active the tab if its active. Or just message the user that the tab 
+                                                    // is deactive because the time/something is invalid.
+                                                    // if (textController)
+
                                                     setState(() {
                                                       currentTab = index;
                                                       tempMap.clear();
@@ -1295,6 +1371,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                     onPressed: (){
                                       print("hello");
                                       // TODO: Show list of currently blocking(database/storage/dataList)
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context){
+                                            return const BlockInfo();
+                                          },
+                                        )
+                                      );
                                       
                                     },
                                     child: const Column(
