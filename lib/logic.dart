@@ -34,6 +34,7 @@ class ActiveWindowManager{
     "Code.exe",
     "explorer.exe",
     "app_blocker.exe",
+    "LockApp.exe",
   ];
 
   static List filterProgram = [
@@ -259,7 +260,7 @@ class ActiveWindowManager{
     
     for (var i = 0; i < storageList.length; i++) {
 
-      // print("${storageList[i]["name"]} $exePath");
+      print("${storageList[i]["name"]} $exePath");
       
 
       if (storageList[i]["name"] == "allPrograms.exe" && !exceptions.contains(exePath)){
@@ -283,8 +284,8 @@ class ActiveWindowManager{
 
         // TODO: Exceptions unless checked in settings. 
         // will only work  when all program is picked.
-        // Exceptions: For now: vscode, app_blocker
-        // definitely: window explorer, taskmanager(?)
+        // Exceptions: For now: vscode, 
+        // definitely: window explorer, taskmanager(?), LockApp.exe, app_blocker(?)
 
         SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
         // print("block");
