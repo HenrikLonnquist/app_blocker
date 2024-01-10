@@ -30,10 +30,11 @@ class ActiveWindowManager{
 
   static List allActiveProgramsList = [];
 
-  // static List exceptionsList = [
-  //   "Code.exe",
-
-  // ];
+  static List exceptions = [
+    "Code.exe",
+    "explorer.exe",
+    "app_blocker.exe",
+  ];
 
   static List filterProgram = [
     "ApplicationFrameHost.exe",
@@ -146,19 +147,13 @@ class ActiveWindowManager{
         final length = GetWindowTextLength(hwnd);
         if (length == 0) return TRUE;
         
-        // final buffer = wsalloc(length + 1);
-        // GetWindowText(hwnd, buffer, length + 1);
-        
-        // final title = buffer.toDartString();
-        // free(buffer);
-
         iconToImage(hwnd);
         allActiveProgramsList.add({
-          "name": exePath, //Name of the program; "Notion.exe"
+          "name": exePath,
           "icon": imageIcon
         });
-        // allActiveProgramsList[title] = exePath;
         
+                
       }
     }
 
@@ -207,6 +202,7 @@ class ActiveWindowManager{
     final int processID = getProcessID(hWnd);
     final int hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
 
+    // TODO: cant find the hProcess for Task Manager
 
     final LPWSTR imgName = wsalloc(MAX_PATH);
     final Pointer<Uint32> buff = calloc<Uint32>()..value = MAX_PATH;
@@ -225,6 +221,7 @@ class ActiveWindowManager{
     
     fullPath = exePath;
     exePath = exePath!.split("\\").last;
+
     
     
     if (exePath == "ApplicationFrameHost.exe"){
@@ -262,7 +259,10 @@ class ActiveWindowManager{
     
     for (var i = 0; i < storageList.length; i++) {
 
-      if (storageList[i]["name"] == "allPrograms.exe"){
+      // print("${storageList[i]["name"]} $exePath");
+      
+
+      if (storageList[i]["name"] == "allPrograms.exe" && !exceptions.contains(exePath)){
 
         final length = GetWindowTextLength(hWnd);
         final buffer = wsalloc(length + 1);
@@ -271,20 +271,26 @@ class ActiveWindowManager{
         final title = buffer.toDartString();
         free(buffer);
 
+
         
         var test = title.split(" ").join("");
-        print(test);
-        print(test.contains("TaskSwitching"));
+        // print(test.contains("TaskManager"));
 
-        // TODO: Exceptions unless checked in settings. Only when all program is picked.
-        // Exceptions: For now: vscode
-        // definitely: window explorer, taskmanager?
+        if (test.contains("TaskManager")){
+          break;
+        }
 
-        // SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
-        print("block");
+
+        // TODO: Exceptions unless checked in settings. 
+        // will only work  when all program is picked.
+        // Exceptions: For now: vscode, app_blocker
+        // definitely: window explorer, taskmanager(?)
+
+        SendMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+        // print("block");
         break;
         
-      }  
+      } 
 
       // ApplicationFrameHost.exe; it's child(ren)
       if (_lastChild != "" && storageList[i]["name"] == _lastChild) {
@@ -396,6 +402,12 @@ class ActiveWindowManager{
       || tab["active"] == false){
         continue;
       }
+
+      // So it doesnt do unnecessary checks.
+      if (tab["program_list"][0]["name"] == "allPrograms.exe"){
+        var addOnlyAllPrograms = tab["program_list"][0];
+        tab["program_list"] = [addOnlyAllPrograms];
+      }
       
       validDataTabs.add(tab);
     }
@@ -417,7 +429,7 @@ class ActiveWindowManager{
         }
         
       }
-      
+
          
       _timer = Timer.periodic(const Duration(microseconds: 50000), (timer) {
 
