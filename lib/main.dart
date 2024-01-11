@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:collection';
 import "dart:io";
+import "dart:ui" as ui;
 import 'package:flutter/cupertino.dart';
 import "package:image/image.dart" as img;
 
@@ -135,8 +136,6 @@ class _MyHomePageState extends State<MyHomePage> {
   // TODO: Make a list of variables for colors.
   Color borderColor = const Color.fromRGBO(255, 0, 0, 1);
   
-  bool activeTab = false;
-
   ActiveWindowManager winManager = ActiveWindowManager();
 
   //! Better naming please
@@ -625,8 +624,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   String iconName = "i_${program["name"].split(".")[0]}.png";
                                                   File file = File("assets/program_icons/$iconName");
 
+                                                  print(program["icon"]);
+
+
+                                                  //! ERROR: need to convert a image data from a image.memory widget.
+
                                                   if (!file.existsSync()){
-                                                    file.writeAsBytesSync(img.encodePng(program["icon"]));
+                                                    var memoryImage = program["icon"];
+                                                    print(memoryImage.image);
+                                                    file.writeAsBytesSync(img.encodePng(memoryImage.image));
+                                                    
                                                   }
 
                                                   if (program["name"] == "allPrograms.exe"){
@@ -1080,7 +1087,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                                     ),
                                                     shape: const CircleBorder(),
                                                     onChanged: (value){
-                                                                                                
+                                                      
+                                                      
                                                       //* Validate textformfield time + repeat dropdown + program list
                                                       var programList = dataList["tab_list"][index];
                                                       var options = dataList["tab_list"][index]["options"];
@@ -1092,8 +1100,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                                       && options["repeat"].isNotEmpty
                                                       && options["time"] != null ){
                                                                                                 
-                                                        dataList["tab_list"][index]["active"] = value;
-                                                        print("Valid");
+                                                        dataList["tab_list"][index]["active"] = !dataList["tab_list"][index]["active"];
+                                                        // print("Valid");
                                                         setState(() {
                                                           writeJsonFile(dataList);
                                                           winManager.cancelTimer();
