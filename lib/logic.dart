@@ -32,6 +32,7 @@ class ActiveWindowManager{
 
   static List exceptions = [
     "Code.exe",
+    "msedge.exe",
     "explorer.exe",
     "app_blocker.exe",
     "LockApp.exe",
@@ -45,7 +46,7 @@ class ActiveWindowManager{
   
 
 
-  static void iconToImage(int hwnd) {    
+  static void iconToImage(int hwnd) {
 
     // if (fullPath!.contains("WindowsApp")){
     //   print("icontoImage: $exePath $fullPath ");
@@ -99,28 +100,16 @@ class ActiveWindowManager{
     GetDIBits(hdc, hBitmap, 0, bitmapInfo.ref.biHeight, buffer, bitmapInfo.cast(), DIB_RGB_COLORS);
     
     
-    final alphaBuffer = calloc<Uint8>(bufferSize);
-    for (var i = 0; i < bufferSize; i += 4) {
-      final alpha = buffer[i + 3];
-      
-      // Copy BGR channels instead of RGB channels
-      alphaBuffer[i] = buffer[i + 2]; // Blue
-      alphaBuffer[i + 1] = buffer[i + 1]; // Green
-      alphaBuffer[i + 2] = buffer[i]; // Red
-      alphaBuffer[i + 3] = alpha; // Alpha
-    }
-
-
     imageIcon = img.Image.fromBytes(
       width: 32,
       height: 32,
+      order: img.ChannelOrder.bgra,
       numChannels: 4,
-      bytes: alphaBuffer.asTypedList(bufferSize).buffer
+      bytes: buffer.asTypedList(bufferSize).buffer
     );
     
 
     free(fileInfo);
-    DestroyIcon(fileInfo.ref.hIcon);
     DestroyIcon(hIcon);
     DeleteObject(iconInfo.ref.hbmColor);
     DeleteObject(iconInfo.ref.hbmMask);
@@ -128,7 +117,6 @@ class ActiveWindowManager{
     free(bitmapInfo);
     free(bitmap);
     free(buffer);
-    free(alphaBuffer);
 
 
   }
