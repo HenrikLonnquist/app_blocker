@@ -624,15 +624,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   String iconName = "i_${program["name"].split(".")[0]}.png";
                                                   File file = File("assets/program_icons/$iconName");
 
-                                                  print(program["icon"]);
-
-
-                                                  //! ERROR: need to convert a image data from a image.memory widget.
 
                                                   if (!file.existsSync()){
-                                                    var memoryImage = program["icon"];
-                                                    print(memoryImage.image);
-                                                    file.writeAsBytesSync(img.encodePng(memoryImage.image));
+
+                                                    var memoryImageInBytes = program["icon"].image.bytes;
+                                                    file.writeAsBytesSync(memoryImageInBytes);
                                                     
                                                   }
 
@@ -656,7 +652,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
                                                   }
 
-                                                  //TODO: Snackbar or showdialog to ask if the user wants to remove the existing program in the list?
+                                                  // TODO: Snackbar or showdialog to ask if the user wants to remove the existing program in the list?
+                                                  // thinking more like a undo button. instead of a popup for confirmation.
 
                                                 }
 
@@ -689,36 +686,50 @@ class _MyHomePageState extends State<MyHomePage> {
                                           onPressed: tempMap.isNotEmpty ? () {
 
                                             var list = dataList["tab_list"][currentTab]["program_list"];
-                                            
-                                            // Looking for duplicates that might use the same icon == do not delete icon
-                                            List tempList = []; 
-                                            List duplicates = [];
+
+                                            print(tempMap.values);
 
                                             for (var i = 0; i < dataList["tab_list"].length; i++) {
-                                              
+
                                               var tab = dataList["tab_list"][i];
+                                              print(tab);
 
-                                              for (var j = 0; j < tab["program_list"].length; j++) {
-                                                
-                                                var program = tab["program_list"][j]["name"];
-                                                tempList.add(program);
-
-                                                if (tempList.contains(program)){
-                                                  duplicates.add(program);
-                                                }
-                                              }
+                                              
                                               
                                             }
 
-                                            for(var program in tempMap.values){
-                                              var index = list.indexOf(program);
-                                              if (!duplicates.contains(program["name"])){
-                                                File(program["icon"]).delete();
-                                              }
-                                              list.removeAt(index);
-                                            }
                                             
-                                            tempMap.clear();
+                                            // Looking for duplicates that might use the same icon then do not delete icon
+                                            // List tempList = []; 
+                                            // List duplicates = [];
+
+                                            // for (var i = 0; i < dataList["tab_list"].length; i++) {
+                                              
+                                            //   var tab = dataList["tab_list"][i];
+
+                                            //   for (var j = 0; j < tab["program_list"].length; j++) {
+                                                
+                                            //     var program = tab["program_list"][j]["name"];
+                                            //     tempList.add(program);
+
+                                            //     if (tempList.contains(program)){
+                                            //       duplicates.add(program);
+                                            //     }
+                                            //   }
+                                              
+                                            // }
+
+                                            
+
+                                            // for(var program in tempMap.values){
+                                            //   var index = list.indexOf(program);
+                                            //   if (!duplicates.contains(program["name"])){
+                                            //     File(program["icon"]).delete();
+                                            //   }
+                                            //   list.removeAt(index);
+                                            // }
+                                            
+                                            // tempMap.clear();
                                 
                                             dataList["tab_list"][currentTab]["program_list"] = list;
                                             setState(() {  
@@ -831,10 +842,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 ),
                                               ),
                                               // TODO: LATER-FIX: dont like the animation when it disappears.
-                                              duration: const Duration(milliseconds: 1100),
-                                              width: 300,
+                                              duration: const Duration(milliseconds: 2300),
+                                              width: 400,
                                               backgroundColor: Colors.white,
                                               behavior: SnackBarBehavior.floating,
+                                              action: SnackBarAction(
+                                                label: "Undo",
+                                                textColor: Colors.black,
+                                                onPressed: (){
+                                                  //! Dont know how I should do this!??!
+                                                  // when undo is pressed I should revert to previous value??
+                                                },
+                                              ),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.circular(10),
                                               ),
@@ -909,6 +928,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                               removeOverlay();
                                   
                                               dataList["tab_list"][currentTab]["options"]["time"] = value;
+                                              // TODO: LATER: Move this into scaffoldmessenger later, when I figured out
+                                              // how I wanna do it.
                                               setState(() {
                                                 writeJsonFile(dataList);
                                                 textController.text = value;
@@ -918,7 +939,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                               winManager.cancelTimer();
                                               winManager.monitorActiveWindow();
 
-                                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                              // Writes to database after snackBar is closed in case of undo
+                                              ScaffoldMessenger.of(context).showSnackBar(snackBar).closed.then((_value){
+
+
+
+                                              });
                                               
                                             } else {
                                               validationError = true;

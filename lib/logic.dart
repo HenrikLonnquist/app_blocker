@@ -492,7 +492,7 @@ class ActiveProgramSelection extends PopupRoute {
     for (var i = 0; i < currentActivePrograms.length; i++) {
 
       if (currentActivePrograms[i]["name"] != "allPrograms.exe"){
-        
+
         currentActivePrograms[i]["icon"] = Image.memory(Uint8List.fromList(img.encodePng(currentActivePrograms[i]["icon"])));
 
       }
@@ -547,12 +547,12 @@ class ActiveProgramSelection extends PopupRoute {
                     onSelectedChanged: (onSelectedChanged){
 
                       selectedList = onSelectedChanged.values.toList();
-                      if (onSelectedChanged.containsKey(0)){
+
+                      if (onSelectedChanged.containsKey(0) && onSelectedChanged[0]["name"] == "allPrograms.exe"){
+
+                        final allPrograms = selectedList[0];
                         selectedList.clear();
-                        final allPrograms = {
-                          "name": "allPrograms.exe",
-                          "icon": "assets/program_icon/i_allPrograms.png"
-                        };
+                        
                         selectedList.add(allPrograms);
                       }
 
@@ -567,7 +567,8 @@ class ActiveProgramSelection extends PopupRoute {
                   children: [
                     ElevatedButton(
                       onPressed: () async {
-
+                        
+                        print(selectedList);
                         onSaved(selectedList);
                         Navigator.pop(context);
                         
