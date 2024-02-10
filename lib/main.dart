@@ -35,7 +35,7 @@ Different sections:
 
  */
 
-
+// TODO: Feedback/Report option: Can't find your program? Just write the name of the program.
 // TODO: IMPROVEMENT?: use the window_manager package to listen for changes on focus states of windows. Together with setwinhookevent, i guess.
 // TODO: FEATURE: Emergency trigger, will make you do a mission that is annoying and long.
 // TODO: add the fonts folder to the assets folder.
@@ -685,53 +685,52 @@ class _MyHomePageState extends State<MyHomePage> {
                                         child: ElevatedButton(
                                           onPressed: tempMap.isNotEmpty ? () {
 
-                                            var list = dataList["tab_list"][currentTab]["program_list"];
+                                            var currentProgramList = dataList["tab_list"][currentTab]["program_list"];
+                                            List<Map<String, dynamic>> iconsInUseList = [{"name": "allPrograms.exe", "icon": "assets/program_icons/i_allPrograms.png"}];
 
-                                            print(tempMap.values);
 
+                                            // Checking whether the other tabs is using a icons that is being removed
                                             for (var i = 0; i < dataList["tab_list"].length; i++) {
-
+                                              
                                               var tab = dataList["tab_list"][i];
-                                              print(tab);
 
-                                              
-                                              
+                                              if (currentTab != i && tab["program_list"].isNotEmpty){
+
+                                                for (var j = 0; j < tab["program_list"].length; j++) {
+
+                                                  var programName = tab["program_list"][j]["name"];
+                                                  
+                                                  if (tempMap.values.toString().contains("$programName") && !iconsInUseList.contains(programName)){
+
+                                                    iconsInUseList.add(tab["program_list"][j]);
+                                                    break;
+
+                                                  }
+
+                                                }
+
+                                              }
+
                                             }
 
-                                            
-                                            // Looking for duplicates that might use the same icon then do not delete icon
-                                            // List tempList = []; 
-                                            // List duplicates = [];
 
-                                            // for (var i = 0; i < dataList["tab_list"].length; i++) {
+                                            for (var program in tempMap.values) {
+
+                                              var index = currentProgramList.indexOf(program);
+                                              currentProgramList.removeAt(index);
+
+                                              // Remove icon that are not in use
+                                              if (!iconsInUseList.toString().contains("$program")){
+                                               
+                                                File(program["icon"]).delete();
+
+                                              }
                                               
-                                            //   var tab = dataList["tab_list"][i];
-
-                                            //   for (var j = 0; j < tab["program_list"].length; j++) {
-                                                
-                                            //     var program = tab["program_list"][j]["name"];
-                                            //     tempList.add(program);
-
-                                            //     if (tempList.contains(program)){
-                                            //       duplicates.add(program);
-                                            //     }
-                                            //   }
-                                              
-                                            // }
-
+                                            }
                                             
-
-                                            // for(var program in tempMap.values){
-                                            //   var index = list.indexOf(program);
-                                            //   if (!duplicates.contains(program["name"])){
-                                            //     File(program["icon"]).delete();
-                                            //   }
-                                            //   list.removeAt(index);
-                                            // }
-                                            
-                                            // tempMap.clear();
+                                            tempMap.clear();
                                 
-                                            dataList["tab_list"][currentTab]["program_list"] = list;
+                                            dataList["tab_list"][currentTab]["program_list"] = currentProgramList;
                                             setState(() {  
                                               writeJsonFile(dataList);
                                               winManager.cancelTimer();
