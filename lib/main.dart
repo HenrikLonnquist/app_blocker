@@ -148,6 +148,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Color boxInnerColor = const Color.fromRGBO(42, 46, 50, 100);
   Color backgroundColor = const Color.fromRGBO(33, 37, 41, 100);
   
+  bool isChecked = false;
+  
   
 
   void showOverlayTooltip(){
@@ -971,6 +973,62 @@ class _MyHomePageState extends State<MyHomePage> {
                                       }
                                     ),
                                   ),
+
+
+                                  Expanded(
+                                    child: CustomGridView(
+                                      currentTab: currentTab,
+                                      checkForAllPrograms: false,
+                                      itemCount: 7,
+                                      programNames: const [
+                                        // Just add those that are checked to the database
+                                        {"name": "Mon"},
+                                        {"name": "Tue"},
+                                        {"name": "Wed"},
+                                        {"name": "Thur"},
+                                        {"name": "Fri"},
+                                        {"name": "Sat"},
+                                        {"name": "Sun"},
+                                      ],
+                                      noIcon: true,
+                                      onSelectedChanged: (value){
+                                    
+                                        print(value);
+                                    
+                                      },
+                                      child: Checkbox(
+                                        value: isChecked,
+                                        //! Need the index from the other file(CustomGridView).
+                                        // value: dataList["tab_list"][currentTab]["option"]["repeat"][widget.index],
+                                        onChanged: (value){
+
+                                          print(value);
+                                          setState(() {
+                                            isChecked = value!;
+                                          });
+
+                                        }
+                                      )
+                                    ),
+                                  )
+                                  // Material(
+                                  //   color: Colors.transparent,
+                                  //   child: GridView.builder(
+                                  //     gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                                  //       maxCrossAxisExtent: 10,
+                                  //       // mainAxisSpacing: 15.0,
+                                  //       // childAspectRatio: 1.4
+                                  //     ), 
+                                  //     itemCount: 7,
+                                  //     itemBuilder: (context, index) {
+                                  //       return Container(
+                                  //         width: 10,
+                                  //         height: 10,
+                                  //         color: Colors.white,
+                                  //       );
+                                  //     }
+                                  //   ),
+                                  // ),
                                 ],
                               ),
                             ),

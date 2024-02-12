@@ -5,11 +5,17 @@ class CustomGridView extends StatefulWidget {
     super.key,
     this.programNames,
     this.itemCount = 0,
-    this.onSelectedChanged,
+    required this.onSelectedChanged,
     this.currentTab = 0,
     this.selectState,
     this.checkForAllPrograms = false,
+    this.noIcon = false,
+    this.child,
   });
+
+  final Widget? child;
+
+  final bool noIcon;
 
   final bool? selectState;
 
@@ -92,7 +98,8 @@ class _CustomGridViewState extends State<CustomGridView> {
         ),
         itemCount: widget.itemCount,
         itemBuilder: (context, index) {
-          return InkWell(
+          
+          return widget.child ?? InkWell(
             onTap: widget.programNames![0]["name"] == "allPrograms.exe" 
             && widget.checkForAllPrograms && widget.programNames![index]["name"] != "allPrograms.exe"
             ?
@@ -129,6 +136,7 @@ class _CustomGridViewState extends State<CustomGridView> {
                   ),
                   child: Column(
                     children: [
+                      if (widget.noIcon == false)
                       Container(
                         child: widget.programNames![index]["icon"].runtimeType == String ?
                         Image(image: AssetImage(widget.programNames![index]["icon"])) :
