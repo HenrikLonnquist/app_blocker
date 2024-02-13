@@ -976,59 +976,62 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
                                   Expanded(
-                                    child: CustomGridView(
-                                      currentTab: currentTab,
-                                      checkForAllPrograms: false,
+                                    child: GridView.builder(
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                                        maxCrossAxisExtent: 50,
+                                        crossAxisSpacing: 15.0,
+                                      ),
+                                      
+                                      // programNames: const [
+                                      //   // Just add those that are checked to the database
+                                      //   {"name": "Mon"},
+                                      //   {"name": "Tue"},
+                                      //   {"name": "Wed"},
+                                      //   {"name": "Thur"},
+                                      //   {"name": "Fri"},
+                                      //   {"name": "Sat"},
+                                      //   {"name": "Sun"},
+                                      // ],
                                       itemCount: 7,
-                                      programNames: const [
-                                        // Just add those that are checked to the database
-                                        {"name": "Mon"},
-                                        {"name": "Tue"},
-                                        {"name": "Wed"},
-                                        {"name": "Thur"},
-                                        {"name": "Fri"},
-                                        {"name": "Sat"},
-                                        {"name": "Sun"},
-                                      ],
-                                      noIcon: true,
-                                      onSelectedChanged: (value){
-                                    
-                                        print(value);
-                                    
-                                      },
-                                      child: Checkbox(
-                                        value: isChecked,
-                                        //! Need the index from the other file(CustomGridView).
-                                        // value: dataList["tab_list"][currentTab]["option"]["repeat"][widget.index],
-                                        onChanged: (value){
-
-                                          print(value);
-                                          setState(() {
-                                            isChecked = value!;
-                                          });
-
-                                        }
-                                      )
+                                      itemBuilder: (context, index) {
+                                        return Column(
+                                          children: [
+                                            Checkbox(
+                                              hoverColor: Colors.transparent,
+                                              splashRadius: 0,
+                                              fillColor: isChecked ? 
+                                              const MaterialStatePropertyAll(Color.fromRGBO(255, 199, 0, 1)) :
+                                              const MaterialStatePropertyAll(Color.fromRGBO(78, 83, 88, 1)),
+                                              checkColor: Colors.black,
+                                              side: const BorderSide(
+                                                color: Colors.black,
+                                              ),
+                                              value: isChecked,
+                                              //! Need the index from the other file(CustomGridView).
+                                              // value: dataList["tab_list"][currentTab]["option"]["repeat"][widget.index],
+                                              onChanged: (value){
+                                            
+                                                print(value);
+                                                setState(() {
+                                                  isChecked = value!;
+                                                });
+                                            
+                                              }
+                                            ),
+                                            const Text(
+                                              "Mon",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }
                                     ),
                                   )
-                                  // Material(
-                                  //   color: Colors.transparent,
-                                  //   child: GridView.builder(
-                                  //     gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                                  //       maxCrossAxisExtent: 10,
-                                  //       // mainAxisSpacing: 15.0,
-                                  //       // childAspectRatio: 1.4
-                                  //     ), 
-                                  //     itemCount: 7,
-                                  //     itemBuilder: (context, index) {
-                                  //       return Container(
-                                  //         width: 10,
-                                  //         height: 10,
-                                  //         color: Colors.white,
-                                  //       );
-                                  //     }
-                                  //   ),
-                                  // ),
                                 ],
                               ),
                             ),

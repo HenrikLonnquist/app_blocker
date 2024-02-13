@@ -568,7 +568,6 @@ class ActiveProgramSelection extends PopupRoute {
                     ElevatedButton(
                       onPressed: () async {
                         
-                        print(selectedList);
                         onSaved(selectedList);
                         Navigator.pop(context);
                         
