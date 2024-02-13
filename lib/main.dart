@@ -149,6 +149,15 @@ class _MyHomePageState extends State<MyHomePage> {
   Color backgroundColor = const Color.fromRGBO(33, 37, 41, 100);
   
   bool isChecked = false;
+  List daysOftheWeek = [
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thur",
+    "Fri",
+    "Sat",
+    "Sun"
+  ];
   
   
 
@@ -948,31 +957,31 @@ class _MyHomePageState extends State<MyHomePage> {
                                     ),
                                   ),
                                   //* Repeat option
-                                  CompositedTransformTarget(
-                                    link: linkToCustomButton,
-                                    child: CustomDropdownButton(
-                                      link: linkToCustomButton,
-                                      dataList: dataList["tab_list"][currentTab]["options"]["repeat"],
-                                      currentTab: currentTab,
-                                      onSaved: (list){
+                                  // CompositedTransformTarget(
+                                  //   link: linkToCustomButton,
+                                  //   child: CustomDropdownButton(
+                                  //     link: linkToCustomButton,
+                                  //     dataList: dataList["tab_list"][currentTab]["options"]["repeat"],
+                                  //     currentTab: currentTab,
+                                  //     onSaved: (list){
                                   
-                                        //! What am I doing here?
-                                        if(list.length > 3){
-                                          var sortedKeys = list[3].keys.toList()..sort((a, b) => int.parse(a).compareTo(int.parse(b)));
-                                          var sortedMap = {for (var key in sortedKeys) key:list[3][key]};
-                                          list[3] = sortedMap;
-                                        }
+                                  //       //! What am I doing here?
+                                  //       if(list.length > 3){
+                                  //         var sortedKeys = list[3].keys.toList()..sort((a, b) => int.parse(a).compareTo(int.parse(b)));
+                                  //         var sortedMap = {for (var key in sortedKeys) key:list[3][key]};
+                                  //         list[3] = sortedMap;
+                                  //       }
                                         
-                                        dataList["tab_list"][currentTab]["options"]["repeat"] = list;
-                                        setState(() {
-                                          writeJsonFile(dataList);
-                                          winManager.cancelTimer();
-                                          winManager.monitorActiveWindow();
-                                        });
+                                  //       dataList["tab_list"][currentTab]["options"]["repeat"] = list;
+                                  //       setState(() {
+                                  //         writeJsonFile(dataList);
+                                  //         winManager.cancelTimer();
+                                  //         winManager.monitorActiveWindow();
+                                  //       });
                                         
-                                      }
-                                    ),
-                                  ),
+                                  //     }
+                                  //   ),
+                                  // ),
 
 
                                   Expanded(
@@ -983,16 +992,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         crossAxisSpacing: 15.0,
                                       ),
                                       
-                                      // programNames: const [
-                                      //   // Just add those that are checked to the database
-                                      //   {"name": "Mon"},
-                                      //   {"name": "Tue"},
-                                      //   {"name": "Wed"},
-                                      //   {"name": "Thur"},
-                                      //   {"name": "Fri"},
-                                      //   {"name": "Sat"},
-                                      //   {"name": "Sun"},
-                                      // ],
+                                      
                                       itemCount: 7,
                                       itemBuilder: (context, index) {
                                         return Column(
@@ -1000,29 +1000,28 @@ class _MyHomePageState extends State<MyHomePage> {
                                             Checkbox(
                                               hoverColor: Colors.transparent,
                                               splashRadius: 0,
-                                              fillColor: isChecked ? 
+                                              fillColor: dataList["tab_list"][currentTab]["options"]["repeat"]["$index"] ? 
                                               const MaterialStatePropertyAll(Color.fromRGBO(255, 199, 0, 1)) :
                                               const MaterialStatePropertyAll(Color.fromRGBO(78, 83, 88, 1)),
                                               checkColor: Colors.black,
                                               side: const BorderSide(
                                                 color: Colors.black,
                                               ),
-                                              value: isChecked,
-                                              //! Need the index from the other file(CustomGridView).
-                                              // value: dataList["tab_list"][currentTab]["option"]["repeat"][widget.index],
+                                              value: dataList["tab_list"][currentTab]["options"]["repeat"]["$index"],
                                               onChanged: (value){
                                             
-                                                print(value);
+                                                dataList["tab_list"][currentTab]["options"]["repeat"]["$index"] = value;
                                                 setState(() {
-                                                  isChecked = value!;
+                                                  writeJsonFile(dataList);
                                                 });
                                             
                                               }
                                             ),
-                                            const Text(
-                                              "Mon",
-                                              style: TextStyle(
+                                            Text(
+                                              daysOftheWeek[index],
+                                              style: const TextStyle(
                                                 fontSize: 12,
+                                                fontFamily: "BerkshireSwash",
                                                 color: Colors.white,
                                                 overflow: TextOverflow.ellipsis,
                                               ),
@@ -1318,7 +1317,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                     "active": false,
                                     "program_list": [],
                                     "options": {
-                                      "repeat": [],
+                                      "repeat": [
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                      ],
                                       "time": "",
                                     }
                                   }; 

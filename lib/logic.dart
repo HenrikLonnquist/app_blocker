@@ -248,7 +248,7 @@ class ActiveWindowManager{
     
     for (var i = 0; i < storageList.length; i++) {
 
-      print("${storageList[i]["name"]} $exePath");
+      // print("${storageList[i]["name"]} $exePath");
       
 
       if (storageList[i]["name"] == "allPrograms.exe" && !exceptions.contains(exePath)){
@@ -305,8 +305,8 @@ class ActiveWindowManager{
     }
   }
 
-  static bool conditionCheck(List repeatOptions, List timePeriods, DateTime timeNow){
-    
+  static bool conditionCheck(Map activeDays, List timePeriods, DateTime timeNow){
+
     var timeNowFormatted = int.parse(DateFormat("HHmm").format(timeNow));
     int notWithinTimePeriodsCount = 0;
     
@@ -327,51 +327,24 @@ class ActiveWindowManager{
       return false;
     }
 
-    switch (repeatOptions[0]) {
-      case "Daily":
-        //Check only time
+    
+    var today = DateTime.now().weekday - 1; // Mon-Sun == 1-7
+
+    for (var i = 0; i < activeDays.values.length; i++ ) {
+
+
+      if (!activeDays["$i"]) {
+        continue;
+      }
+
+      if (today == i){
         return true;
-      case "Weekdays":
-      case "Weekly":
-        //Check the day>time
-        var weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri",];
-        var weekly = repeatOptions.length >= 2 ? repeatOptions[1] : null;
-        var dayNowFormatted = DateFormat("E").format(timeNow);
-        
-        if (weekly == dayNowFormatted || weekDays.contains(dayNowFormatted)){
-          return true;
-        }
-        return false;
-
-      case "Custom":
-        //* Should try to make it work, seeing as I might use something similar in the todo project.
-        //Check the date>time
-        // maybe add another item
-        /*
-        Custom
-        2
-        weeks
-        {
-            "0": "Mon",
-            "1": "Tue",
-            "2": "Wed",
-            "3": "Thu",
-            "4": "Fri",
-            "5": "Sat",
-            "6": "Sun"
-        }
-        */
-        // Need a field/box to show next due date
-        // cal 2 "weeks" into days, re-cal if the dateNowFormatted is true
-        // dateNow.add(const Duration(days: n))
-
-
-        return false;
-      default:
-        //Error?
+      }
+      
     }
-    print("It shouldnt get to here... Maybe Error?");
+    
     return false;
+    
   }
 
   // TODO: LATER: change to SetWinEventHook. Dont know if its better to switch. 
@@ -385,10 +358,12 @@ class ActiveWindowManager{
     List validDataTabs = [];
 
     for ( var tab in storageList) {
-      if ( tab["program_list"].isEmpty
+      if ( 
+      tab["active"] == false
+      || tab["program_list"].isEmpty
       || tab["options"]["time"].isEmpty
-      || tab["options"]["repeat"].isEmpty
-      || tab["active"] == false){
+      || !tab["options"]["repeat"].values.contains(true)
+      ){
         continue;
       }
 
@@ -409,6 +384,8 @@ class ActiveWindowManager{
       for (var index = 0; index < validDataTabs.length; index++){
 
         var splitTimeData = validDataTabs[index]["options"]["time"].split(RegExp(r"[\,]")); //"1000-1100,1200-1300".split...
+
+        // validDataTabs[index]["options"]["repeat"].values
 
         for (var time in splitTimeData){
 
