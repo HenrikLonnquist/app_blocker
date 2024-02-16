@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:collection';
 import "dart:io";
 import "dart:ui" as ui;
-import 'package:flutter/cupertino.dart';
 import "package:image/image.dart" as img;
 
 import 'package:app_blocker/gridview_custom.dart';
@@ -92,7 +91,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
   
   Map dataList = {}; // for the json file
   
@@ -158,6 +157,8 @@ class _MyHomePageState extends State<MyHomePage> {
     "Sat",
     "Sun"
   ];
+  
+  late TabController _optionsTabController;
   
   
   
@@ -229,6 +230,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     textController.text = dataList["tab_list"][currentTab]["options"]["time"];
     _tabTitleTextController.text = dataList["tab_list"][currentTab]["name"];
+    _optionsTabController = TabController(length: 2, vsync: this);
 
   }
 
@@ -239,6 +241,7 @@ class _MyHomePageState extends State<MyHomePage> {
     removeOverlay();
     myFocusNode.dispose();
     _tabTitleTextController.dispose();
+    _optionsTabController.dispose();
 
     super.dispose();
   }
@@ -380,7 +383,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     //* Tab Name
                     Container(
-                      // padding: const EdgeInsets.fromLTRB(55, 10, 55, 10),
                       alignment: Alignment.centerLeft,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -436,8 +438,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                           ),
-                          
                           const SizedBox(width: 20),
+                          // TODO: should be dropdownmenu button instead
                           if (isEditing)InkWell(
                             onTap: (){
                               setState(() {
@@ -450,9 +452,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: const Padding(
                               padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
                               child: Icon(
-                                Icons.edit_square,
+                                Icons.more_vert,
                                 color: Colors.white,
-                                size: 18,
+                                size: 20,
                               ),
                             ),
                           ),
@@ -460,6 +462,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
+                                // This can be removed or moved inside of the dropdownmenu iconbutton
                                 SizedBox(
                                   width: 130,
                                   child: ElevatedButton(
@@ -732,295 +735,299 @@ class _MyHomePageState extends State<MyHomePage> {
                               // TODO: how do i make this tab-specific from tab list
                               // meaning that if tab 1 has input opened and tab 2 has timer opened
                               // it should switch between them
-                              child: DefaultTabController(
-                                initialIndex: 1,
-                                length: 2, 
-                                child: Column(
-                                  children: [
-                                    const TabBar(
-                                      tabs: [
-                                        // TODO: FIX THE LOOK+text, remove the underline
-                                        Tab(
-                                          text: "Input",
-                                        ),
-                                        Tab(
-                                          text: "Timer",
-                                        )
-                                      ],
-                                    ),
-                                    Expanded(
-                                      child: Container(
-                                        color: Colors.blueGrey,
-                                        padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                                        child: TabBarView(
-                                          children: [
-                                            Column(
-                                              children: [
-                                                Container(
-                                                  padding: const EdgeInsets.fromLTRB(10, 5, 0, 10),
-                                                  margin: const EdgeInsets.fromLTRB(17, 0, 17, 10),
-                                                  decoration: BoxDecoration(
-                                                    
-                                                    color: const Color.fromRGBO(237, 237, 237, 1),
-                                                    border: validationError ? Border.all(
-                                                      color: Colors.red
-                                                    ) : null,
-                                                    borderRadius: BorderRadius.circular(5.0),
-                                                  ),
+                              child: Column(
+                                children: [
+                                  TabBar(
+                                    controller: _optionsTabController,
+                                    onTap: (index){
+                                      dataList["tab_list"][currentTab]["options"]["tab_index"] = index;
+                                      setState(() {
+                                        writeJsonFile(dataList);
+                                      });
+                                    },
+                                    tabs: const [
+                                      // TODO: FIX THE LOOK+text, remove the underline
+                                      Tab(
+                                        text: "Input",
+                                      ),
+                                      Tab(
+                                        text: "Timer",
+                                      )
+                                    ],
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      color: Colors.blueGrey,
+                                      padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                                      child: TabBarView(
+                                        controller: _optionsTabController,
+                                        children: [
+                                          Column(
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.fromLTRB(10, 5, 0, 10),
+                                                margin: const EdgeInsets.fromLTRB(17, 0, 17, 10),
+                                                decoration: BoxDecoration(
                                                   
-                                                  child: CompositedTransformTarget(
-                                                    link: link,
-                                                    child: TextFormField( 
-                                                      style: const TextStyle(
-                                                        fontWeight: FontWeight.w600,
-                                                        fontSize: 17,
-                                                      ),
-                                                      // onTapOutside: (event) {
-                                                        
-                                                      //   // TODO: try make it so that when it unfocus, it will the save the input.
-                                                      //   // Reminder to "save" or popup do you want to save the textformfield?
-                                                      //   var snackBar = SnackBar(
-                                                      //     content: const Center(
-                                                      //       child: Text(
-                                                      //         "Do you want to save the input?",
-                                                      //         style: TextStyle(
-                                                      //           color: Colors.black,
-                                                      //           fontWeight: FontWeight.w600,
-                                                      //         ),
-                                                      //       )
-                                                      //     ),
-                                                      //     duration: const Duration(milliseconds: 3000),
-                                                      //     width: 300,
-                                                      //     backgroundColor: Colors.white,
-                                                      //     behavior: SnackBarBehavior.floating,
-                                                      //     shape: RoundedRectangleBorder(
-                                                      //       borderRadius: BorderRadius.circular(10),
-                                                      //     ),
-                                                      //     action: SnackBarAction(
-                                                      //       label: "Save",
-                                                      //       onPressed: (){
-                                                      //         print("saved");
-                                                      //       },
-                                                      //     )
-                                                      //   );
+                                                  color: const Color.fromRGBO(237, 237, 237, 1),
+                                                  border: validationError ? Border.all(
+                                                    color: Colors.red
+                                                  ) : null,
+                                                  borderRadius: BorderRadius.circular(5.0),
+                                                ),
                                                 
-                                                      //   //! But this needs validation first.
-                                                
-                                                      //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                                                
-                                                      // },
-                                                      focusNode: myFocusNode,
-                                                      controller: textController,
-                                                      keyboardType: const TextInputType.numberWithOptions(
-                                                        decimal: true,
-                                                        signed: true,
-                                                      ),
-                                                      inputFormatters: [
-                                                        FilteringTextInputFormatter.allow(RegExp(r"^[\d\-,]{0,}")),
-                                                      ],
-                                                      onFieldSubmitted: (String value){
-                                                        
-                                                        // TODO: Probably good to make this into a function.
-                                                        var snackBar = SnackBar(
-                                                          content: const Center(
-                                                            child: Text(
-                                                              "Saved",
-                                                              style: TextStyle(
-                                                                color: Colors.black,
-                                                                fontWeight: FontWeight.w600,
-                                                              ),
+                                                child: CompositedTransformTarget(
+                                                  link: link,
+                                                  child: TextFormField( 
+                                                    style: const TextStyle(
+                                                      fontWeight: FontWeight.w600,
+                                                      fontSize: 17,
+                                                    ),
+                                                    // onTapOutside: (event) {
+                                                      
+                                                    //   // TODO: try make it so that when it unfocus, it will the save the input.
+                                                    //   // Reminder to "save" or popup do you want to save the textformfield?
+                                                    //   var snackBar = SnackBar(
+                                                    //     content: const Center(
+                                                    //       child: Text(
+                                                    //         "Do you want to save the input?",
+                                                    //         style: TextStyle(
+                                                    //           color: Colors.black,
+                                                    //           fontWeight: FontWeight.w600,
+                                                    //         ),
+                                                    //       )
+                                                    //     ),
+                                                    //     duration: const Duration(milliseconds: 3000),
+                                                    //     width: 300,
+                                                    //     backgroundColor: Colors.white,
+                                                    //     behavior: SnackBarBehavior.floating,
+                                                    //     shape: RoundedRectangleBorder(
+                                                    //       borderRadius: BorderRadius.circular(10),
+                                                    //     ),
+                                                    //     action: SnackBarAction(
+                                                    //       label: "Save",
+                                                    //       onPressed: (){
+                                                    //         print("saved");
+                                                    //       },
+                                                    //     )
+                                                    //   );
+                                              
+                                                    //   //! But this needs validation first.
+                                              
+                                                    //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                              
+                                                    // },
+                                                    focusNode: myFocusNode,
+                                                    controller: textController,
+                                                    keyboardType: const TextInputType.numberWithOptions(
+                                                      decimal: true,
+                                                      signed: true,
+                                                    ),
+                                                    inputFormatters: [
+                                                      FilteringTextInputFormatter.allow(RegExp(r"^[\d\-,]{0,}")),
+                                                    ],
+                                                    onFieldSubmitted: (String value){
+                                                      
+                                                      // TODO: Probably good to make this into a function.
+                                                      var snackBar = SnackBar(
+                                                        content: const Center(
+                                                          child: Text(
+                                                            "Saved",
+                                                            style: TextStyle(
+                                                              color: Colors.black,
+                                                              fontWeight: FontWeight.w600,
                                                             ),
                                                           ),
-                                                          // TODO: LATER-FIX: dont like the animation when it disappears.
-                                                          duration: const Duration(milliseconds: 2300),
-                                                          width: 400,
-                                                          backgroundColor: Colors.white,
-                                                          behavior: SnackBarBehavior.floating,
-                                                          action: SnackBarAction(
-                                                            label: "Undo",
-                                                            textColor: Colors.black,
-                                                            onPressed: (){
-                                                              //! Dont know how I should do this!??!
-                                                              // when undo is pressed I should revert to previous value??
-                                                            },
-                                                          ),
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius: BorderRadius.circular(10),
-                                                          ),
-                                                        );
-                                                
-                                                        
-                                                
-                                                        var sameNum = value.split(RegExp(r"\W+"));
-                                                        var uniq = [];
-                                                        bool noDupl = true;
-                                                        for(var i in sameNum) {
-                                                          if(uniq.contains(i)) {
-                                                            noDupl = false;
-                                                          } else {
-                                                            uniq.add(i);
-                                                          }
-                                                        }
-                                                
-                                                
-                                                        
-                                                        //* and the first number cannot be higher the second number; 2200-2100 <- invalid
-                                                        //* maybe above should work
-                                                        //!  0000-0615 this wont work, I think
-                                                        
-                                                        //! should be able to have more than 2 time periods, 
-                                                        //! ex; 0000-1200,1800-2000,2245-2359--Should work now
-                                                        //! 0000 & 2400 should be the same,
-                                                        // look up the github repo on leechblock.
-                                                        //! maybe I should not switch if the second number is lower
-                                                
-                                                
-                                                        // TODO: LATER: need a better solution for this, more robust and complete towards valid time
-                                                        // matches this: 0900-1230,1330-1700, noduplicates
-                                                        if (RegExp(r"^\d{4}-\d{4}(,\d{4}-\d{4})*$").hasMatch(value) && noDupl) {
-                                                          
-                                                          // Splits the value into 2 lists if there are more than 1 time periods
-                                                          var temp = value.split(RegExp(r"[\,]+"));
-                                                          var sortTemp = [];
-                                                          for (var time in temp){
-                                                
-                                                            var splitTime = time.split("-")..sort((a, b) {
-                                                
-                                                              var intA = int.parse(a);
-                                                              var intB = int.parse(b);
-                                                              return intA.compareTo(intB);
-                                                
-                                                            });
-                                                            sortTemp.add(splitTime);
-                                                
-                                                          }
-                                                          value = [ for(var item in sortTemp) "${item[0]}-${item[1]}" ].join(",");
-                                                          
-                                                          // Check for valid time "numbers"
-                                                          for (var time in temp){
-                                                
-                                                            var hour = int.parse(time.substring(0, 2));
-                                                            var min = int.parse(time.substring(2, 4));
-                                                
-                                                            if ( hour > 24|| min >= 60){
-                                                
-                                                              myFocusNode.requestFocus();
-                                                              validationError = true;
-                                                              print("validation error");
-                                                              showOverlayTooltip();
-                                                              return;
-                                                
-                                                            }
-                                                          }
-                                                          
-                                                          validationError = false;
-                                                
-                                                          removeOverlay();
-                                                                        
-                                                          dataList["tab_list"][currentTab]["options"]["time"] = value;
-                                                          // TODO: LATER: Move this into scaffoldmessenger later, when I figured out
-                                                          // how I wanna do it.
-                                                          setState(() {
-                                                            writeJsonFile(dataList);
-                                                            textController.text = value;
-                                                          });
-                                                          
-                                                          //Updating the monitor dataList
-                                                          winManager.cancelTimer();
-                                                          winManager.monitorActiveWindow();
-                                                
-                                                          // Writes to database after snackBar is closed in case of undo
-                                                          ScaffoldMessenger.of(context).showSnackBar(snackBar).closed.then((_value){
-                                                
-                                                
-                                                
-                                                          });
-                                                          
+                                                        ),
+                                                        // TODO: LATER-FIX: dont like the animation when it disappears.
+                                                        duration: const Duration(milliseconds: 2300),
+                                                        width: 400,
+                                                        backgroundColor: Colors.white,
+                                                        behavior: SnackBarBehavior.floating,
+                                                        action: SnackBarAction(
+                                                          label: "Undo",
+                                                          textColor: Colors.black,
+                                                          onPressed: (){
+                                                            //! Dont know how I should do this!??!
+                                                            // when undo is pressed I should revert to previous value??
+                                                          },
+                                                        ),
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.circular(10),
+                                                        ),
+                                                      );
+                                              
+                                                      
+                                              
+                                                      var sameNum = value.split(RegExp(r"\W+"));
+                                                      var uniq = [];
+                                                      bool noDupl = true;
+                                                      for(var i in sameNum) {
+                                                        if(uniq.contains(i)) {
+                                                          noDupl = false;
                                                         } else {
-                                                          validationError = true;
-                                                          myFocusNode.requestFocus();
-                                                          
-                                                          showOverlayTooltip();
+                                                          uniq.add(i);
                                                         }
-                                                    
-                                                      },
-                                                      cursorHeight: 24,
-                                                      decoration: InputDecoration(
-                                                        focusedErrorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
-                                                        suffixIcon: validationError ? const Icon(
-                                                          Icons.emergency,
-                                                          size: 16,
-                                                        ) : null,
-                                                        errorText: validationError ? "" : null,
-                                                        errorStyle: const TextStyle(height: 0),
-                                                        hintText: "Ex. 0900-1230,1330-1700",
-                                                        constraints: const BoxConstraints(
-                                                          maxHeight: 30,
-                                                        )
-                                                      ),
+                                                      }
+                                              
+                                              
+                                                      
+                                                      //* and the first number cannot be higher the second number; 2200-2100 <- invalid
+                                                      //* maybe above should work
+                                                      //!  0000-0615 this wont work, I think
+                                                      
+                                                      //! should be able to have more than 2 time periods, 
+                                                      //! ex; 0000-1200,1800-2000,2245-2359--Should work now
+                                                      //! 0000 & 2400 should be the same,
+                                                      // look up the github repo on leechblock.
+                                                      //! maybe I should not switch if the second number is lower
+                                              
+                                              
+                                                      // TODO: LATER: need a better solution for this, more robust and complete towards valid time
+                                                      // matches this: 0900-1230,1330-1700, noduplicates
+                                                      if (RegExp(r"^\d{4}-\d{4}(,\d{4}-\d{4})*$").hasMatch(value) && noDupl) {
+                                                        
+                                                        // Splits the value into 2 lists if there are more than 1 time periods
+                                                        var temp = value.split(RegExp(r"[\,]+"));
+                                                        var sortTemp = [];
+                                                        for (var time in temp){
+                                              
+                                                          var splitTime = time.split("-")..sort((a, b) {
+                                              
+                                                            var intA = int.parse(a);
+                                                            var intB = int.parse(b);
+                                                            return intA.compareTo(intB);
+                                              
+                                                          });
+                                                          sortTemp.add(splitTime);
+                                              
+                                                        }
+                                                        value = [ for(var item in sortTemp) "${item[0]}-${item[1]}" ].join(",");
+                                                        
+                                                        // Check for valid time "numbers"
+                                                        for (var time in temp){
+                                              
+                                                          var hour = int.parse(time.substring(0, 2));
+                                                          var min = int.parse(time.substring(2, 4));
+                                              
+                                                          if ( hour > 24|| min >= 60){
+                                              
+                                                            myFocusNode.requestFocus();
+                                                            validationError = true;
+                                                            print("validation error");
+                                                            showOverlayTooltip();
+                                                            return;
+                                              
+                                                          }
+                                                        }
+                                                        
+                                                        validationError = false;
+                                              
+                                                        removeOverlay();
+                                                                      
+                                                        dataList["tab_list"][currentTab]["options"]["time"] = value;
+                                                        // TODO: LATER: Move this into scaffoldmessenger later, when I figured out
+                                                        // how I wanna do it.
+                                                        setState(() {
+                                                          writeJsonFile(dataList);
+                                                          textController.text = value;
+                                                        });
+                                                        
+                                                        //Updating the monitor dataList
+                                                        winManager.cancelTimer();
+                                                        winManager.monitorActiveWindow();
+                                              
+                                                        // Writes to database after snackBar is closed in case of undo
+                                                        ScaffoldMessenger.of(context).showSnackBar(snackBar).closed.then((_value){
+                                              
+                                              
+                                              
+                                                        });
+                                                        
+                                                      } else {
+                                                        validationError = true;
+                                                        myFocusNode.requestFocus();
+                                                        
+                                                        showOverlayTooltip();
+                                                      }
+                                                  
+                                                    },
+                                                    cursorHeight: 24,
+                                                    decoration: InputDecoration(
+                                                      focusedErrorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
+                                                      suffixIcon: validationError ? const Icon(
+                                                        Icons.emergency,
+                                                        size: 16,
+                                                      ) : null,
+                                                      errorText: validationError ? "" : null,
+                                                      errorStyle: const TextStyle(height: 0),
+                                                      hintText: "Ex. 0900-1230,1330-1700",
+                                                      constraints: const BoxConstraints(
+                                                        maxHeight: 30,
+                                                      )
                                                     ),
                                                   ),
                                                 ),
-                                                //* Repeat option
-                                                Expanded(
-                                                  child: GridView.builder(
-                                                    physics: const NeverScrollableScrollPhysics(),
-                                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                                      crossAxisCount: 7,
-                                                      crossAxisSpacing: 10.0,
-                                                    ),
-                                                    itemCount: 7,
-                                                    itemBuilder: (context, index) {
-                                                      return Column(
-                                                        children: [
-                                                          Checkbox(
-                                                            hoverColor: Colors.transparent,
-                                                            splashRadius: 0,
-                                                            fillColor: dataList["tab_list"][currentTab]["options"]["repeat"]["$index"] ? 
-                                                            const MaterialStatePropertyAll(Color.fromRGBO(255, 199, 0, 1)) :
-                                                            const MaterialStatePropertyAll(Color.fromRGBO(78, 83, 88, 1)),
-                                                            checkColor: Colors.black,
-                                                            side: const BorderSide(
-                                                              color: Colors.black,
-                                                            ),
-                                                            value: dataList["tab_list"][currentTab]["options"]["repeat"]["$index"],
-                                                            onChanged: (value){
-                                                          
-                                                              dataList["tab_list"][currentTab]["options"]["repeat"]["$index"] = value;
-                                                              setState(() {
-                                                                writeJsonFile(dataList);
-                                                              });
-                                                          
-                                                            }
-                                                          ),
-                                                          Text(
-                                                            daysOftheWeek[index],
-                                                            style: const TextStyle(
-                                                              fontSize: 12,
-                                                              fontFamily: "BerkshireSwash",
-                                                              color: Colors.white,
-                                                              overflow: TextOverflow.ellipsis,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      );
-                                                    }
+                                              ),
+                                              //* Repeat option
+                                              Expanded(
+                                                child: GridView.builder(
+                                                  physics: const NeverScrollableScrollPhysics(),
+                                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                                    crossAxisCount: 7,
+                                                    crossAxisSpacing: 10.0,
                                                   ),
-                                                )
-                                              ],
-                                            ),
-                                            // TODO: Finish the design for the Timer tab in figma
-                                            const Column(
-                                              children: [
-                                                Icon(Icons.account_balance),
-                                              ],
-                                            ),
-                                          ],
-                                        )
-                                      ),
-                                    )
-                                  ],
-                                )
+                                                  itemCount: 7,
+                                                  itemBuilder: (context, index) {
+                                                    return Column(
+                                                      children: [
+                                                        Checkbox(
+                                                          hoverColor: Colors.transparent,
+                                                          splashRadius: 0,
+                                                          fillColor: dataList["tab_list"][currentTab]["options"]["input"]["$index"] ? 
+                                                          const MaterialStatePropertyAll(Color.fromRGBO(255, 199, 0, 1)) :
+                                                          const MaterialStatePropertyAll(Color.fromRGBO(78, 83, 88, 1)),
+                                                          checkColor: Colors.black,
+                                                          side: const BorderSide(
+                                                            color: Colors.black,
+                                                          ),
+                                                          value: dataList["tab_list"][currentTab]["options"]["input"]["$index"],
+                                                          onChanged: (value){
+                                                        
+                                                            dataList["tab_list"][currentTab]["options"]["input"]["$index"] = value;
+                                                            setState(() {
+                                                              writeJsonFile(dataList);
+                                                            });
+                                                        
+                                                          }
+                                                        ),
+                                                        Text(
+                                                          daysOftheWeek[index],
+                                                          style: const TextStyle(
+                                                            fontSize: 12,
+                                                            fontFamily: "BerkshireSwash",
+                                                            color: Colors.white,
+                                                            overflow: TextOverflow.ellipsis,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  }
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                          // TODO: Finish the design for the Timer tab in figma
+                                          const Column(
+                                            children: [
+                                              Icon(Icons.account_balance),
+                                            ],
+                                          ),
+                                        ],
+                                      )
+                                    ),
+                                  )
+                                ],
                               ),
                             ),
                           ),
@@ -1175,7 +1182,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 // add the empty active tab to condition or "watch" list.
                                                 if (textController.text.isNotEmpty 
                                                 && programList["program_list"].isNotEmpty 
-                                                && options["repeat"].isNotEmpty
+                                                && !options["input"].contains(true)
                                                 && options["time"] != null ){
                                                                                           
                                                   dataList["tab_list"][index]["active"] = !dataList["tab_list"][index]["active"];
@@ -1233,6 +1240,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 tempMap.clear();
                                                 textController.text = dataList["tab_list"][currentTab]["options"]["time"];
                                                 validationError = false;
+                                                _optionsTabController.animateTo(dataList["tab_list"][currentTab]["options"]["tab_index"]);
                                                 removeOverlay();
                                               });
                                             },
