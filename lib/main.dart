@@ -729,12 +729,17 @@ class _MyHomePageState extends State<MyHomePage> {
                             flex: 5,
                             child: Container(
                               color: Colors.blueGrey,
+                              // TODO: how do i make this tab-specific from tab list
+                              // meaning that if tab 1 has input opened and tab 2 has timer opened
+                              // it should switch between them
                               child: DefaultTabController(
+                                initialIndex: 1,
                                 length: 2, 
                                 child: Column(
                                   children: [
                                     const TabBar(
                                       tabs: [
+                                        // TODO: FIX THE LOOK+text, remove the underline
                                         Tab(
                                           text: "Input",
                                         ),
@@ -746,12 +751,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                     Expanded(
                                       child: Container(
                                         color: Colors.blueGrey,
+                                        padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
                                         child: TabBarView(
                                           children: [
                                             Column(
                                               children: [
                                                 Container(
                                                   padding: const EdgeInsets.fromLTRB(10, 5, 0, 10),
+                                                  margin: const EdgeInsets.fromLTRB(17, 0, 17, 10),
                                                   decoration: BoxDecoration(
                                                     
                                                     color: const Color.fromRGBO(237, 237, 237, 1),
@@ -1002,6 +1009,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 )
                                               ],
                                             ),
+                                            // TODO: Finish the design for the Timer tab in figma
                                             const Column(
                                               children: [
                                                 Icon(Icons.account_balance),
@@ -1298,16 +1306,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                     "active": false,
                                     "program_list": [],
                                     "options": {
-                                      "repeat": [
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                      ],
                                       "time": "",
+                                      "tab_index": 0,
+                                      "input": [
+                                       false,
+                                       false,
+                                       false,
+                                       false,
+                                       false,
+                                       false,
+                                       false,
+                                      ],
+                                      "timer": ""
                                     }
                                   }; 
                                   dataList["tab_list"].add(dummyMap);
