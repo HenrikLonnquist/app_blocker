@@ -272,6 +272,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                     //! "HEADER"
                     //TODO: LATER: make its own class and file?
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         //* LOGO
                         // TODO: if failed to find image create an widget icon.
@@ -378,6 +379,57 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                           ),
                         ),
                         //* Search bar
+                        SizedBox(
+                          width: 220,
+                          height: 45,
+                          child: SearchAnchor(
+                            viewBackgroundColor: backgroundColor,
+                            viewHintText: "Search",
+                            // ! need to change the color of the arrow and text of the list
+                            viewConstraints: const BoxConstraints(
+                              minWidth: 220,
+                              maxHeight: 300,
+                            ),
+                            suggestionsBuilder: ((context, controller) {
+                              return List<Widget>.generate(
+                                5, 
+                                (index) {
+                                  return ListTile(
+                                    titleAlignment: ListTileTitleAlignment.center,
+                                    title: Text("Testings $index"),
+                                  );
+                                
+                              });                              
+                            }),
+                            builder: (context, controller) {
+                              return SearchBar(
+                                controller: controller,
+                                backgroundColor: MaterialStatePropertyAll(backgroundColor),
+                                hintText: "Search",
+                                // TODO: maybe do an condition to make it disappear onTap.
+                                // leading: const Padding(
+                                //   padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
+                                //   child: Text(
+                                //     "Search",
+                                //     style: TextStyle(
+                                //       fontSize: 12,
+                                //       fontWeight: FontWeight.w600,
+                                //       fontFamily: "BerkshireSwash",
+                                //       color: Color.fromRGBO(227, 228, 228, 0.8)
+                                //     ),
+                                //   ),
+                                // ),
+                                trailing: const [
+                                  Icon(Icons.search)
+                                ],
+                                onTap: (){
+                                  controller.openView();
+                                },
+
+                              );
+                            },
+                          )
+                        )
 
                       ],
                     ),
