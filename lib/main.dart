@@ -382,10 +382,49 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                         SizedBox(
                           width: 220,
                           height: 45,
-                          child: SearchAnchor(
+                          child: SearchAnchor.bar(
+                            barBackgroundColor: MaterialStatePropertyAll(backgroundColor),
+                            barLeading: const Text(""),
+                            barHintText: "Search",
+                            barHintStyle: const MaterialStatePropertyAll(TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: "BerkshireSwash",
+                            )),
+                            barTextStyle: const MaterialStatePropertyAll(TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            )),
+                            barTrailing: const [
+                              Icon(
+                                Icons.search,
+                                color: Colors.grey,
+                              ),
+                            ],
+                            viewHeaderHintStyle: const TextStyle(
+                              color: Colors.grey,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: "BerkshireSwash",
+                            ),
+                            viewHeaderTextStyle: const TextStyle(
+                              color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                            ),
                             viewBackgroundColor: backgroundColor,
                             viewHintText: "Search",
-                            // ! need to change the color of the arrow and text of the list
+                            viewLeading: IconButton(
+                              onPressed: (){
+                                Navigator.pop(context);    
+                              },
+                              icon: const Icon(
+                                Icons.arrow_back_rounded,
+                                color: Colors.white,
+                              ),
+                            ),
                             viewConstraints: const BoxConstraints(
                               minWidth: 220,
                               maxHeight: 300,
@@ -395,39 +434,21 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                 5, 
                                 (index) {
                                   return ListTile(
+                                    textColor: Colors.white,
                                     titleAlignment: ListTileTitleAlignment.center,
                                     title: Text("Testings $index"),
+                                    // selected: ,
+                                    // selectedColor: ,
+                                    // selectedColor: ,
+                                    onTap: () {
+                                      controller.closeView("$index");
+                                      controller.text = "";
+                                      // TODO: remove focus from the textfield when user have chosen a item
+                                    },
                                   );
                                 
                               });                              
                             }),
-                            builder: (context, controller) {
-                              return SearchBar(
-                                controller: controller,
-                                backgroundColor: MaterialStatePropertyAll(backgroundColor),
-                                hintText: "Search",
-                                // TODO: maybe do an condition to make it disappear onTap.
-                                // leading: const Padding(
-                                //   padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
-                                //   child: Text(
-                                //     "Search",
-                                //     style: TextStyle(
-                                //       fontSize: 12,
-                                //       fontWeight: FontWeight.w600,
-                                //       fontFamily: "BerkshireSwash",
-                                //       color: Color.fromRGBO(227, 228, 228, 0.8)
-                                //     ),
-                                //   ),
-                                // ),
-                                trailing: const [
-                                  Icon(Icons.search)
-                                ],
-                                onTap: (){
-                                  controller.openView();
-                                },
-
-                              );
-                            },
                           )
                         )
 
@@ -1193,6 +1214,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                   child: Material(
                                     color: Colors.transparent,
                                     // color: const Color.fromRGBO(217, 217, 217, 1),
+
+                                    // TODO: Able to reorder with long press or draw...
                                     child: ReorderableListView.builder(
                                       buildDefaultDragHandles: false,
                                       padding: const EdgeInsets.fromLTRB(26, 3, 30, 8),
@@ -1203,7 +1226,22 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                         }
                                         final Map item = dataList["tab_list"].removeAt(oldIndex);
                                         dataList["tab_list"].insert(newIndex, item);
-                                        currentTab = newIndex;
+
+                                        
+                                        if (currentTab == oldIndex) {
+                                          currentTab = newIndex;
+                                        } else if (oldIndex < currentTab && newIndex >= currentTab) {
+                                          currentTab--;
+                                        } else if (oldIndex > currentTab && newIndex <= currentTab) {
+                                          currentTab++;
+                                        }
+
+                                        print("after: $currentTab");
+
+
+                                        setState(() {
+                                          writeJsonFile(dataList);
+                                        });
                                     
                                       },
                                       itemCount: dataList["tab_list"].length,
