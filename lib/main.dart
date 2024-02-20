@@ -76,6 +76,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
@@ -1141,42 +1142,52 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Account
+                          //* Account
                           Container(
-                            color: const Color.fromRGBO(172, 172, 172, 1),
+                            height: 95,
+                            padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Expanded(
-                                  flex: 7,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "John Doe",
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: "BerkshireSwash",
-                                        ),
-                                      ),
-                                      Text(
-                                        "JohnDoe@email.com",
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: "BerkshireSwash",
-                                        ),
-                                      )
-                                    ],
+                                IconButton(
+                                  onPressed: () {
+
+                                  },
+                                  icon: const Icon(
+                                    Icons.notifications_rounded,
+                                    color: Colors.white,
                                   ),
                                 ),
-                                Expanded(
-                                  flex: 3,
-                                  child: Material(
-                                    color: Colors.transparent,
+                                const Spacer(flex: 2),
+                                const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      "John Doe",
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: "BerkshireSwash",
+                                      ),
+                                    ),
+                                    Text(
+                                      "JohnDoe@email.com",
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Color.fromRGBO(255, 255, 255, 0.7),
+                                        fontSize: 10,
+                                        fontFamily: "BerkshireSwash",
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                const SizedBox(width: 10),
+                                Material(
+                                  color: Colors.transparent,
+                                  child: Container(
+                                    width: 60,
+                                    height: 50,
+                                    color: Colors.grey, // temporary
                                     child: InkWell(
                                       onTap: (){},
                                       customBorder: const CircleBorder(),
@@ -1200,54 +1211,53 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                           ),
                           Expanded(
                             flex: 8,
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-                                child: RawScrollbar(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  thickness: 10,
-                                  thumbColor: Colors.deepPurple,
-                                  trackVisibility: false,
-                                  thumbVisibility: true,
-                                  controller: _scrollController,
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    // color: const Color.fromRGBO(217, 217, 217, 1),
-
-                                    // TODO: Able to reorder with long press or draw...
-                                    child: ReorderableListView.builder(
-                                      buildDefaultDragHandles: false,
-                                      padding: const EdgeInsets.fromLTRB(26, 3, 30, 8),
-                                      scrollController: _scrollController,
-                                      onReorder: (oldIndex, newIndex) {
-                                        if (oldIndex < newIndex){
-                                          newIndex -= 1;
-                                        }
-                                        final Map item = dataList["tab_list"].removeAt(oldIndex);
-                                        dataList["tab_list"].insert(newIndex, item);
-
-                                        
-                                        if (currentTab == oldIndex) {
-                                          currentTab = newIndex;
-                                        } else if (oldIndex < currentTab && newIndex >= currentTab) {
-                                          currentTab--;
-                                        } else if (oldIndex > currentTab && newIndex <= currentTab) {
-                                          currentTab++;
-                                        }
-
-                                        print("after: $currentTab");
-
-
-                                        setState(() {
-                                          writeJsonFile(dataList);
-                                        });
-                                    
-                                      },
-                                      itemCount: dataList["tab_list"].length,
-                                      itemBuilder: (context, index) {
-                                        return Card(
-                                          key: Key("$index"),
+                              child: RawScrollbar(
+                                padding: const EdgeInsets.fromLTRB(0, 5, 8, 2),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                thickness: 10,
+                                thumbColor: Colors.deepPurple,
+                                trackVisibility: false,
+                                thumbVisibility: true,
+                                controller: _scrollController,
+                                child: Material(
+                                  color: Colors.transparent,
+                                  // TODO: Able to reorder with long press or draw...
+                                  child: ReorderableListView.builder(
+                                    buildDefaultDragHandles: false,
+                                    padding: const EdgeInsets.fromLTRB(16, 3, 28, 8),
+                                    scrollController: _scrollController,
+                                    onReorder: (oldIndex, newIndex) {
+                                      if (oldIndex < newIndex){
+                                        newIndex -= 1;
+                                      }
+                                      final Map item = dataList["tab_list"].removeAt(oldIndex);
+                                      dataList["tab_list"].insert(newIndex, item);
+                                                                
+                                      
+                                      if (currentTab == oldIndex) {
+                                        currentTab = newIndex;
+                                      } else if (oldIndex < currentTab && newIndex >= currentTab) {
+                                        currentTab--;
+                                      } else if (oldIndex > currentTab && newIndex <= currentTab) {
+                                        currentTab++;
+                                      }
+                                                                
+                                      print("after: $currentTab");
+                                                                
+                                                                
+                                      setState(() {
+                                        writeJsonFile(dataList);
+                                      });
+                                  
+                                    },
+                                    itemCount: dataList["tab_list"].length,
+                                    itemBuilder: (context, index) {
+                                      return Card(
+                                        key: Key("$index"),
+                                        child: ReorderableDragStartListener(
+                                          index: index,
                                           child: ListTile(
                                             leading: Checkbox(
                                               value: false,
@@ -1334,9 +1344,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                                 removeOverlay();
                                               });
                                             },
-                                            contentPadding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+                                            contentPadding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8.0),
+                                              borderRadius: BorderRadius.circular(10.0),
                                             ),
                                             textColor: Colors.deepPurple,
                                             iconColor: Colors.deepPurple,
@@ -1366,22 +1376,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                                   },
                                                   icon: const Icon(
                                                     Icons.remove_circle_outlined,
-                                                    // size: 20,
                                                   ),
                                                 ),
-                                                ReorderableDragStartListener(
-                                                  index: index,
-                                                  child: const Icon(
-                                                    Icons.drag_handle,
-                                                    // size: 20,
-                                                  ),
-                                                )
                                               ],
                                             ),
                                           ),
-                                        );
-                                      }
-                                    ),
+                                        ),
+                                      );
+                                    }
                                   ),
                                 ),
                               ) 
