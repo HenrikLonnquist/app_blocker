@@ -268,6 +268,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               flex: 7,
               child: Container(
                 color: backgroundColor,
+                padding: const EdgeInsets.fromLTRB(37, 30, 37, 45),
                 child: Column(
                   children: [
                     //! "HEADER"
@@ -708,14 +709,11 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                     )
                                   )
                                 ),
-                                child: const Text(
-                                  "Add",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
+                                child: const Icon(
+                                  Icons.add_circle_outline,
+                                  color: Colors.black,
+                                  size: 20,
+                                )
                               ),
                             ) :
                             Padding(
@@ -784,14 +782,11 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                     )
                                   )
                                 ),
-                                child: const Text(
-                                  "Remove",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
+                                child: const Icon(
+                                  Icons.remove_circle_outline,
+                                  color: Colors.black,
+                                  size: 20,
+                                )
                               ),
                             ),
                           )
@@ -1209,10 +1204,22 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                             thickness: 2.5,
                             color: Colors.white,
                           ),
+                          const SizedBox(height: 5),
+                          const Center(
+                            child: Text(
+                              "Tab list",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 25,
+                                fontFamily: "BerkshireSwash",
+                              ),
+                            )
+                          ),
+                          const SizedBox(height: 5),
                           Expanded(
                             flex: 8,
                               child: RawScrollbar(
-                                padding: const EdgeInsets.fromLTRB(0, 5, 8, 2),
+                                padding: const EdgeInsets.fromLTRB(0, 5, 8, 3),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8.0),
                                 ),
@@ -1226,7 +1233,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                   // TODO: Able to reorder with long press or draw...
                                   child: ReorderableListView.builder(
                                     buildDefaultDragHandles: false,
-                                    padding: const EdgeInsets.fromLTRB(16, 3, 28, 8),
+                                    padding: const EdgeInsets.fromLTRB(16, 3, 28, 0),
                                     scrollController: _scrollController,
                                     onReorder: (oldIndex, newIndex) {
                                       if (oldIndex < newIndex){
@@ -1255,6 +1262,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                     itemCount: dataList["tab_list"].length,
                                     itemBuilder: (context, index) {
                                       return Card(
+                                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(15),
+                                        ),
                                         key: Key("$index"),
                                         child: ReorderableDragStartListener(
                                           index: index,
@@ -1348,7 +1359,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                             },
                                             contentPadding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(10.0),
+                                              borderRadius: BorderRadius.circular(15.0),
                                             ),
                                             textColor: Colors.deepPurple,
                                             iconColor: Colors.deepPurple,
@@ -1360,7 +1371,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                               dataList["tab_list"][index]["name"],
                                               overflow: TextOverflow.ellipsis,
                                               style: const TextStyle(
-                                                fontSize: 20,
+                                                fontSize: 22,
                                                 color: Colors.black,
                                                 // fontWeight: FontWeight.bold,
                                                 fontFamily: "BerkshireSwash",
