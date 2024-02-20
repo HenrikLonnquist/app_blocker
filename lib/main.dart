@@ -281,6 +281,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                         Image.file(File("assets/temp_logo.png")),
                         const Spacer(flex: 2),
                         //* HOME
+                        // TODO: make it into it's own class
                         InkWell(
                           onTap: (){
                             setState(() {
@@ -299,16 +300,25 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                             height: 50,
                             width: 100,
                             decoration: BoxDecoration(
-                              color: headerButtonSelected["Home"] != null ? const Color.fromRGBO(71, 71, 71, 1) : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Center(
                               child: Text(
                                 "Home",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: headerButtonSelected["Home"] != null ? Colors.red : Colors.white,
+                                  fontWeight: headerButtonSelected["Home"] != null ? FontWeight.w600 : FontWeight.normal,
+                                  fontFamily: "BerkshireSwash",
+                                  fontSize: 18,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: Colors.red,
+                                  decorationThickness: headerButtonSelected["Home"] != null ?  2.0 : 0,
+                                  shadows: [
+                                    Shadow(
+                                      color: headerButtonSelected["Home"] != null ? Colors.white : const Color.fromRGBO(255, 255, 255, 0.7),
+                                      offset: const Offset(0, -8),
+                                    )
+                                  ],
+                                  color: Colors.transparent,
                                 ),
                               ),
                             ),
@@ -332,16 +342,17 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                             height: 50,
                             width: 100,
                             decoration: BoxDecoration(
-                              color: headerButtonSelected["Settings"] != null ? const Color.fromRGBO(71, 71, 71, 1) : Colors.transparent,
+                              
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Center(
                               child: Text(
                                 "Settings",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: headerButtonSelected["Settings"] != null ? Colors.red : Colors.white,
+                                  fontWeight: headerButtonSelected["Settings"] != null ? FontWeight.w600 : FontWeight.normal,
+                                  fontFamily: "BerkshireSwash",
+                                  fontSize: 18,
+                                  color: headerButtonSelected["Settings"] != null ? Colors.red : const Color.fromRGBO(255, 255, 255, 0.7),
                                 ),
                               ),
                             ),
@@ -365,16 +376,16 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                             height: 50,
                             width: 100,
                             decoration: BoxDecoration(
-                              color: headerButtonSelected["Help"] != null ? const Color.fromRGBO(71, 71, 71, 1) : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Center(
                               child: Text(
                                 "Help",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: headerButtonSelected["Help"] != null ? Colors.red : Colors.white,
+                                  fontWeight: headerButtonSelected["Help"] != null ? FontWeight.w600 : FontWeight.normal,
+                                  fontFamily: "BerkshireSwash",
+                                  fontSize: 18,
+                                  color: headerButtonSelected["Help"] != null ? Colors.red : const Color.fromRGBO(255, 255, 255, 0.7),
                                 ),
                               ),
                             ),
