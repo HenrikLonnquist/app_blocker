@@ -1282,7 +1282,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                                 // add the empty active tab to condition or "watch" list.
                                                 if (textController.text.isNotEmpty 
                                                 && programList["program_list"].isNotEmpty 
-                                                && !options["input"].contains(true)
+                                                && !options["input"].values.contains(true)
                                                 && options["time"] != null ){
                                                                                           
                                                   dataList["tab_list"][index]["active"] = !dataList["tab_list"][index]["active"];
@@ -1326,6 +1326,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                                 }
                                               },
                                             ),
+                                            hoverColor: Colors.transparent,
+                                            splashColor: Colors.transparent,
                                             onTap: () {
                                             
                                             
@@ -1351,7 +1353,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                             textColor: Colors.deepPurple,
                                             iconColor: Colors.deepPurple,
                                             tileColor: currentTab == index ?
-                                            const Color.fromRGBO(245, 113, 161, 1.0) :
+                                            const Color.fromRGBO(255, 199, 0, 1.0) :
                                             const Color.fromRGBO(245, 245, 245, 1.0),
                                             
                                             title: Text(
@@ -1359,7 +1361,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                               overflow: TextOverflow.ellipsis,
                                               style: const TextStyle(
                                                 fontSize: 20,
-                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                                // fontWeight: FontWeight.bold,
                                                 fontFamily: "BerkshireSwash",
                                               )
                                             ),
@@ -1376,6 +1379,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                                   },
                                                   icon: const Icon(
                                                     Icons.remove_circle_outlined,
+                                                    color: Colors.black,
                                                   ),
                                                 ),
                                               ],
@@ -1390,49 +1394,50 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                           ),
                           Expanded(
                             flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(12, 12, 30, 12),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
+                            child: Center(
+                              child: SizedBox(
+                                width: 95,
+                                height: 35,
+                                child: FloatingActionButton(
                                   backgroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5)
-                                  )
-                                ),
-                                onPressed: () {
-                                  
-                                  dummyMap = {
-                                    "name": "Tab ${dataList["tab_list"].length + 1}",
-                                    "active": false,
-                                    "program_list": [],
-                                    "options": {
-                                      "time": "",
-                                      "tab_index": 0,
-                                      "input": [
-                                       false,
-                                       false,
-                                       false,
-                                       false,
-                                       false,
-                                       false,
-                                       false,
-                                      ],
-                                      "timer": ""
-                                    }
-                                  }; 
-                                  dataList["tab_list"].add(dummyMap);
-                                  setState(() {
-                                    writeJsonFile(dataList);
-                                  });
-                                            
-                                },
-                                
-                                child: const Text(
-                                  "ADD",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 20,
-                                    fontFamily: "KeaniaOne",
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  onPressed: () {
+                                    
+                                    dummyMap = {
+                                      "name": "Tab ${dataList["tab_list"].length + 1}",
+                                      "active": false,
+                                      "program_list": [],
+                                      "options": {
+                                        "time": "",
+                                        "tab_index": 0,
+                                        "input": [
+                                         false,
+                                         false,
+                                         false,
+                                         false,
+                                         false,
+                                         false,
+                                         false,
+                                        ],
+                                        "timer": ""
+                                      }
+                                    }; 
+                                    dataList["tab_list"].add(dummyMap);
+                                    setState(() {
+                                      writeJsonFile(dataList);
+                                    });
+                                              
+                                  },
+                                  child: const Text(
+                                    "Add",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 18,
+                                      fontFamily: "KeaniaOne",
+                                    ),
                                   ),
                                 ),
                               ),
