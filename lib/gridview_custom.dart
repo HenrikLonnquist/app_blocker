@@ -99,6 +99,7 @@ class _CustomGridViewState extends State<CustomGridView> {
         itemCount: widget.itemCount,
         itemBuilder: (context, index) {
           
+          // Better to move widget.child to "itembuilder: widget.child ?? (context, index)"
           return widget.child ?? InkWell(
             onTap: widget.programNames![0]["name"] == "allPrograms.exe" 
             && widget.checkForAllPrograms && widget.programNames![index]["name"] != "allPrograms.exe"
