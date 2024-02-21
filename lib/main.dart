@@ -277,9 +277,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       children: [
                         //* LOGO
                         // TODO: if failed to find image create an widget icon.
-                        Image.file(File("assets/temp_logo.png")),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 15),
+                          child: Image.file(
+                            File("assets/temp_logo.png"),
+                          ),
+                        ),
                         const Spacer(flex: 2),
-                        //* HOME
                         // TODO: make it into it's own class
                         HeaderButton(
                           buttonName: "Home",
@@ -291,8 +295,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                             });
                           },
                         ),
-                        //! When the layout or settings design is finished.
-                        // TODO: add navigation route-pop.
                         HeaderButton(
                           buttonName: "Settings",
                           headerButtonSelected: headerButtonSelected["Settings"],
@@ -301,6 +303,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                               headerButtonSelected.clear();
                               headerButtonSelected["Settings"] = true;
                             });
+                            //! When the layout or settings design is finished.
+                            // TODO: add navigation route-push/pop.
                           },
                         ),
                         HeaderButton(
@@ -314,9 +318,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                           },
                         ),
                         //* Search bar
-                        SizedBox(
+                        Container(
                           width: 220,
                           height: 45,
+                          margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
                           child: SearchAnchor.bar(
                             barBackgroundColor: MaterialStatePropertyAll(backgroundColor),
                             barLeading: const Text(""),
@@ -470,7 +475,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                // This can be removed or moved inside of the dropdownmenu iconbutton
+                                // TODO: This can be removed or moved inside of the dropdownmenu iconbutton
                                 SizedBox(
                                   width: 130,
                                   child: ElevatedButton(
@@ -514,229 +519,234 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       ],
                     ),
                     //* Program List
-                    Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height / 2,
-                      margin: const EdgeInsets.fromLTRB(0, 12, 0, 12),
-                      decoration: BoxDecoration(
-                        color: boxInnerColor,
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(10),
-                          bottomRight: Radius.circular(10),
-                        )
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.fromLTRB(12, 0, 0, 0),
-                                child: Text(
-                                  "Program list",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontFamily: "BerkshireSwash",
-                                    fontSize: 25,
+                    Expanded(
+                      flex: 4,
+                      child: Container(
+                        // width: MediaQuery.of(context).size.width,
+                        // height: MediaQuery.of(context).size.height / 2.5,
+                        margin: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+                        decoration: BoxDecoration(
+                          color: boxInnerColor,
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(10),
+                            bottomRight: Radius.circular(10),
+                          )
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.fromLTRB(12, 0, 0, 0),
+                                  child: Text(
+                                    "Program list",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: "BerkshireSwash",
+                                      fontSize: 25,
+                                    ),
                                   ),
                                 ),
+                                const Spacer(flex: 2),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 4, 10, 0),
+                                  child: IconButton(
+                                    onPressed: (){},
+                                    icon: const Icon(Icons.more_vert),
+                                    color: Colors.white,
+                                  ),
+                                )
+                              ],
+                            ),
+                            Expanded(
+                              flex: 8,
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(24, 10, 24, 10),
+                                child: CustomGridView(
+                                  itemCount: dataList["tab_list"][currentTab]["program_list"].length,
+                                  programNames: dataList["tab_list"][currentTab]["program_list"],
+                                  currentTab: currentTab,
+                                  selectState: selectState,
+                                  checkForAllPrograms: true,
+                                  onSelectedChanged: (programNames){
+                                                            
+                                    setState(() {
+                                      tempMap = programNames;
+                                      selectState = null;
+                                    });
+                                                            
+                                  }
+                                ),
                               ),
-                              const Spacer(flex: 2),
+                            ),
+                            SizedBox(
+                              height: 35,
+                              child: tempMap.isEmpty ? 
                               Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 4, 10, 0),
-                                child: IconButton(
-                                  onPressed: (){},
-                                  icon: const Icon(Icons.more_vert),
-                                  color: Colors.white,
-                                ),
-                              )
-                            ],
-                          ),
-                          Expanded(
-                            flex: 8,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(24, 10, 24, 10),
-                              child: CustomGridView(
-                                itemCount: dataList["tab_list"][currentTab]["program_list"].length,
-                                programNames: dataList["tab_list"][currentTab]["program_list"],
-                                currentTab: currentTab,
-                                selectState: selectState,
-                                checkForAllPrograms: true,
-                                onSelectedChanged: (programNames){
-                                                          
-                                  setState(() {
-                                    tempMap = programNames;
-                                    selectState = null;
-                                  });
-                                                          
-                                }
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: tempMap.isEmpty ? 
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                              child: ElevatedButton(
-                                onPressed: (){
-                                  
-                                  Navigator.of(context).push(ActiveProgramSelection(
-                                    dataList: dataList["tab_list"][currentTab]["program_list"],
-                                    onSaved: (saved){
-                                                        
-                                      for (var program in saved) {
-                                                        
-                                        String iconName = "i_${program["name"].split(".")[0]}.png";
-                                        File file = File("assets/program_icons/$iconName");
-                                                        
-                                                        
-                                        if (!file.existsSync()){
-                                                        
-                                          var memoryImageInBytes = program["icon"].image.bytes;
-                                          file.writeAsBytesSync(memoryImageInBytes);
-                                          
-                                        }
-                                                        
-                                        if (program["name"] == "allPrograms.exe"){
-                                          
-                                          dataList["tab_list"][currentTab]["program_list"].insert(0,
-                                            {
-                                              "name": program["name"],
-                                              "icon": "assets/program_icons/i_${program["name"].split(".")[0]}.png"
-                                            }
-                                          );
-                                                        
-                                        } else {
-                                          
-                                          dataList["tab_list"][currentTab]["program_list"].add(
-                                            {
-                                              "name": program["name"],
-                                              "icon": "assets/program_icons/i_${program["name"].split(".")[0]}.png"
-                                            }
-                                          );
-                                                        
-                                        }
-                                                        
-                                        // TODO: Snackbar or showdialog to ask if the user wants to remove the existing program in the list?
-                                        // thinking more like a undo button. instead of a popup for confirmation.
-                                                        
-                                      }
-                                                        
-                                      
-                                      setState((){
-                                        writeJsonFile(dataList);
-                                      });
-                                                        
-                                    },
-                                  ));
-                                                        
-                                                        
-                                },
-                                style: TextButton.styleFrom(
-                                  backgroundColor: const Color.fromRGBO(255, 0, 0, 1),
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(10),
-                                      bottomRight: Radius.circular(10),
-                                    )
-                                  )
-                                ),
-                                child: const Icon(
-                                  Icons.add_circle_outline,
-                                  color: Colors.black,
-                                  size: 20,
-                                )
-                              ),
-                            ) :
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                              child: ElevatedButton(
-                                onPressed: (){
-                                                        
-                                  var currentProgramList = dataList["tab_list"][currentTab]["program_list"];
-                                  List<Map<String, dynamic>> iconsInUseList = [{"name": "allPrograms.exe", "icon": "assets/program_icons/i_allPrograms.png"}];
-                                                        
-                                                        
-                                  // Checking whether the other tabs is using a icons that is being removed
-                                  for (var i = 0; i < dataList["tab_list"].length; i++) {
+                                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                child: ElevatedButton(
+                                  onPressed: (){
                                     
-                                    var tab = dataList["tab_list"][i];
-                                                        
-                                    if (currentTab != i && tab["program_list"].isNotEmpty){
-                                                        
-                                      for (var j = 0; j < tab["program_list"].length; j++) {
-                                                        
-                                        var programName = tab["program_list"][j]["name"];
+                                    Navigator.of(context).push(ActiveProgramSelection(
+                                      dataList: dataList["tab_list"][currentTab]["program_list"],
+                                      onSaved: (saved){
+                                                          
+                                        for (var program in saved) {
+                                                          
+                                          String iconName = "i_${program["name"].split(".")[0]}.png";
+                                          File file = File("assets/program_icons/$iconName");
+                                                          
+                                                          
+                                          if (!file.existsSync()){
+                                                          
+                                            var memoryImageInBytes = program["icon"].image.bytes;
+                                            file.writeAsBytesSync(memoryImageInBytes);
+                                            
+                                          }
+                                                          
+                                          if (program["name"] == "allPrograms.exe"){
+                                            
+                                            dataList["tab_list"][currentTab]["program_list"].insert(0,
+                                              {
+                                                "name": program["name"],
+                                                "icon": "assets/program_icons/i_${program["name"].split(".")[0]}.png"
+                                              }
+                                            );
+                                                          
+                                          } else {
+                                            
+                                            dataList["tab_list"][currentTab]["program_list"].add(
+                                              {
+                                                "name": program["name"],
+                                                "icon": "assets/program_icons/i_${program["name"].split(".")[0]}.png"
+                                              }
+                                            );
+                                                          
+                                          }
+                                                          
+                                          // TODO: Snackbar or showdialog to ask if the user wants to remove the existing program in the list?
+                                          // thinking more like a undo button. instead of a popup for confirmation.
+                                                          
+                                        }
+                                                          
                                         
-                                        if (tempMap.values.toString().contains("$programName") && !iconsInUseList.contains(programName)){
-                                                        
-                                          iconsInUseList.add(tab["program_list"][j]);
-                                          break;
-                                                        
-                                        }
-                                                        
-                                      }
-                                                        
-                                    }
-                                                        
-                                  }
-                                                        
-                                                        
-                                  for (var program in tempMap.values) {
-                                                        
-                                    var index = currentProgramList.indexOf(program);
-                                    currentProgramList.removeAt(index);
-                                                        
-                                    // Remove icon that are not in use
-                                    if (!iconsInUseList.toString().contains("$program")){
-                                     
-                                      File(program["icon"]).delete();
-                                                        
-                                    }
-                                    
-                                  }
-                                  
-                                  tempMap.clear();
-                                                        
-                                  dataList["tab_list"][currentTab]["program_list"] = currentProgramList;
-                                  setState(() {  
-                                    writeJsonFile(dataList);
-                                    winManager.cancelTimer();
-                                    winManager.monitorActiveWindow();
-                                  });
-                                },
-                                style: TextButton.styleFrom(
-                                  backgroundColor: const Color.fromRGBO(255, 0, 0, 1),
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(10),
-                                      bottomRight: Radius.circular(10),
+                                        setState((){
+                                          writeJsonFile(dataList);
+                                        });
+                                                          
+                                      },
+                                    ));
+                                                          
+                                                          
+                                  },
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: const Color.fromRGBO(255, 0, 0, 1),
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(10),
+                                        bottomRight: Radius.circular(10),
+                                      )
                                     )
+                                  ),
+                                  child: const Icon(
+                                    Icons.add_circle_outline,
+                                    color: Colors.black,
+                                    size: 20,
                                   )
                                 ),
-                                child: const Icon(
-                                  Icons.remove_circle_outline,
-                                  color: Colors.black,
-                                  size: 20,
-                                )
+                              ) :
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                child: ElevatedButton(
+                                  onPressed: (){
+                                                          
+                                    var currentProgramList = dataList["tab_list"][currentTab]["program_list"];
+                                    List<Map<String, dynamic>> iconsInUseList = [{"name": "allPrograms.exe", "icon": "assets/program_icons/i_allPrograms.png"}];
+                                                          
+                                                          
+                                    // Checking whether the other tabs is using a icons that is being removed
+                                    for (var i = 0; i < dataList["tab_list"].length; i++) {
+                                      
+                                      var tab = dataList["tab_list"][i];
+                                                          
+                                      if (currentTab != i && tab["program_list"].isNotEmpty){
+                                                          
+                                        for (var j = 0; j < tab["program_list"].length; j++) {
+                                                          
+                                          var programName = tab["program_list"][j]["name"];
+                                          
+                                          if (tempMap.values.toString().contains("$programName") && !iconsInUseList.contains(programName)){
+                                                          
+                                            iconsInUseList.add(tab["program_list"][j]);
+                                            break;
+                                                          
+                                          }
+                                                          
+                                        }
+                                                          
+                                      }
+                                                          
+                                    }
+                                                          
+                                                          
+                                    for (var program in tempMap.values) {
+                                                          
+                                      var index = currentProgramList.indexOf(program);
+                                      currentProgramList.removeAt(index);
+                                                          
+                                      // Remove icon that are not in use
+                                      if (!iconsInUseList.toString().contains("$program")){
+                                       
+                                        File(program["icon"]).delete();
+                                                          
+                                      }
+                                      
+                                    }
+                                    
+                                    tempMap.clear();
+                                                          
+                                    dataList["tab_list"][currentTab]["program_list"] = currentProgramList;
+                                    setState(() {  
+                                      writeJsonFile(dataList);
+                                      winManager.cancelTimer();
+                                      winManager.monitorActiveWindow();
+                                    });
+                                  },
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: const Color.fromRGBO(255, 0, 0, 1),
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(10),
+                                        bottomRight: Radius.circular(10),
+                                      )
+                                    )
+                                  ),
+                                  child: const Icon(
+                                    Icons.remove_circle_outline,
+                                    color: Colors.black,
+                                    size: 20,
+                                  )
+                                ),
                               ),
-                            ),
-                          )
-                        ]
+                            )
+                          ]
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 5),
                     //* Options
                     Expanded(
+                      flex: 3,
                       child: Row(
                         children: [
                           Expanded(
                             flex: 5,
                             child: Container(
-                              color: Colors.blueGrey,
-                              // TODO: how do i make this tab-specific from tab list
-                              // meaning that if tab 1 has input opened and tab 2 has timer opened
-                              // it should switch between them
+                              decoration: BoxDecoration(
+                                color: boxInnerColor,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                               child: Column(
                                 children: [
                                   TabBar(
@@ -747,20 +757,43 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                         writeJsonFile(dataList);
                                       });
                                     },
-                                    tabs: const [
-                                      // TODO: FIX THE LOOK+text, remove the underline
+                                    dividerColor: Colors.transparent,
+                                    indicatorColor: Colors.red,
+                                    tabs: [
                                       Tab(
-                                        text: "Input",
+                                        child: Text(
+                                          "Input",
+                                          style: TextStyle(
+                                            color: dataList["tab_list"][currentTab]["options"]["tab_index"] == 0 ? 
+                                            Colors.white :
+                                            const Color.fromRGBO(255, 255, 255, 0.6),
+                                            fontFamily: "BerkshireSwash",
+                                            fontSize: 25,
+                                          )
+                                        ),
                                       ),
                                       Tab(
-                                        text: "Timer",
-                                      )
+                                        child: Text(
+                                          "Timer",
+                                          style: TextStyle(
+                                            color: dataList["tab_list"][currentTab]["options"]["tab_index"] == 1 ? 
+                                            Colors.white :
+                                            const Color.fromRGBO(255, 255, 255, 0.6),
+                                            fontFamily: "BerkshireSwash",
+                                            fontSize: 25,
+                                          )
+                                        ),
+                                      ),
+                                      
                                     ],
                                   ),
                                   Expanded(
                                     child: Container(
-                                      color: Colors.blueGrey,
                                       padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                                      decoration: BoxDecoration(
+                                        color: boxInnerColor,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
                                       child: TabBarView(
                                         controller: _optionsTabController,
                                         children: [
@@ -972,12 +1005,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                                 ),
                                               ),
                                               //* Repeat option
+                                              // TODO: fix the overflow when resizing.
                                               Expanded(
                                                 child: GridView.builder(
                                                   physics: const NeverScrollableScrollPhysics(),
                                                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                                     crossAxisCount: 7,
-                                                    crossAxisSpacing: 10.0,
+                                                    crossAxisSpacing: 5.0,
                                                   ),
                                                   itemCount: 7,
                                                   itemBuilder: (context, index) {
@@ -1033,16 +1067,21 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                               ),
                             ),
                           ),
+                          const SizedBox(width: 12),
                           Expanded(
                             flex: 5,
                             child: Container(
-                              color: Colors.amber,
+                              decoration: BoxDecoration(
+                                color: boxInnerColor,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                               child: const Column(
                                 children: [
                                   Text(
                                     "Hello",
                                     style: TextStyle(
-                                      color: Colors.black,
+                                      color: Colors.white,
+                                      fontSize: 30,
                                     ),
                                   )
                                 ],
@@ -1052,7 +1091,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                         ],
                       ),
                     ),
-                    
                   ],
                 ),
               ),
@@ -1212,7 +1250,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                               // focusColor: Colors.transparent,
                                               // hoverColor: Colors.transparent,
                                               side: const BorderSide(
-                                                width: 2,
+                                                width: .05,
+                                                // color: Colors.transparent
                                               ),
                                               shape: const CircleBorder(),
                                               onChanged: (value){
