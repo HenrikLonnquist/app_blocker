@@ -123,8 +123,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   final linkToCustomButton = LayerLink(); // dropdownbutton/custom selected
   
-
-  Map headerButtonSelected = {"Home": true,};
+  Map<String, bool> headerButtonSelected = {"Home": true};
 
   Color selectedColor = const Color.fromRGBO(217, 217, 217, 1);
 
@@ -282,114 +281,37 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                         const Spacer(flex: 2),
                         //* HOME
                         // TODO: make it into it's own class
-                        InkWell(
-                          onTap: (){
+                        HeaderButton(
+                          buttonName: "Home",
+                          headerButtonSelected: headerButtonSelected["Home"],
+                          onTap: () {
                             setState(() {
                               headerButtonSelected.clear();
                               headerButtonSelected["Home"] = true;
                             });
-                            // TODO: add navigation route-pop.
-                            // When the layout or settings design is finished.
                           },
-                          splashColor: Colors.transparent,
-                          customBorder: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          highlightColor: Colors.transparent,
-                          child: Container(
-                            height: 50,
-                            width: 100,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Home",
-                                style: TextStyle(
-                                  fontWeight: headerButtonSelected["Home"] != null ? FontWeight.w600 : FontWeight.normal,
-                                  fontFamily: "BerkshireSwash",
-                                  fontSize: 18,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: Colors.red,
-                                  decorationThickness: headerButtonSelected["Home"] != null ?  2.0 : 0,
-                                  shadows: [
-                                    Shadow(
-                                      color: headerButtonSelected["Home"] != null ? Colors.white : const Color.fromRGBO(255, 255, 255, 0.7),
-                                      offset: const Offset(0, -8),
-                                    )
-                                  ],
-                                  color: Colors.transparent,
-                                ),
-                              ),
-                            ),
-                          ),
                         ),
-                        //* Settings
-                        InkWell(
-                          onTap: (){
+                        //! When the layout or settings design is finished.
+                        // TODO: add navigation route-pop.
+                        HeaderButton(
+                          buttonName: "Settings",
+                          headerButtonSelected: headerButtonSelected["Settings"],
+                          onTap: () {
                             setState(() {
                               headerButtonSelected.clear();
                               headerButtonSelected["Settings"] = true;
                             });
-                            //TODO: add navigation route-pop.
                           },
-                          splashColor: Colors.transparent,
-                          customBorder: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          highlightColor: Colors.transparent,
-                          child: Container(
-                            height: 50,
-                            width: 100,
-                            decoration: BoxDecoration(
-                              
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Settings",
-                                style: TextStyle(
-                                  fontWeight: headerButtonSelected["Settings"] != null ? FontWeight.w600 : FontWeight.normal,
-                                  fontFamily: "BerkshireSwash",
-                                  fontSize: 18,
-                                  color: headerButtonSelected["Settings"] != null ? Colors.red : const Color.fromRGBO(255, 255, 255, 0.7),
-                                ),
-                              ),
-                            ),
-                          ),
                         ),
-                        //* Help
-                        InkWell(
-                          onTap: (){
+                        HeaderButton(
+                          buttonName: "Help",
+                          headerButtonSelected: headerButtonSelected["Help"],
+                          onTap: () {
                             setState(() {
                               headerButtonSelected.clear();
                               headerButtonSelected["Help"] = true;
-                              //TODO: add navigation route-pop.
                             });
                           },
-                          customBorder: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          splashColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          child: Container(
-                            height: 50,
-                            width: 100,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Help",
-                                style: TextStyle(
-                                  fontWeight: headerButtonSelected["Help"] != null ? FontWeight.w600 : FontWeight.normal,
-                                  fontFamily: "BerkshireSwash",
-                                  fontSize: 18,
-                                  color: headerButtonSelected["Help"] != null ? Colors.red : const Color.fromRGBO(255, 255, 255, 0.7),
-                                ),
-                              ),
-                            ),
-                          ),
                         ),
                         //* Search bar
                         SizedBox(
@@ -1628,5 +1550,57 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       ),
     );
   }
+}
 
+// TODO: probably change the name
+class HeaderButton extends StatelessWidget {
+  const HeaderButton({
+    super.key,
+    required this.buttonName,
+    required this.headerButtonSelected,
+    required this.onTap,
+  });
+
+  final String buttonName;
+  final bool? headerButtonSelected;
+  final Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      splashColor: Colors.transparent,
+      customBorder: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      highlightColor: Colors.transparent,
+      child: Container(
+        height: 50,
+        width: 100,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Center(
+          child: Text(
+            buttonName,
+            style: TextStyle(
+              fontWeight: headerButtonSelected != null  ? FontWeight.w600 : FontWeight.normal,
+              fontFamily: "BerkshireSwash",
+              fontSize: 18,
+              decoration: TextDecoration.underline,
+              decorationColor: Colors.red,
+              decorationThickness: headerButtonSelected != null ?  2.0 : 0,
+              shadows: [
+                Shadow(
+                  color: headerButtonSelected != null ? Colors.white : const Color.fromRGBO(255, 255, 255, 0.7),
+                  offset: const Offset(0, -8),
+                )
+              ],
+              color: Colors.transparent,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
