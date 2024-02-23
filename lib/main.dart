@@ -501,22 +501,64 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                         ],
                       ),
                     ),
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Overview",
-                          style: TextStyle(
-                            color: Colors.white
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          // TODO: probably change this to a tabbar later.
+                          Column(
+                            children: [
+                              const Text(
+                                "Overview",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                )
+                              ),
+                              Container(
+                                margin: const EdgeInsets.fromLTRB(2.5, 0, 0, 0),
+                                width: 44,
+                                height: 2,
+                                decoration: const BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      width: 2,
+                                      color: Colors.red,
+                                    )
+                                  )
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        Text(
-                          "Statistics",
-                          style: TextStyle(
-                            color: Colors.white
+                          const SizedBox(width: 50),
+                          const Column(
+                            children: [
+                              Text(
+                                "Statistics",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                )
+                              ),
+                              // TODO: if selected show
+                              // Container(
+                              //   margin: const EdgeInsets.fromLTRB(2.5, 0, 0, 0),
+                              //   width: 44,
+                              //   height: 2,
+                              //   decoration: const BoxDecoration(
+                              //     border: Border(
+                              //       bottom: BorderSide(
+                              //         width: 2,
+                              //         color: Colors.red,
+                              //       )
+                              //     )
+                              //   ),
+                              // ),
+                            ],
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     //* Program List
                     Expanded(
