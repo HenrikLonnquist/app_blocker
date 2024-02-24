@@ -398,52 +398,31 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                     Container(
                       alignment: Alignment.centerLeft,
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          isEditing ?
-                          GestureDetector(
-                            onDoubleTap: (){
-                              setState(() {
-                                isEditing = false;
-                              });
-                            },
-                            child: Text(
-                              dataList["tab_list"][currentTab]["name"],
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 25,
-                                fontFamily: "BerkshireSwash",
-                              ),
-                            ),
-                          ) :
-                          Expanded(
-                            flex: 3,
-                            child: TextField(
+                          IntrinsicWidth(
+                            child: TextFormField(
                               controller: _tabTitleTextController,
-                              autofocus: true,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 25,
                                 fontFamily: "BerkshireSwash"
                               ),
-                              onTapOutside: (event){
-                                setState(() {
-                                  isEditing = true;
-                                });
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              validator: (value) {
+                                if (value == null || value.isEmpty){
+                                  // TODO: maybe a variable for the submit field to restore the value
+                                  _tabTitleTextController.text = "Enter some text";
+                                }
+                                return null;
                               },
-                              onSubmitted: (value){
+                              onFieldSubmitted: (value){
                                 setState(() {
-                            
-                                  isEditing = true;
-                            
-                                  dataList["tab_list"][currentTab]["name"] = value;
-                            
-                                  writeJsonFile(dataList);
+                                  	dataList["tab_list"][currentTab]["name"] = value;
+                                  	writeJsonFile(dataList);
                                 });
                               },
                               cursorColor: Colors.white,
                               // TODO: LATER: keyboard ESC-key to exit input/textfield
-                              // TODO: BUG?: Problem with slight movement when switching between text and textfield.
                               decoration: const InputDecoration(
                                 border: InputBorder.none,
                                 isDense: true,
@@ -451,9 +430,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                               ),
                             ),
                           ),
-                          const SizedBox(width: 20),
+                          const SizedBox(width: 8),
                           // TODO: should be dropdownmenu button instead
-                          if (isEditing)InkWell(
+                          InkWell(
                             onTap: (){
                               setState(() {
                                 
@@ -471,33 +450,34 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                               ),
                             ),
                           ),
-                          Expanded(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                // TODO: This can be removed or moved inside of the dropdownmenu iconbutton
-                                SizedBox(
-                                  width: 130,
-                                  child: ElevatedButton(
-                                    onPressed: (){
+                          // Expanded(
+                          //   flex: 7,
+                          //   child: Row(
+                          //     mainAxisAlignment: MainAxisAlignment.end,
+                          //     children: [
+                          //       // TODO: This can be removed or moved inside of the dropdownmenu iconbutton
+                          //       SizedBox(
+                          //         width: 130,
+                          //         child: ElevatedButton(
+                          //           onPressed: (){
       
-                                      setState(() {
-                                        if (tempMap.length == dataList["tab_list"][currentTab]["program_list"].length){
-                                          selectState = false; // Deselect All
-                                        } else {
-                                          selectState = true; // Select All
-                                        }
-                                      });
-                                    },
-                                    // TOOD: will rename to deselect all if there is programs
-                                    child: tempMap.isEmpty ? 
-                                    const Text("Select All") :
-                                    const Text("Deselect All"),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
+                          //             setState(() {
+                          //               if (tempMap.length == dataList["tab_list"][currentTab]["program_list"].length){
+                          //                 selectState = false; // Deselect All
+                          //               } else {
+                          //                 selectState = true; // Select All
+                          //               }
+                          //             });
+                          //           },
+                          //           // TOOD: will rename to deselect all if there is programs
+                          //           child: tempMap.isEmpty ? 
+                          //           const Text("Select All") :
+                          //           const Text("Deselect All"),
+                          //         ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // )
                         ],
                       ),
                     ),
@@ -894,7 +874,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                                     //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
                                               
                                                     // },
-                                                    focusNode: myFocusNode,
+                                                    // focusNode: myFocusNode,
                                                     controller: textController,
                                                     keyboardType: const TextInputType.numberWithOptions(
                                                       decimal: true,
@@ -1292,7 +1272,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                               // focusColor: Colors.transparent,
                                               // hoverColor: Colors.transparent,
                                               side: const BorderSide(
-                                                width: .05,
+                                                width: 1,
                                                 // color: Colors.transparent
                                               ),
                                               shape: const CircleBorder(),
