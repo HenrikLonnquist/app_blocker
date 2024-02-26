@@ -92,7 +92,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   
   Map dataList = {}; // for the json file
   
@@ -159,6 +159,11 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   ];
   
   late TabController _optionsTabController;
+  late TabController _contentTabController;
+  
+  List<String> tabDropDownList = ["Reset all", ];
+  List<String> programDropDownList = ["Select all", "Deselect all", ];
+  
   
   
   
@@ -231,6 +236,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     textController.text = dataList["tab_list"][currentTab]["options"]["time"];
     _tabTitleTextController.text = dataList["tab_list"][currentTab]["name"];
     _optionsTabController = TabController(length: 2, vsync: this);
+    _contentTabController = TabController(length: 2, vsync: this);
 
   }
 
@@ -242,6 +248,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     myFocusNode.dispose();
     _tabTitleTextController.dispose();
     _optionsTabController.dispose();
+    _contentTabController.dispose();
 
     super.dispose();
   }
@@ -394,12 +401,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
                       ],
                     ),
+                    //* Content tab
                     //* Tab Name
                     Container(
                       alignment: Alignment.centerLeft,
                       child: Row(
                         children: [
                           IntrinsicWidth(
+							              // TODO: popup window below the tab text or Icon warning at the end of text.
                             child: TextFormField(
                               controller: _tabTitleTextController,
                               style: const TextStyle(
@@ -407,19 +416,23 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                 fontSize: 25,
                                 fontFamily: "BerkshireSwash"
                               ),
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              validator: (value) {
-                                if (value == null || value.isEmpty){
-                                  // TODO: maybe a variable for the submit field to restore the value
-                                  _tabTitleTextController.text = "Enter some text";
-                                }
-                                return null;
-                              },
                               onFieldSubmitted: (value){
-                                setState(() {
-                                  	dataList["tab_list"][currentTab]["name"] = value;
-                                  	writeJsonFile(dataList);
-                                });
+
+                                if ( value.isNotEmpty && !value.contains(RegExp(r"^\s*$")) ) {
+
+                                  value = value.trimLeft();
+                                  value = value.trimRight();
+                                  _tabTitleTextController.text = value;
+
+                                  setState(() {
+                                    dataList["tab_list"][currentTab]["name"] = value;
+                                    writeJsonFile(dataList);
+                                  });
+                                } else {
+
+                                  _tabTitleTextController.text = dataList["tab_list"][currentTab]["name"];
+
+                                }
                               },
                               cursorColor: Colors.white,
                               // TODO: LATER: keyboard ESC-key to exit input/textfield
@@ -431,688 +444,718 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                             ),
                           ),
                           const SizedBox(width: 8),
-                          // TODO: should be dropdownmenu button instead
-                          InkWell(
-                            onTap: (){
-                              setState(() {
-                                
-                                _tabTitleTextController.text = dataList["tab_list"][currentTab]["name"];
-                                isEditing = false;
-                                
-                              });
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
-                              child: Icon(
-                                Icons.more_vert,
-                                color: Colors.white,
-                                size: 20,
+                          DropdownButtonHideUnderline(
+                            child: DropdownButton2(
+                              customButton: const Icon(
+                              Icons.more_vert_rounded,
+                              color: Colors.white,
+                              size: 24,
+                              ),
+                              items: tabDropDownList.map((String value) {
+                                  return DropdownMenuItem(
+                                      value: value,
+                                      child: Text(
+                                          value,
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                          )
+                                      )
+                                  );
+
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                    // TODO: just take the template from adding tab for resetting
+                                });
+                              },
+                              dropdownStyleData: DropdownStyleData(
+                                offset: const Offset(10, -5),
+                                width: 110,
+                                maxHeight: 300,
+                                decoration: BoxDecoration(
+                                  color: boxInnerColor.withOpacity(1),
+                                  borderRadius: BorderRadius.circular(8)
+                                )
                               ),
                             ),
                           ),
-                          // Expanded(
-                          //   flex: 7,
-                          //   child: Row(
-                          //     mainAxisAlignment: MainAxisAlignment.end,
-                          //     children: [
-                          //       // TODO: This can be removed or moved inside of the dropdownmenu iconbutton
-                          //       SizedBox(
-                          //         width: 130,
-                          //         child: ElevatedButton(
-                          //           onPressed: (){
-      
-                          //             setState(() {
-                          //               if (tempMap.length == dataList["tab_list"][currentTab]["program_list"].length){
-                          //                 selectState = false; // Deselect All
-                          //               } else {
-                          //                 selectState = true; // Select All
-                          //               }
-                          //             });
-                          //           },
-                          //           // TOOD: will rename to deselect all if there is programs
-                          //           child: tempMap.isEmpty ? 
-                          //           const Text("Select All") :
-                          //           const Text("Deselect All"),
-                          //         ),
-                          //       ),
-                          //     ],
-                          //   ),
-                          // )
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          // TODO: probably change this to a tabbar later.
-                          Column(
-                            children: [
-                              const Text(
-                                "Overview",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                )
-                              ),
-                              Container(
-                                margin: const EdgeInsets.fromLTRB(2.5, 0, 0, 0),
-                                width: 44,
-                                height: 2,
-                                decoration: const BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      width: 2,
-                                      color: Colors.red,
-                                    )
-                                  )
-                                ),
-                              ),
-                            ],
+                    TabBar(
+                      controller: _contentTabController,
+                      dividerColor: Colors.transparent,
+                      indicatorColor: Colors.red,
+                      indicatorSize: TabBarIndicatorSize.label,
+                      indicatorPadding: const EdgeInsets.fromLTRB(8, 0, 5, 10),
+                      tabAlignment: TabAlignment.start,
+                      isScrollable: true,
+                      tabs: const [
+                        Tab(
+                          child: Text(
+                            "Overview",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            )
                           ),
-                          const SizedBox(width: 50),
-                          const Column(
-                            children: [
-                              Text(
-                                "Statistics",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                )
-                              ),
-                              // TODO: if selected show
-                              // Container(
-                              //   margin: const EdgeInsets.fromLTRB(2.5, 0, 0, 0),
-                              //   width: 44,
-                              //   height: 2,
-                              //   decoration: const BoxDecoration(
-                              //     border: Border(
-                              //       bottom: BorderSide(
-                              //         width: 2,
-                              //         color: Colors.red,
-                              //       )
-                              //     )
-                              //   ),
-                              // ),
-                            ],
+                        ),
+                        Tab(
+                          child: Text(
+                            "Statistics",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            )
                           ),
-                        ],
-                      ),
+                        )
+                      ]
                     ),
+                        
                     //* Program List
                     Expanded(
                       flex: 4,
-                      child: Container(
-                        // width: MediaQuery.of(context).size.width,
-                        // height: MediaQuery.of(context).size.height / 2.5,
-                        margin: const EdgeInsets.fromLTRB(0, 12, 0, 12),
-                        decoration: BoxDecoration(
-                          color: boxInnerColor,
-                          borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(10),
-                            bottomRight: Radius.circular(10),
-                          )
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.fromLTRB(12, 0, 0, 0),
-                                  child: Text(
-                                    "Program list",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: "BerkshireSwash",
-                                      fontSize: 25,
-                                    ),
-                                  ),
-                                ),
-                                const Spacer(flex: 2),
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(0, 4, 10, 0),
-                                  child: IconButton(
-                                    onPressed: (){},
-                                    icon: const Icon(Icons.more_vert),
-                                    color: Colors.white,
-                                  ),
-                                )
-                              ],
-                            ),
-                            Expanded(
-                              flex: 8,
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(24, 10, 24, 10),
-                                child: CustomGridView(
-                                  itemCount: dataList["tab_list"][currentTab]["program_list"].length,
-                                  programNames: dataList["tab_list"][currentTab]["program_list"],
-                                  currentTab: currentTab,
-                                  selectState: selectState,
-                                  checkForAllPrograms: true,
-                                  onSelectedChanged: (programNames){
-                                                            
-                                    setState(() {
-                                      tempMap = programNames;
-                                      selectState = null;
-                                    });
-                                                            
-                                  }
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 35,
-                              child: tempMap.isEmpty ? 
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                child: ElevatedButton(
-                                  onPressed: (){
-                                    
-                                    Navigator.of(context).push(ActiveProgramSelection(
-                                      dataList: dataList["tab_list"][currentTab]["program_list"],
-                                      onSaved: (saved){
-                                                          
-                                        for (var program in saved) {
-                                                          
-                                          String iconName = "i_${program["name"].split(".")[0]}.png";
-                                          File file = File("assets/program_icons/$iconName");
-                                                          
-                                                          
-                                          if (!file.existsSync()){
-                                                          
-                                            var memoryImageInBytes = program["icon"].image.bytes;
-                                            file.writeAsBytesSync(memoryImageInBytes);
-                                            
-                                          }
-                                                          
-                                          if (program["name"] == "allPrograms.exe"){
-                                            
-                                            dataList["tab_list"][currentTab]["program_list"].insert(0,
-                                              {
-                                                "name": program["name"],
-                                                "icon": "assets/program_icons/i_${program["name"].split(".")[0]}.png"
-                                              }
-                                            );
-                                                          
-                                          } else {
-                                            
-                                            dataList["tab_list"][currentTab]["program_list"].add(
-                                              {
-                                                "name": program["name"],
-                                                "icon": "assets/program_icons/i_${program["name"].split(".")[0]}.png"
-                                              }
-                                            );
-                                                          
-                                          }
-                                                          
-                                          // TODO: Snackbar or showdialog to ask if the user wants to remove the existing program in the list?
-                                          // thinking more like a undo button. instead of a popup for confirmation.
-                                                          
-                                        }
-                                                          
-                                        
-                                        setState((){
-                                          writeJsonFile(dataList);
-                                        });
-                                                          
-                                      },
-                                    ));
-                                                          
-                                                          
-                                  },
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: const Color.fromRGBO(255, 0, 0, 1),
-                                    shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(10),
-                                        bottomRight: Radius.circular(10),
-                                      )
-                                    )
-                                  ),
-                                  child: const Icon(
-                                    Icons.add_circle_outline,
-                                    color: Colors.black,
-                                    size: 20,
-                                  )
-                                ),
-                              ) :
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                child: ElevatedButton(
-                                  onPressed: (){
-                                                          
-                                    var currentProgramList = dataList["tab_list"][currentTab]["program_list"];
-                                    List<Map<String, dynamic>> iconsInUseList = [{"name": "allPrograms.exe", "icon": "assets/program_icons/i_allPrograms.png"}];
-                                                          
-                                                          
-                                    // Checking whether the other tabs is using a icons that is being removed
-                                    for (var i = 0; i < dataList["tab_list"].length; i++) {
-                                      
-                                      var tab = dataList["tab_list"][i];
-                                                          
-                                      if (currentTab != i && tab["program_list"].isNotEmpty){
-                                                          
-                                        for (var j = 0; j < tab["program_list"].length; j++) {
-                                                          
-                                          var programName = tab["program_list"][j]["name"];
-                                          
-                                          if (tempMap.values.toString().contains("$programName") && !iconsInUseList.contains(programName)){
-                                                          
-                                            iconsInUseList.add(tab["program_list"][j]);
-                                            break;
-                                                          
-                                          }
-                                                          
-                                        }
-                                                          
-                                      }
-                                                          
-                                    }
-                                                          
-                                                          
-                                    for (var program in tempMap.values) {
-                                                          
-                                      var index = currentProgramList.indexOf(program);
-                                      currentProgramList.removeAt(index);
-                                                          
-                                      // Remove icon that are not in use
-                                      if (!iconsInUseList.toString().contains("$program")){
-                                       
-                                        File(program["icon"]).delete();
-                                                          
-                                      }
-                                      
-                                    }
-                                    
-                                    tempMap.clear();
-                                                          
-                                    dataList["tab_list"][currentTab]["program_list"] = currentProgramList;
-                                    setState(() {  
-                                      writeJsonFile(dataList);
-                                      winManager.cancelTimer();
-                                      winManager.monitorActiveWindow();
-                                    });
-                                  },
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: const Color.fromRGBO(255, 0, 0, 1),
-                                    shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(10),
-                                        bottomRight: Radius.circular(10),
-                                      )
-                                    )
-                                  ),
-                                  child: const Icon(
-                                    Icons.remove_circle_outline,
-                                    color: Colors.black,
-                                    size: 20,
-                                  )
-                                ),
-                              ),
-                            )
-                          ]
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    //* Options
-                    Expanded(
-                      flex: 3,
-                      child: Row(
+                      child: TabBarView(
+                        controller: _contentTabController,
                         children: [
-                          Expanded(
-                            flex: 5,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: boxInnerColor,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Column(
-                                children: [
-                                  TabBar(
-                                    controller: _optionsTabController,
-                                    onTap: (index){
-                                      dataList["tab_list"][currentTab]["options"]["tab_index"] = index;
-                                      setState(() {
-                                        writeJsonFile(dataList);
-                                      });
-                                    },
-                                    dividerColor: Colors.transparent,
-                                    indicatorColor: Colors.red,
-                                    tabs: [
-                                      Tab(
-                                        child: Text(
-                                          "Input",
-                                          style: TextStyle(
-                                            color: dataList["tab_list"][currentTab]["options"]["tab_index"] == 0 ? 
-                                            Colors.white :
-                                            const Color.fromRGBO(255, 255, 255, 0.6),
-                                            fontFamily: "BerkshireSwash",
-                                            fontSize: 25,
-                                          )
-                                        ),
-                                      ),
-                                      Tab(
-                                        child: Text(
-                                          "Timer",
-                                          style: TextStyle(
-                                            color: dataList["tab_list"][currentTab]["options"]["tab_index"] == 1 ? 
-                                            Colors.white :
-                                            const Color.fromRGBO(255, 255, 255, 0.6),
-                                            fontFamily: "BerkshireSwash",
-                                            fontSize: 25,
-                                          )
-                                        ),
-                                      ),
-                                      
-                                    ],
+                          Column (
+                            children: [
+                              Expanded(
+                                flex: 4,
+                                child: Container(
+                                  margin: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+                                  decoration: BoxDecoration(
+                                    color: boxInnerColor,
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                  Expanded(
-                                    child: Container(
-                                      padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                                      decoration: BoxDecoration(
-                                        color: boxInnerColor,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: TabBarView(
-                                        controller: _optionsTabController,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      Row(
                                         children: [
-                                          Column(
-                                            children: [
-                                              Container(
-                                                padding: const EdgeInsets.fromLTRB(10, 5, 0, 10),
-                                                margin: const EdgeInsets.fromLTRB(17, 0, 17, 10),
-                                                decoration: BoxDecoration(
-                                                  
-                                                  color: const Color.fromRGBO(237, 237, 237, 1),
-                                                  border: validationError ? Border.all(
-                                                    color: Colors.red
-                                                  ) : null,
-                                                  borderRadius: BorderRadius.circular(5.0),
+                                          const Padding(
+                                            padding: EdgeInsets.fromLTRB(15, 8, 0, 0),
+                                            child: Text(
+                                              "Program list",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: "BerkshireSwash",
+                                                fontSize: 25,
+                                              ),
+                                            ),
+                                          ),
+                                          const Spacer(flex: 2),
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(0, 8, 15, 0),
+                                          child: DropdownButtonHideUnderline(
+                                              child: DropdownButton2(
+                                                customButton: const Icon(
+                                                  Icons.more_vert_rounded,
+                                                  color: Colors.white,
+                                                  size: 24,
                                                 ),
+                                                items: programDropDownList.map((String value) {
+                                                    return DropdownMenuItem(
+                                                        value: value,
+                                                        child: Text(
+                                                            value,
+                                                            style: const TextStyle(
+                                                                color: Colors.white,
+                                                                fontSize: 14,
+                                                            )
+                                                        )
+                                                    );
+                                        
+                                                }).toList(),
+                                                onChanged: (value) {
+                                                    print( value );
+                                                    
+                                                    setState(() {
+                                                        if (tempMap.length == dataList["tab_list"][currentTab]["program_list"].length){
+                                                        selectState = false; // Deselect All
+                                                        } else {
+                                                        selectState = true; // Select All
+                                                        }
+                                                    });
+                                                },
+                                                dropdownStyleData: DropdownStyleData(
+                                                    offset: const Offset(10, -5),
+                                                    width: 110,
+                                                    maxHeight: 300,
+                                                    decoration: BoxDecoration(
+                                                        color: boxInnerColor.withOpacity(1),
+                                                        borderRadius: BorderRadius.circular(8)
+                                                        
+                                                    )
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Expanded(
+                                        flex: 8,
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(24, 10, 24, 10),
+                                          child: CustomGridView(
+                                            itemCount: dataList["tab_list"][currentTab]["program_list"].length,
+                                            programNames: dataList["tab_list"][currentTab]["program_list"],
+                                            currentTab: currentTab,
+                                            selectState: selectState,
+                                            checkForAllPrograms: true,
+                                            onSelectedChanged: (programNames){
+                                                                      
+                                              setState(() {
+                                                tempMap = programNames;
+                                                selectState = null;
+                                              });
+                                                                      
+                                            }
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 35,
+                                        child: tempMap.isEmpty ? 
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                          child: ElevatedButton(
+                                            onPressed: (){
+                                              
+                                              Navigator.of(context).push(ActiveProgramSelection(
+                                                dataList: dataList["tab_list"][currentTab]["program_list"],
+                                                onSaved: (saved){
+                                                                    
+                                                  for (var program in saved) {
+                                                                    
+                                                    String iconName = "i_${program["name"].split(".")[0]}.png";
+                                                    File file = File("assets/program_icons/$iconName");
+                                                                    
+                                                                    
+                                                    if (!file.existsSync()){
+                                                                    
+                                                      var memoryImageInBytes = program["icon"].image.bytes;
+                                                      file.writeAsBytesSync(memoryImageInBytes);
+                                                      
+                                                    }
+                                                                    
+                                                    if (program["name"] == "allPrograms.exe"){
+                                                      
+                                                      dataList["tab_list"][currentTab]["program_list"].insert(0,
+                                                        {
+                                                          "name": program["name"],
+                                                          "icon": "assets/program_icons/i_${program["name"].split(".")[0]}.png"
+                                                        }
+                                                      );
+                                                                    
+                                                    } else {
+                                                      
+                                                      dataList["tab_list"][currentTab]["program_list"].add(
+                                                        {
+                                                          "name": program["name"],
+                                                          "icon": "assets/program_icons/i_${program["name"].split(".")[0]}.png"
+                                                        }
+                                                      );
+                                                                    
+                                                    }
+                                                                    
+                                                    // TODO: Snackbar or showdialog to ask if the user wants to remove the existing program in the list?
+                                                    // thinking more like a undo button. instead of a popup for confirmation.
+                                                                    
+                                                  }
+                                                                    
+                                                  
+                                                  setState((){
+                                                    writeJsonFile(dataList);
+                                                  });
+                                                                    
+                                                },
+                                              ));
+                                                                    
+                                            },
+                                            style: TextButton.styleFrom(
+                                              backgroundColor: const Color.fromRGBO(255, 0, 0, 1),
+                                              shape: const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.only(
+                                                  bottomLeft: Radius.circular(10),
+                                                  bottomRight: Radius.circular(10),
+                                                )
+                                              )
+                                            ),
+                                            child: const Icon(
+                                              Icons.add_circle_outline,
+                                              color: Colors.black,
+                                              size: 20,
+                                            )
+                                          ),
+                                        ) :
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                          child: ElevatedButton(
+                                            onPressed: (){
+                                                                    
+                                              var currentProgramList = dataList["tab_list"][currentTab]["program_list"];
+                                              List<Map<String, dynamic>> iconsInUseList = [{"name": "allPrograms.exe", "icon": "assets/program_icons/i_allPrograms.png"}];
+                                                                    
+                                                                    
+                                              // Checking whether the other tabs is using a icons that is being removed
+                                              for (var i = 0; i < dataList["tab_list"].length; i++) {
                                                 
-                                                child: CompositedTransformTarget(
-                                                  link: link,
-                                                  child: TextFormField( 
-                                                    style: const TextStyle(
-                                                      fontWeight: FontWeight.w600,
-                                                      fontSize: 17,
+                                                var tab = dataList["tab_list"][i];
+                                                                    
+                                                if (currentTab != i && tab["program_list"].isNotEmpty){
+                                                                    
+                                                  for (var j = 0; j < tab["program_list"].length; j++) {
+                                                                    
+                                                    var programName = tab["program_list"][j]["name"];
+                                                    
+                                                    if (tempMap.values.toString().contains("$programName") && !iconsInUseList.contains(programName)){
+                                                                    
+                                                      iconsInUseList.add(tab["program_list"][j]);
+                                                      break;
+                                                                    
+                                                    }
+                                                                    
+                                                  }
+                                                                    
+                                                }
+                                                                    
+                                              }
+                                                                    
+                                                                    
+                                              for (var program in tempMap.values) {
+                                                                    
+                                                var index = currentProgramList.indexOf(program);
+                                                currentProgramList.removeAt(index);
+                                                                    
+                                                // Remove icon that are not in use
+                                                if (!iconsInUseList.toString().contains("$program")){
+                                                
+                                                  File(program["icon"]).delete();
+                                                                    
+                                                }
+                                                
+                                              }
+                                              
+                                              tempMap.clear();
+                                                                    
+                                              dataList["tab_list"][currentTab]["program_list"] = currentProgramList;
+                                              setState(() {  
+                                                writeJsonFile(dataList);
+                                                winManager.cancelTimer();
+                                                winManager.monitorActiveWindow();
+                                              });
+                                            },
+                                            style: TextButton.styleFrom(
+                                              backgroundColor: const Color.fromRGBO(255, 0, 0, 1),
+                                              shape: const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.only(
+                                                  bottomLeft: Radius.circular(10),
+                                                  bottomRight: Radius.circular(10),
+                                                )
+                                              )
+                                            ),
+                                            child: const Icon(
+                                              Icons.remove_circle_outline,
+                                              color: Colors.black,
+                                              size: 20,
+                                            )
+                                          ),
+                                        ),
+                                      )
+                                    ]
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              //* Options
+                              Expanded(
+                                flex: 3,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 5,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: boxInnerColor,
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Row(
+                                              children: [
+                                                TabBar.secondary(
+                                                  controller: _optionsTabController,
+                                                  indicatorSize: TabBarIndicatorSize.label,
+                                                  indicatorPadding: const EdgeInsets.fromLTRB(10, 0, 5, 10),
+                                                  tabAlignment: TabAlignment.start,
+                                                  isScrollable: true,
+                                                  onTap: (index){
+                                                    dataList["tab_list"][currentTab]["options"]["tab_index"] = index;
+                                                    setState(() {
+                                                      writeJsonFile(dataList);
+                                                    });
+                                                  },
+                                                  dividerColor: Colors.transparent,
+                                                  indicatorColor: Colors.red,
+                                                  tabs: [
+                                                    Tab(
+                                                      child: Text(
+                                                        "Input",
+                                                        style: TextStyle(
+                                                          color: dataList["tab_list"][currentTab]["options"]["tab_index"] == 0 ? 
+                                                          Colors.white :
+                                                          const Color.fromRGBO(255, 255, 255, 0.6),
+                                                          fontFamily: "BerkshireSwash",
+                                                          fontSize: 25,
+                                                        )
+                                                      ),
                                                     ),
-                                                    // onTapOutside: (event) {
-                                                      
-                                                    //   // TODO: try make it so that when it unfocus, it will the save the input.
-                                                    //   // Reminder to "save" or popup do you want to save the textformfield?
-                                                    //   var snackBar = SnackBar(
-                                                    //     content: const Center(
-                                                    //       child: Text(
-                                                    //         "Do you want to save the input?",
-                                                    //         style: TextStyle(
-                                                    //           color: Colors.black,
-                                                    //           fontWeight: FontWeight.w600,
-                                                    //         ),
-                                                    //       )
-                                                    //     ),
-                                                    //     duration: const Duration(milliseconds: 3000),
-                                                    //     width: 300,
-                                                    //     backgroundColor: Colors.white,
-                                                    //     behavior: SnackBarBehavior.floating,
-                                                    //     shape: RoundedRectangleBorder(
-                                                    //       borderRadius: BorderRadius.circular(10),
-                                                    //     ),
-                                                    //     action: SnackBarAction(
-                                                    //       label: "Save",
-                                                    //       onPressed: (){
-                                                    //         print("saved");
-                                                    //       },
-                                                    //     )
-                                                    //   );
-                                              
-                                                    //   //! But this needs validation first.
-                                              
-                                                    //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                                              
-                                                    // },
-                                                    // focusNode: myFocusNode,
-                                                    controller: textController,
-                                                    keyboardType: const TextInputType.numberWithOptions(
-                                                      decimal: true,
-                                                      signed: true,
+                                                    Tab(
+                                                      child: Text(
+                                                        "Timer",
+                                                        style: TextStyle(
+                                                          color: dataList["tab_list"][currentTab]["options"]["tab_index"] == 1 ? 
+                                                          Colors.white :
+                                                          const Color.fromRGBO(255, 255, 255, 0.6),
+                                                          fontFamily: "BerkshireSwash",
+                                                          fontSize: 25,
+                                                        )
+                                                      ),
                                                     ),
-                                                    inputFormatters: [
-                                                      FilteringTextInputFormatter.allow(RegExp(r"^[\d\-,]{0,}")),
-                                                    ],
-                                                    onFieldSubmitted: (String value){
-                                                      
-                                                      // TODO: Probably good to make this into a function.
-                                                      var snackBar = SnackBar(
-                                                        content: const Center(
-                                                          child: Text(
-                                                            "Saved",
-                                                            style: TextStyle(
-                                                              color: Colors.black,
-                                                              fontWeight: FontWeight.w600,
+                                                  ],
+                                                ),
+                                                const Spacer(flex: 2,),
+                                                // TODO: options icons
+                                                const Padding(
+                                                  padding: EdgeInsets.fromLTRB(0, 0, 12, 0),
+                                                  // TODO: change to dropdownbutton, should also make that into its own class
+                                                  // just replace the previous file of custombutton with the current.
+                                                  child: Icon(
+                                                    Icons.more_vert_rounded,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Expanded(
+                                              child: Container(
+                                                padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                                                decoration: BoxDecoration(
+                                                  color: boxInnerColor,
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                                child: TabBarView(
+                                                  controller: _optionsTabController,
+                                                  children: [
+                                                    Column(
+                                                      children: [
+                                                        Container(
+                                                          padding: const EdgeInsets.fromLTRB(10, 5, 0, 10),
+                                                          margin: const EdgeInsets.fromLTRB(17, 0, 17, 10),
+                                                          decoration: BoxDecoration(
+                                                            
+                                                            color: const Color.fromRGBO(237, 237, 237, 1),
+                                                            border: validationError ? Border.all(
+                                                              color: Colors.red
+                                                            ) : null,
+                                                            borderRadius: BorderRadius.circular(5.0),
+                                                          ),
+                                                          
+                                                          child: CompositedTransformTarget(
+                                                            link: link,
+                                                            child: TextFormField( 
+                                                              style: const TextStyle(
+                                                                fontWeight: FontWeight.w600,
+                                                                fontSize: 17,
+                                                              ),
+                                                              // onTapOutside: (event) {
+                                                                
+                                                              //   // TODO: try make it so that when it unfocus, it will the save the input.
+                                                              //   // Reminder to "save" or popup do you want to save the textformfield?
+                                                              //   var snackBar = SnackBar(
+                                                              //     content: const Center(
+                                                              //       child: Text(
+                                                              //         "Do you want to save the input?",
+                                                              //         style: TextStyle(
+                                                              //           color: Colors.black,
+                                                              //           fontWeight: FontWeight.w600,
+                                                              //         ),
+                                                              //       )
+                                                              //     ),
+                                                              //     duration: const Duration(milliseconds: 3000),
+                                                              //     width: 300,
+                                                              //     backgroundColor: Colors.white,
+                                                              //     behavior: SnackBarBehavior.floating,
+                                                              //     shape: RoundedRectangleBorder(
+                                                              //       borderRadius: BorderRadius.circular(10),
+                                                              //     ),
+                                                              //     action: SnackBarAction(
+                                                              //       label: "Save",
+                                                              //       onPressed: (){
+                                                              //         print("saved");
+                                                              //       },
+                                                              //     )
+                                                              //   );
+                                                        
+                                                              //   //! But this needs validation first.
+                                                        
+                                                              //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                                        
+                                                              // },
+                                                              // focusNode: myFocusNode,
+                                                              controller: textController,
+                                                              keyboardType: const TextInputType.numberWithOptions(
+                                                                decimal: true,
+                                                                signed: true,
+                                                              ),
+                                                              inputFormatters: [
+                                                                FilteringTextInputFormatter.allow(RegExp(r"^[\d\-,]{0,}")),
+                                                              ],
+                                                              onFieldSubmitted: (String value){
+                                                                
+                                                                // TODO: Probably good to make this into a function.
+                                                                var snackBar = SnackBar(
+                                                                  content: const Center(
+                                                                    child: Text(
+                                                                      "Saved",
+                                                                      style: TextStyle(
+                                                                        color: Colors.black,
+                                                                        fontWeight: FontWeight.w600,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  // TODO: LATER-FIX: dont like the animation when it disappears.
+                                                                  duration: const Duration(milliseconds: 2300),
+                                                                  width: 400,
+                                                                  backgroundColor: Colors.white,
+                                                                  behavior: SnackBarBehavior.floating,
+                                                                  action: SnackBarAction(
+                                                                    label: "Undo",
+                                                                    textColor: Colors.black,
+                                                                    onPressed: (){
+                                                                      //! Dont know how I should do this!??!
+                                                                      // when undo is pressed I should revert to previous value??
+                                                                    },
+                                                                  ),
+                                                                  shape: RoundedRectangleBorder(
+                                                                    borderRadius: BorderRadius.circular(10),
+                                                                  ),
+                                                                );
+                                                        
+                                                                
+                                                        
+                                                                var sameNum = value.split(RegExp(r"\W+"));
+                                                                var uniq = [];
+                                                                bool noDupl = true;
+                                                                for(var i in sameNum) {
+                                                                  if(uniq.contains(i)) {
+                                                                    noDupl = false;
+                                                                  } else {
+                                                                    uniq.add(i);
+                                                                  }
+                                                                }
+                                                        
+                                                        
+                                                                
+                                                                //* and the first number cannot be higher the second number; 2200-2100 <- invalid
+                                                                //* maybe above should work
+                                                                //!  0000-0615 this wont work, I think
+                                                                
+                                                                //! should be able to have more than 2 time periods, 
+                                                                //! ex; 0000-1200,1800-2000,2245-2359--Should work now
+                                                                //! 0000 & 2400 should be the same,
+                                                                // look up the github repo on leechblock.
+                                                                //! maybe I should not switch if the second number is lower
+                                                        
+                                                        
+                                                                // TODO: LATER: need a better solution for this, more robust and complete towards valid time
+                                                                // matches this: 0900-1230,1330-1700, noduplicates
+                                                                if (RegExp(r"^\d{4}-\d{4}(,\d{4}-\d{4})*$").hasMatch(value) && noDupl) {
+                                                                  
+                                                                  // Splits the value into 2 lists if there are more than 1 time periods
+                                                                  var temp = value.split(RegExp(r"[\,]+"));
+                                                                  var sortTemp = [];
+                                                                  for (var time in temp){
+                                                        
+                                                                    var splitTime = time.split("-")..sort((a, b) {
+                                                        
+                                                                      var intA = int.parse(a);
+                                                                      var intB = int.parse(b);
+                                                                      return intA.compareTo(intB);
+                                                        
+                                                                    });
+                                                                    sortTemp.add(splitTime);
+                                                        
+                                                                  }
+                                                                  value = [ for(var item in sortTemp) "${item[0]}-${item[1]}" ].join(",");
+                                                                  
+                                                                  // Check for valid time "numbers"
+                                                                  for (var time in temp){
+                                                        
+                                                                    var hour = int.parse(time.substring(0, 2));
+                                                                    var min = int.parse(time.substring(2, 4));
+                                                        
+                                                                    if ( hour > 24|| min >= 60){
+                                                        
+                                                                      myFocusNode.requestFocus();
+                                                                      validationError = true;
+                                                                      print("validation error");
+                                                                      showOverlayTooltip();
+                                                                      return;
+                                                        
+                                                                    }
+                                                                  }
+                                                                  
+                                                                  validationError = false;
+                                                        
+                                                                  removeOverlay();
+                                                                                
+                                                                  dataList["tab_list"][currentTab]["options"]["time"] = value;
+                                                                  // TODO: LATER: Move this into scaffoldmessenger later, when I figured out
+                                                                  // how I wanna do it.
+                                                                  setState(() {
+                                                                    writeJsonFile(dataList);
+                                                                    textController.text = value;
+                                                                  });
+                                                                  
+                                                                  //Updating the monitor dataList
+                                                                  winManager.cancelTimer();
+                                                                  winManager.monitorActiveWindow();
+                                                        
+                                                                  // Writes to database after snackBar is closed in case of undo
+                                                                  ScaffoldMessenger.of(context).showSnackBar(snackBar).closed.then((_value){
+                                                        
+                                                        
+                                                        
+                                                                  });
+                                                                  
+                                                                } else {
+                                                                  validationError = true;
+                                                                  myFocusNode.requestFocus();
+                                                                  
+                                                                  showOverlayTooltip();
+                                                                }
+                                                            
+                                                              },
+                                                              cursorHeight: 24,
+                                                              decoration: InputDecoration(
+                                                                focusedErrorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
+                                                                suffixIcon: validationError ? const Icon(
+                                                                  Icons.emergency,
+                                                                  size: 16,
+                                                                ) : null,
+                                                                errorText: validationError ? "" : null,
+                                                                errorStyle: const TextStyle(height: 0),
+                                                                hintText: "Ex. 0900-1230,1330-1700",
+                                                                constraints: const BoxConstraints(
+                                                                  maxHeight: 30,
+                                                                )
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
-                                                        // TODO: LATER-FIX: dont like the animation when it disappears.
-                                                        duration: const Duration(milliseconds: 2300),
-                                                        width: 400,
-                                                        backgroundColor: Colors.white,
-                                                        behavior: SnackBarBehavior.floating,
-                                                        action: SnackBarAction(
-                                                          label: "Undo",
-                                                          textColor: Colors.black,
-                                                          onPressed: (){
-                                                            //! Dont know how I should do this!??!
-                                                            // when undo is pressed I should revert to previous value??
-                                                          },
-                                                        ),
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(10),
-                                                        ),
-                                                      );
-                                              
-                                                      
-                                              
-                                                      var sameNum = value.split(RegExp(r"\W+"));
-                                                      var uniq = [];
-                                                      bool noDupl = true;
-                                                      for(var i in sameNum) {
-                                                        if(uniq.contains(i)) {
-                                                          noDupl = false;
-                                                        } else {
-                                                          uniq.add(i);
-                                                        }
-                                                      }
-                                              
-                                              
-                                                      
-                                                      //* and the first number cannot be higher the second number; 2200-2100 <- invalid
-                                                      //* maybe above should work
-                                                      //!  0000-0615 this wont work, I think
-                                                      
-                                                      //! should be able to have more than 2 time periods, 
-                                                      //! ex; 0000-1200,1800-2000,2245-2359--Should work now
-                                                      //! 0000 & 2400 should be the same,
-                                                      // look up the github repo on leechblock.
-                                                      //! maybe I should not switch if the second number is lower
-                                              
-                                              
-                                                      // TODO: LATER: need a better solution for this, more robust and complete towards valid time
-                                                      // matches this: 0900-1230,1330-1700, noduplicates
-                                                      if (RegExp(r"^\d{4}-\d{4}(,\d{4}-\d{4})*$").hasMatch(value) && noDupl) {
-                                                        
-                                                        // Splits the value into 2 lists if there are more than 1 time periods
-                                                        var temp = value.split(RegExp(r"[\,]+"));
-                                                        var sortTemp = [];
-                                                        for (var time in temp){
-                                              
-                                                          var splitTime = time.split("-")..sort((a, b) {
-                                              
-                                                            var intA = int.parse(a);
-                                                            var intB = int.parse(b);
-                                                            return intA.compareTo(intB);
-                                              
-                                                          });
-                                                          sortTemp.add(splitTime);
-                                              
-                                                        }
-                                                        value = [ for(var item in sortTemp) "${item[0]}-${item[1]}" ].join(",");
-                                                        
-                                                        // Check for valid time "numbers"
-                                                        for (var time in temp){
-                                              
-                                                          var hour = int.parse(time.substring(0, 2));
-                                                          var min = int.parse(time.substring(2, 4));
-                                              
-                                                          if ( hour > 24|| min >= 60){
-                                              
-                                                            myFocusNode.requestFocus();
-                                                            validationError = true;
-                                                            print("validation error");
-                                                            showOverlayTooltip();
-                                                            return;
-                                              
-                                                          }
-                                                        }
-                                                        
-                                                        validationError = false;
-                                              
-                                                        removeOverlay();
-                                                                      
-                                                        dataList["tab_list"][currentTab]["options"]["time"] = value;
-                                                        // TODO: LATER: Move this into scaffoldmessenger later, when I figured out
-                                                        // how I wanna do it.
-                                                        setState(() {
-                                                          writeJsonFile(dataList);
-                                                          textController.text = value;
-                                                        });
-                                                        
-                                                        //Updating the monitor dataList
-                                                        winManager.cancelTimer();
-                                                        winManager.monitorActiveWindow();
-                                              
-                                                        // Writes to database after snackBar is closed in case of undo
-                                                        ScaffoldMessenger.of(context).showSnackBar(snackBar).closed.then((_value){
-                                              
-                                              
-                                              
-                                                        });
-                                                        
-                                                      } else {
-                                                        validationError = true;
-                                                        myFocusNode.requestFocus();
-                                                        
-                                                        showOverlayTooltip();
-                                                      }
-                                                  
-                                                    },
-                                                    cursorHeight: 24,
-                                                    decoration: InputDecoration(
-                                                      focusedErrorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
-                                                      suffixIcon: validationError ? const Icon(
-                                                        Icons.emergency,
-                                                        size: 16,
-                                                      ) : null,
-                                                      errorText: validationError ? "" : null,
-                                                      errorStyle: const TextStyle(height: 0),
-                                                      hintText: "Ex. 0900-1230,1330-1700",
-                                                      constraints: const BoxConstraints(
-                                                        maxHeight: 30,
-                                                      )
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              //* Repeat option
-                                              // TODO: fix the overflow when resizing.
-                                              Expanded(
-                                                child: GridView.builder(
-                                                  physics: const NeverScrollableScrollPhysics(),
-                                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                                    crossAxisCount: 7,
-                                                    crossAxisSpacing: 5.0,
-                                                  ),
-                                                  itemCount: 7,
-                                                  itemBuilder: (context, index) {
-                                                    return Column(
-                                                      children: [
-                                                        Checkbox(
-                                                          hoverColor: Colors.transparent,
-                                                          splashRadius: 0,
-                                                          fillColor: dataList["tab_list"][currentTab]["options"]["input"]["$index"] ? 
-                                                          const MaterialStatePropertyAll(Color.fromRGBO(255, 199, 0, 1)) :
-                                                          const MaterialStatePropertyAll(Color.fromRGBO(78, 83, 88, 1)),
-                                                          checkColor: Colors.black,
-                                                          side: const BorderSide(
-                                                            color: Colors.black,
+                                                        //* Repeat option
+                                                        // TODO: fix the overflow when resizing.
+                                                        Expanded(
+                                                          child: GridView.builder(
+                                                            physics: const NeverScrollableScrollPhysics(),
+                                                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                                              crossAxisCount: 7,
+                                                              crossAxisSpacing: 5.0,
+                                                            ),
+                                                            itemCount: 7,
+                                                            itemBuilder: (context, index) {
+                                                              return Column(
+                                                                children: [
+                                                                  Checkbox(
+                                                                    hoverColor: Colors.transparent,
+                                                                    splashRadius: 0,
+                                                                    fillColor: dataList["tab_list"][currentTab]["options"]["input"]["$index"] ? 
+                                                                    const MaterialStatePropertyAll(Color.fromRGBO(255, 199, 0, 1)) :
+                                                                    const MaterialStatePropertyAll(Color.fromRGBO(78, 83, 88, 1)),
+                                                                    checkColor: Colors.black,
+                                                                    side: const BorderSide(
+                                                                      color: Colors.black,
+                                                                    ),
+                                                                    value: dataList["tab_list"][currentTab]["options"]["input"]["$index"],
+                                                                    onChanged: (value){
+                                                                  
+                                                                      dataList["tab_list"][currentTab]["options"]["input"]["$index"] = value;
+                                                                      setState(() {
+                                                                        writeJsonFile(dataList);
+                                                                      });
+                                                                  
+                                                                    }
+                                                                  ),
+                                                                  Text(
+                                                                    daysOftheWeek[index],
+                                                                    style: const TextStyle(
+                                                                      fontSize: 12,
+                                                                      fontFamily: "BerkshireSwash",
+                                                                      color: Colors.white,
+                                                                      overflow: TextOverflow.ellipsis,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            }
                                                           ),
-                                                          value: dataList["tab_list"][currentTab]["options"]["input"]["$index"],
-                                                          onChanged: (value){
-                                                        
-                                                            dataList["tab_list"][currentTab]["options"]["input"]["$index"] = value;
-                                                            setState(() {
-                                                              writeJsonFile(dataList);
-                                                            });
-                                                        
-                                                          }
-                                                        ),
-                                                        Text(
-                                                          daysOftheWeek[index],
-                                                          style: const TextStyle(
-                                                            fontSize: 12,
-                                                            fontFamily: "BerkshireSwash",
-                                                            color: Colors.white,
-                                                            overflow: TextOverflow.ellipsis,
-                                                          ),
-                                                        ),
+                                                        )
                                                       ],
-                                                    );
-                                                  }
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                          // TODO: Finish the design for the Timer tab in figma
-                                          const Column(
-                                            children: [
-                                              Icon(Icons.account_balance),
-                                            ],
-                                          ),
-                                        ],
+                                                    ),
+                                                    // TODO: Finish the design for the Timer tab in figma
+                                                    const Column(
+                                                      children: [
+                                                        Icon(Icons.account_balance),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                )
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      flex: 5,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: boxInnerColor,
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: const Column(
+                                          children: [
+                                            Text(
+                                              "Hello",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 30,
+                                              ),
+                                            )
+                                          ],
+                                        ),
                                       )
-                                    ),
-                                  )
-                                ],
+                                    )
+                                  ],
+                                ),
                               ),
-                            ),
+                            ]
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            flex: 5,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: boxInnerColor,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Column(
-                                children: [
-                                  Text(
-                                    "Hello",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 30,
-                                    ),
-                                  )
-                                ],
-                              ),
+                          Container(
+                            width: 10,
+                            height: 10,
+                            color: Colors.red,
+                            child: const Text(
+                              "HI",
                             )
                           )
-                        ],
+                        ]
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -1348,6 +1391,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                                 textController.text = dataList["tab_list"][currentTab]["options"]["time"];
                                                 validationError = false;
                                                 _optionsTabController.animateTo(dataList["tab_list"][currentTab]["options"]["tab_index"]);
+                                                  _contentTabController.animateTo(0);
+                                                // _contentTabController.animateTo(dataList["tab_list"][currentTab]["options"]["tab_index"]);
                                                 removeOverlay();
                                               });
                                             },
