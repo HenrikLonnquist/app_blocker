@@ -1328,9 +1328,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                             
                                                 // TODO: maybe just check if time and dropdown is empty, just dont
                                                 // add the empty active tab to condition or "watch" list.
+                                                // print(textController.text.isNotEmpty);
+                                                // print(programList["program_list"].isNotEmpty);
+                                                // print(options["input"].values.contains(true));
+                                                // print(options["time"] != null);
+
                                                 if (textController.text.isNotEmpty 
                                                 && programList["program_list"].isNotEmpty 
-                                                && !options["input"].values.contains(true)
+                                                && options["input"].values.contains(true) // or timer -- options tab_index 1 or 0.
                                                 && options["time"] != null ){
                                                                                           
                                                   dataList["tab_list"][index]["active"] = !dataList["tab_list"][index]["active"];
