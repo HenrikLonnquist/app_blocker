@@ -4,24 +4,26 @@ import 'dart:async';
 import 'dart:collection';
 import "dart:io";
 import "dart:ui" as ui;
-import "package:image/image.dart" as img;
 
-import 'package:app_blocker/gridview_custom.dart';
+import "package:image/image.dart" as img;
 import 'package:flutter/services.dart';
 import 'package:win32/win32.dart';
+import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart';
+import "package:window_manager/window_manager.dart";
+import 'package:flutter/material.dart';
+import "package:file_picker/file_picker.dart";
+import "package:dropdown_button2/dropdown_button2.dart";
 
+
+import "gridview_custom.dart";
 import "block_info.dart";
 import 'dart_functions.dart';
 import 'logic.dart';
 import 'custom_button.dart';
 
-import 'package:intl/intl.dart';
-import "package:window_manager/window_manager.dart";
 
-import 'package:flutter/material.dart';
-import "package:file_picker/file_picker.dart";
 
-import "package:dropdown_button2/dropdown_button2.dart";
 
 /*
 Different sections:
@@ -161,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   late TabController _optionsTabController;
   late TabController _contentTabController;
   
-  List<String> tabDropDownList = ["Reset all", ];
+  List<String> tabDropDownList = ["Reset all", "Check all", "Uncheck all", ];
   List<String> programDropDownList = ["Select all", "Deselect all", ];
   
   
@@ -769,7 +771,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                 ),
                               ),
                               const SizedBox(height: 5),
-                              //* Options
+                              //* Options / Input/timer
                               Expanded(
                                 flex: 3,
                                 child: Row(
@@ -827,16 +829,130 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                   ],
                                                 ),
                                                 const Spacer(flex: 2,),
-                                                // TODO: options icons
-                                                const Padding(
-                                                  padding: EdgeInsets.fromLTRB(0, 0, 12, 0),
-                                                  // TODO: change to dropdownbutton, should also make that into its own class
-                                                  // just replace the previous file of custombutton with the current.
-                                                  child: Icon(
-                                                    Icons.more_vert_rounded,
-                                                    color: Colors.white,
+                                                Padding(
+                                                  padding: const EdgeInsets.fromLTRB(0, 0, 12, 0),
+                                                  child: DropdownButtonHideUnderline(
+                                                    child: DropdownButton2(
+                                                      customButton: const Icon(
+                                                      Icons.more_vert_rounded,
+                                                      color: Colors.white,
+                                                      size: 24,
+                                                      ),
+                                                      items: tabDropDownList.map((String value) {
+                                                          return DropdownMenuItem(
+                                                              value: value,
+                                                              child: Text(
+                                                                  value,
+                                                                  style: const TextStyle(
+                                                                      color: Colors.white,
+                                                                      fontSize: 14,
+                                                                  )
+                                                              )
+                                                          );
+                                                  
+                                                      }).toList(),
+                                                      onChanged: (value) {
+                                                  
+                                                        // print(value);
+                                                        var options = dataList["tab_list"][currentTab]["options"];
+                                                        var copyData = dataList;
+                                                  
+                                                        var snackBar = SnackBar(
+                                                                  content: const Center(
+                                                                    child: Text(
+                                                                      "Resetted everything",
+                                                                      style: TextStyle(
+                                                                        color: Colors.black,
+                                                                        fontWeight: FontWeight.w600,
+                                                                      ),
+                                                                    )
+                                                                  ),
+                                                                  duration: const Duration(milliseconds: 3000),
+                                                                  width: 300,
+                                                                  backgroundColor: Colors.white,
+                                                                  behavior: SnackBarBehavior.floating,
+                                                                  shape: RoundedRectangleBorder(
+                                                                    borderRadius: BorderRadius.circular(10),
+                                                                  ),
+                                                                  action: SnackBarAction(
+                                                                    label: "Undo",
+                                                                    onPressed: (){
+                                                                      print("Undid");
+                                                                      setState(() {
+                                                                        writeJsonFile(copyData);
+                                                                      });
+                                                                    },
+                                                                  )
+                                                                );
+                                                  
+                                                        // TODO: snackbar for undoing.
+                                                  
+                                                        // Just the current tab of options(input or timer)
+                                                        if (value == "Reset All" && options["tab_index"] == 0) {
+                                                  
+                                                          print("reset");
+                                                          options["time"] = "";
+                                                          options["input"] = [
+                                                            false,
+                                                            false,
+                                                            false,
+                                                            false,
+                                                            false,
+                                                            false,
+                                                            false,
+                                                          ];
+                                                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                                  
+                                                        } else if (value == "Check all") {
+                                                  
+                                                          print("Check");
+                                                  
+                                                          options["input"] = [
+                                                            true,
+                                                            true,
+                                                            true,
+                                                            true,
+                                                            true,
+                                                            true,
+                                                            true,
+                                                          ];
+                                                  
+                                                  
+                                                        } else if (value == "Uncheck all") {
+                                                  
+                                                          print("Uncheck");
+                                                  
+                                                          options["input"] = [
+                                                            false,
+                                                            false,
+                                                            false,
+                                                            false,
+                                                            false,
+                                                            false,
+                                                            false,
+                                                          ];
+                                                  
+                                                        }
+                                                  
+                                                        setState(() {
+                                                          print("writing");
+                                                          
+                                                          writeJsonFile(dataList);
+                                                        });
+                                                  
+                                                      },
+                                                      dropdownStyleData: DropdownStyleData(
+                                                        offset: const Offset(10, -5),
+                                                        width: 110,
+                                                        maxHeight: 300,
+                                                        decoration: BoxDecoration(
+                                                          color: boxInnerColor.withOpacity(1),
+                                                          borderRadius: BorderRadius.circular(8)
+                                                        )
+                                                      ),
+                                                    )
                                                   ),
-                                                ),
+                                                )
                                               ],
                                             ),
                                             Expanded(
@@ -1056,7 +1172,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                             ),
                                                           ),
                                                         ),
-                                                        //* Repeat option
+                                                        //* Repeat options
                                                         // TODO: fix the overflow when resizing.
                                                         Expanded(
                                                           child: GridView.builder(
@@ -1072,17 +1188,17 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                                   Checkbox(
                                                                     hoverColor: Colors.transparent,
                                                                     splashRadius: 0,
-                                                                    fillColor: dataList["tab_list"][currentTab]["options"]["input"]["$index"] ? 
+                                                                    fillColor: dataList["tab_list"][currentTab]["options"]["input"][index] ? 
                                                                     const MaterialStatePropertyAll(Color.fromRGBO(255, 199, 0, 1)) :
                                                                     const MaterialStatePropertyAll(Color.fromRGBO(78, 83, 88, 1)),
                                                                     checkColor: Colors.black,
                                                                     side: const BorderSide(
                                                                       color: Colors.black,
                                                                     ),
-                                                                    value: dataList["tab_list"][currentTab]["options"]["input"]["$index"],
+                                                                    value: dataList["tab_list"][currentTab]["options"]["input"][index],
                                                                     onChanged: (value){
                                                                   
-                                                                      dataList["tab_list"][currentTab]["options"]["input"]["$index"] = value;
+                                                                      dataList["tab_list"][currentTab]["options"]["input"][index] = value;
                                                                       setState(() {
                                                                         writeJsonFile(dataList);
                                                                       });
@@ -1308,30 +1424,26 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                           child: ListTile(
                                             leading: Checkbox(
                                               value: false,
-                                              // value: dataList["tab_list"][index]["active"],
+                                              // value: dataList["tab_list"][index]["active"], // TODO: ändra till detta senare
                                               fillColor: dataList["tab_list"][index]["active"] ?
                                               const MaterialStatePropertyAll(Colors.green) : 
                                               const MaterialStatePropertyAll(Colors.red),
-                                              // focusColor: Colors.transparent,
-                                              // hoverColor: Colors.transparent,
                                               side: const BorderSide(
                                                 width: 1,
-                                                // color: Colors.transparent
                                               ),
                                               shape: const CircleBorder(),
                                               onChanged: (value){
                                                 
                                                 
-                                                //* Validate textformfield time + repeat dropdown + program list
+                                                //* Validate textformfield time + repeat: input + program list
                                                 var programList = dataList["tab_list"][index];
                                                 var options = dataList["tab_list"][index]["options"];
+
+                                                // TODO: check if any of the tabs have the same name then
+                                                // de-active those with same name. With a popup or showDialog, snackbar.
+
+                                                // better to just have an unique ID instead
                                             
-                                                // TODO: maybe just check if time and dropdown is empty, just dont
-                                                // add the empty active tab to condition or "watch" list.
-                                                // print(textController.text.isNotEmpty);
-                                                // print(programList["program_list"].isNotEmpty);
-                                                // print(options["input"].values.contains(true));
-                                                // print(options["time"] != null);
 
                                                 if (textController.text.isNotEmpty 
                                                 && programList["program_list"].isNotEmpty 
@@ -1459,9 +1571,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   onPressed: () {
+
+                                    var uuid = const Uuid().v1();
                                     
                                     dummyMap = {
-                                      "name": "Tab ${dataList["tab_list"].length + 1}",
+                                      "name": "tab ${dataList["tab_list"].length + 1}",
+                                      "id": uuid,
                                       "active": false,
                                       "program_list": [],
                                       "options": {
