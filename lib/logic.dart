@@ -14,6 +14,7 @@ import "package:ffi/ffi.dart";
 import 'package:win32/win32.dart';
 
 
+
 class ActiveWindowManager{
 
   Timer? _timer;
@@ -43,14 +44,15 @@ class ActiveWindowManager{
     "explorer.exe",
     "TextInputHost.exe",
   ];
-  
 
 
-  static void iconToImage(int hwnd) {
+  // TODO: LATER: fix the windows app icon, not able to show the correct one.
+  static void iconToImage(int hwnd) async {
 
     // if (fullPath!.contains("WindowsApp")){
     //   print("icontoImage: $exePath $fullPath ");
     // }
+
 
     final fileInfo = calloc<SHFILEINFO>();
     const SHGFI_LARGEICON = 0x000000000;
@@ -61,17 +63,6 @@ class ActiveWindowManager{
     SHGFI_ICON | SHGFI_LARGEICON);
 
     final hIcon = fileInfo.ref.hIcon;
-
-    // TODO: LATER: fix the windows app icon, not able to show the correct one.
-    // var hIcon = GetClassLongPtr(hwnd, GCL_HICON);
-    // if (fullPath!.contains("WindowsApp")){
-
-    // }
-    // if (hIcon == 0) {
-    //   print("here");
-    //   hIcon = SendMessage(hwnd, WM_GETICON, 2, 0);
-    // }
-    // print(hIcon);
 
 
     final iconInfo = calloc<ICONINFO>();
@@ -99,7 +90,7 @@ class ActiveWindowManager{
     final buffer = calloc<Uint8>(bufferSize);
     GetDIBits(hdc, hBitmap, 0, bitmapInfo.ref.biHeight, buffer, bitmapInfo.cast(), DIB_RGB_COLORS);
     
-    
+
     imageIcon = img.Image.fromBytes(
       width: 32,
       height: 32,
@@ -107,6 +98,7 @@ class ActiveWindowManager{
       numChannels: 4,
       bytes: buffer.asTypedList(bufferSize).buffer
     );
+    
     
 
     free(fileInfo);
@@ -121,7 +113,7 @@ class ActiveWindowManager{
 
   }
 
-  static int _enumWinProc(int hwnd, int lParam){
+  static int _enumWinProc(int hwnd, int lParam) {
     
     if (IsWindowVisible(hwnd) == 1){
       
@@ -362,7 +354,7 @@ class ActiveWindowManager{
       tab["active"] == false
       || tab["program_list"].isEmpty
       || tab["options"]["time"].isEmpty
-      || !tab["options"]["repeat"].values.contains(true)
+      || !tab["options"]["input"].values.contains(true)
       ){
         continue;
       }
@@ -411,7 +403,7 @@ class ActiveWindowManager{
 
           for (var tab in validDataTabs){
 
-            bool condition = conditionCheck(tab["options"]["repeat"], timePeriods, timeNow);
+            bool condition = conditionCheck(tab["options"]["input"], timePeriods, timeNow);
 
             // TODO: FEATURE: the settings for blocking outside of time periods is true 
             // then just replace "condition" with "!condition". Instead of the default, 
@@ -464,6 +456,7 @@ class ActiveProgramSelection extends PopupRoute {
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
 
     List<dynamic> currentActivePrograms = ActiveWindowManager().getAllActiveProgramsWithIcon(dataList);
+
 
     // Storing for when I'm re-building(setstate) during de+/selecting programs. Would otherwise cause "flickering"
     for (var i = 0; i < currentActivePrograms.length; i++) {
