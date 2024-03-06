@@ -405,114 +405,120 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                     ),
                     //* Content tab
                     //* Tab Name
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                        children: [
-                          IntrinsicWidth(
-							              // TODO: popup window below the tab text or Icon warning at the end of text.
-                            child: TextFormField(
-                              controller: _tabTitleTextController,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 25,
-                                fontFamily: "BerkshireSwash"
-                              ),
-                              onFieldSubmitted: (value){
-
-                                if ( value.isNotEmpty && !value.contains(RegExp(r"^\s*$")) ) {
-
-                                  value = value.trimLeft();
-                                  value = value.trimRight();
-                                  _tabTitleTextController.text = value;
-
-                                  setState(() {
-                                    dataList["tab_list"][currentTab]["name"] = value;
-                                    writeJsonFile(dataList);
-                                  });
-                                } else {
-
-                                  _tabTitleTextController.text = dataList["tab_list"][currentTab]["name"];
-
-                                }
-                              },
-                              cursorColor: Colors.white,
-                              // TODO: LATER: keyboard ESC-key to exit input/textfield
-                              decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                isDense: true,
-                                contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 6),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          DropdownButtonHideUnderline(
-                            child: DropdownButton2(
-                              customButton: const Icon(
-                              Icons.more_vert_rounded,
+                    Row(
+                      children: [
+                        IntrinsicWidth(
+                           // TODO: popup window below the tab text or Icon warning at the end of text.
+                          child: TextFormField(
+                            controller: _tabTitleTextController,
+                            style: const TextStyle(
                               color: Colors.white,
-                              size: 24,
-                              ),
-                              items: tabDropDownList.map((String value) {
-                                  return DropdownMenuItem(
-                                      value: value,
-                                      child: Text(
-                                          value,
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 14,
-                                          )
-                                      )
-                                  );
-
-                              }).toList(),
-                              onChanged: (value) {
+                              fontSize: 25,
+                              fontFamily: "BerkshireSwash"
+                            ),
+                            onFieldSubmitted: (value){
+                    
+                              if ( value.isNotEmpty && !value.contains(RegExp(r"^\s*$")) ) {
+                    
+                                value = value.trimLeft();
+                                value = value.trimRight();
+                                _tabTitleTextController.text = value;
+                    
                                 setState(() {
-                                    // TODO: just take the template from adding tab for resetting
+                                  dataList["tab_list"][currentTab]["name"] = value;
+                                  writeJsonFile(dataList);
                                 });
-                              },
-                              dropdownStyleData: DropdownStyleData(
-                                offset: const Offset(10, -5),
-                                width: 110,
-                                maxHeight: 300,
-                                decoration: BoxDecoration(
-                                  color: boxInnerColor.withOpacity(1),
-                                  borderRadius: BorderRadius.circular(8)
-                                )
-                              ),
+                              } else {
+                    
+                                _tabTitleTextController.text = dataList["tab_list"][currentTab]["name"];
+                    
+                              }
+                            },
+                            cursorColor: Colors.white,
+                            // TODO: LATER: keyboard ESC-key to exit input/textfield
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              isDense: true,
+                              contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 6),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    TabBar(
-                      controller: _contentTabController,
-                      dividerColor: Colors.transparent,
-                      indicatorColor: Colors.red,
-                      indicatorSize: TabBarIndicatorSize.label,
-                      indicatorPadding: const EdgeInsets.fromLTRB(8, 0, 5, 10),
-                      tabAlignment: TabAlignment.start,
-                      isScrollable: true,
-                      tabs: const [
-                        Tab(
-                          child: Text(
-                            "Overview",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            )
                           ),
                         ),
-                        Tab(
-                          child: Text(
-                            "Statistics",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            )
+                        const SizedBox(width: 8),
+                        DropdownButtonHideUnderline(
+                          child: DropdownButton2(
+                            customButton: const Icon(
+                            Icons.more_vert_rounded,
+                            color: Colors.white,
+                            size: 24,
+                            ),
+                            items: tabDropDownList.map((String value) {
+                                return DropdownMenuItem(
+                                    value: value,
+                                    child: Text(
+                                        value,
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                        )
+                                    )
+                                );
+                    
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                  // TODO: just take the template from adding tab for resetting
+                              });
+                            },
+                            dropdownStyleData: DropdownStyleData(
+                              offset: const Offset(10, -5),
+                              width: 110,
+                              maxHeight: 300,
+                              decoration: BoxDecoration(
+                                color: boxInnerColor.withOpacity(1),
+                                borderRadius: BorderRadius.circular(8)
+                              )
+                            ),
                           ),
-                        )
-                      ]
+                        ),
+                      ],
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TabBar(
+                        controller: _contentTabController,
+                        dividerColor: Colors.transparent,
+                        indicatorColor: Colors.red,
+                        indicatorSize: TabBarIndicatorSize.label,
+                        indicatorPadding: const EdgeInsets.fromLTRB(8, 0, 5, 10),
+                        tabAlignment: TabAlignment.start,
+                        isScrollable: true,
+                        labelPadding: const EdgeInsets.fromLTRB(2, 0, 26, 0),
+                        labelColor: Colors.white,
+                        unselectedLabelColor: Colors.grey.withOpacity(0.7),
+                        tabs: const [
+
+                          // TODO: add a index for tabs in the database like the repeat options.
+                          // + change color of the text if not selected.
+                          Tab(
+                            child: Text(
+                              "Overview",
+                              style: TextStyle(
+                                // color: Colors.white,
+                                fontSize: 16,
+                              )
+                            ),
+                          ),
+                          Tab(
+                            child: Text(
+                              "Statistics",
+                              style: TextStyle(
+                                // color: Colors.white,
+                                fontSize: 16,
+                              )
+                            ),
+                          )
+                        ]
+                      ),
                     ),
                         
                     //* Program List
@@ -853,10 +859,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                       }).toList(),
                                                       onChanged: (value) {
                                                   
-                                                        // print(value);
+                                                        
                                                         var options = dataList["tab_list"][currentTab]["options"];
-                                                        var copyData = dataList;
-                                                  
+                                                        var copyOptions = Map.from(options);
                                                         var snackBar = SnackBar(
                                                                   content: const Center(
                                                                     child: Text(
@@ -867,7 +872,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                                       ),
                                                                     )
                                                                   ),
-                                                                  duration: const Duration(milliseconds: 3000),
+                                                                  duration: const Duration(milliseconds: 4000),
                                                                   width: 300,
                                                                   backgroundColor: Colors.white,
                                                                   behavior: SnackBarBehavior.floating,
@@ -877,9 +882,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                                   action: SnackBarAction(
                                                                     label: "Undo",
                                                                     onPressed: (){
-                                                                      print("Undid");
                                                                       setState(() {
-                                                                        writeJsonFile(copyData);
+                                                                        dataList["tab_list"][currentTab]["options"] = copyOptions;
+                                                                        textController.text = copyOptions["time"];
+                                                                        writeJsonFile(dataList);
                                                                       });
                                                                     },
                                                                   )
@@ -888,10 +894,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                         // TODO: snackbar for undoing.
                                                   
                                                         // Just the current tab of options(input or timer)
-                                                        if (value == "Reset All" && options["tab_index"] == 0) {
+                                                        if (value == "Reset all" && options["tab_index"] == 0) {
                                                   
-                                                          print("reset");
                                                           options["time"] = "";
+                                                          textController.text = "";
                                                           options["input"] = [
                                                             false,
                                                             false,
@@ -901,12 +907,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                             false,
                                                             false,
                                                           ];
+                                                          
                                                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                                                   
                                                         } else if (value == "Check all") {
                                                   
-                                                          print("Check");
-                                                  
                                                           options["input"] = [
                                                             true,
                                                             true,
@@ -917,11 +922,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                             true,
                                                           ];
                                                   
-                                                  
                                                         } else if (value == "Uncheck all") {
-                                                  
-                                                          print("Uncheck");
-                                                  
+
                                                           options["input"] = [
                                                             false,
                                                             false,
@@ -935,8 +937,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                         }
                                                   
                                                         setState(() {
-                                                          print("writing");
-                                                          
                                                           writeJsonFile(dataList);
                                                         });
                                                   
