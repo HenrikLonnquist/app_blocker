@@ -5,6 +5,7 @@ import 'dart:collection';
 import "dart:io";
 import "dart:ui" as ui;
 
+import 'package:flutter/rendering.dart';
 import "package:image/image.dart" as img;
 import 'package:flutter/services.dart';
 import 'package:win32/win32.dart';
@@ -17,7 +18,7 @@ import "package:dropdown_button2/dropdown_button2.dart";
 
 
 import "gridview_custom.dart";
-import "block_info.dart";
+import 'screens/block_info.dart';
 import 'dart_functions.dart';
 import 'logic.dart';
 import 'custom_button.dart';
@@ -39,7 +40,7 @@ Different sections:
 // TODO: Feedback/Report option: Can't find your program? Just write the name of the program.
 // TODO: IMPROVEMENT?: use the window_manager package to listen for changes on focus states of windows. Together with setwinhookevent, i guess.
 // TODO: FEATURE: Emergency trigger, will make you do a mission that is annoying and long.
-// TODO: add the fonts folder to the assets folder.
+
 /* 
 TODO: able to make some tabs non-negtionable, meaning that the conditions and apps are permanent; Immutable.
 A workaround would be to re-create it with changed values. Maybe set a condition for deleting it as well. AI? Will ask
@@ -168,7 +169,41 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   
   
   
-  
+
+  SnackBar customSnackbar(
+    {
+      required bool action,
+      required VoidCallback onPressed,
+      String actionLabel = "Undo",
+      String text = "Saved",
+    }
+    
+    ) => SnackBar(
+    content: Center(
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ),
+    // TODO: LATER-FIX: dont like the animation, how it disappears.
+    //! then what do I want?
+    // animation: ,
+    duration: const Duration(milliseconds: 3000),
+    width: 400,
+    backgroundColor: Colors.white,
+    behavior: SnackBarBehavior.floating,
+    action: action ? SnackBarAction(
+      label: actionLabel,
+      textColor: Colors.black,
+      onPressed: onPressed
+    ) : null,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+  );
   
 
   void showOverlayTooltip(){
@@ -862,78 +897,60 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                         
                                                         var options = dataList["tab_list"][currentTab]["options"];
                                                         var copyOptions = Map.from(options);
-                                                        var snackBar = SnackBar(
-                                                                  content: const Center(
-                                                                    child: Text(
-                                                                      "Resetted everything",
-                                                                      style: TextStyle(
-                                                                        color: Colors.black,
-                                                                        fontWeight: FontWeight.w600,
-                                                                      ),
-                                                                    )
-                                                                  ),
-                                                                  duration: const Duration(milliseconds: 4000),
-                                                                  width: 300,
-                                                                  backgroundColor: Colors.white,
-                                                                  behavior: SnackBarBehavior.floating,
-                                                                  shape: RoundedRectangleBorder(
-                                                                    borderRadius: BorderRadius.circular(10),
-                                                                  ),
-                                                                  action: SnackBarAction(
-                                                                    label: "Undo",
-                                                                    onPressed: (){
-                                                                      setState(() {
-                                                                        dataList["tab_list"][currentTab]["options"] = copyOptions;
-                                                                        textController.text = copyOptions["time"];
-                                                                        writeJsonFile(dataList);
-                                                                      });
-                                                                    },
-                                                                  )
-                                                                );
                                                   
-                                                        // TODO: snackbar for undoing.
-                                                  
-                                                        // Just the current tab of options(input or timer)
-                                                        if (value == "Reset all" && options["tab_index"] == 0) {
-                                                  
-                                                          options["time"] = "";
-                                                          textController.text = "";
-                                                          options["input"] = [
-                                                            false,
-                                                            false,
-                                                            false,
-                                                            false,
-                                                            false,
-                                                            false,
-                                                            false,
-                                                          ];
+                                                        // TODO: Do/add this for the timer tab as well, when the design is done.
+                                                        if (options["tab_index"] == 0) {
+                                                          if (value == "Reset all") {
+                                                                                                            
+                                                            options["time"] = "";
+                                                            textController.text = "";
+                                                            options["input"] = [
+                                                              false,
+                                                              false,
+                                                              false,
+                                                              false,
+                                                              false,
+                                                              false,
+                                                              false,
+                                                            ];
+                                                            
+                                                            ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                                                              text: "Reset, done!",
+                                                              action: true, 
+                                                              onPressed: (){
+                                                                setState(() {
+                                                                  dataList["tab_list"][currentTab]["options"] = copyOptions;
+                                                                  textController.text = copyOptions["time"];
+                                                                  writeJsonFile(dataList);
+                                                                });
+                                                              },
+                                                            ));
+                                                                                                            
+                                                          } else if (value == "Check all") {
+                                                                                                            
+                                                            options["input"] = [
+                                                              true,
+                                                              true,
+                                                              true,
+                                                              true,
+                                                              true,
+                                                              true,
+                                                              true,
+                                                            ];
+                                                                                                            
+                                                          } else if (value == "Uncheck all") {
                                                           
-                                                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                                                  
-                                                        } else if (value == "Check all") {
-                                                  
-                                                          options["input"] = [
-                                                            true,
-                                                            true,
-                                                            true,
-                                                            true,
-                                                            true,
-                                                            true,
-                                                            true,
-                                                          ];
-                                                  
-                                                        } else if (value == "Uncheck all") {
-
-                                                          options["input"] = [
-                                                            false,
-                                                            false,
-                                                            false,
-                                                            false,
-                                                            false,
-                                                            false,
-                                                            false,
-                                                          ];
-                                                  
+                                                            options["input"] = [
+                                                              false,
+                                                              false,
+                                                              false,
+                                                              false,
+                                                              false,
+                                                              false,
+                                                              false,
+                                                            ];
+                                                                                                            
+                                                          }
                                                         }
                                                   
                                                         setState(() {
@@ -1031,37 +1048,19 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                               ],
                                                               onFieldSubmitted: (String value){
                                                                 
-                                                                // TODO: Probably good to make this into a function.
-                                                                var snackBar = SnackBar(
-                                                                  content: const Center(
-                                                                    child: Text(
-                                                                      "Saved",
-                                                                      style: TextStyle(
-                                                                        color: Colors.black,
-                                                                        fontWeight: FontWeight.w600,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  // TODO: LATER-FIX: dont like the animation when it disappears.
-                                                                  duration: const Duration(milliseconds: 2300),
-                                                                  width: 400,
-                                                                  backgroundColor: Colors.white,
-                                                                  behavior: SnackBarBehavior.floating,
-                                                                  action: SnackBarAction(
-                                                                    label: "Undo",
-                                                                    textColor: Colors.black,
-                                                                    onPressed: (){
-                                                                      //! Dont know how I should do this!??!
-                                                                      // when undo is pressed I should revert to previous value??
-                                                                    },
-                                                                  ),
-                                                                  shape: RoundedRectangleBorder(
-                                                                    borderRadius: BorderRadius.circular(10),
-                                                                  ),
-                                                                );
-                                                        
-                                                                
-                                                        
+                                                                var options  = dataList["tab_list"][currentTab]["options"];
+                                                                var copyOptions = Map.from(options);
+
+                                                                // If value is the same as database..time then return/break do nothing.
+                                                                if (value == options["time"]) {
+                                                                  ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                                                                    text: "No change has been made",
+                                                                    action: false, 
+                                                                    onPressed: (){}
+                                                                  ));
+                                                                  return;
+                                                                }
+
                                                                 var sameNum = value.split(RegExp(r"\W+"));
                                                                 var uniq = [];
                                                                 bool noDupl = true;
@@ -1129,8 +1128,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                                   removeOverlay();
                                                                                 
                                                                   dataList["tab_list"][currentTab]["options"]["time"] = value;
-                                                                  // TODO: LATER: Move this into scaffoldmessenger later, when I figured out
-                                                                  // how I wanna do it.
                                                                   setState(() {
                                                                     writeJsonFile(dataList);
                                                                     textController.text = value;
@@ -1141,11 +1138,18 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                                   winManager.monitorActiveWindow();
                                                         
                                                                   // Writes to database after snackBar is closed in case of undo
-                                                                  ScaffoldMessenger.of(context).showSnackBar(snackBar).closed.then((_value){
-                                                        
-                                                        
-                                                        
-                                                                  });
+                                                                  ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                                                                    action: true,
+                                                                    actionLabel: "Undo",
+                                                                    onPressed: () {
+                                                                      setState(() {
+                                                                        dataList["tab_list"][currentTab]["options"] = copyOptions;
+                                                                        textController.text = copyOptions["time"];
+                                                                        writeJsonFile(dataList);
+                                                                      });
+                                                                    }
+                                                                    
+                                                                  ));
                                                                   
                                                                 } else {
                                                                   validationError = true;
@@ -1382,7 +1386,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                 controller: _scrollController,
                                 child: Material(
                                   color: Colors.transparent,
-                                  // TODO: Able to reorder with long press or draw...
                                   child: ReorderableListView.builder(
                                     buildDefaultDragHandles: false,
                                     padding: const EdgeInsets.fromLTRB(16, 3, 28, 0),
@@ -1644,6 +1647,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                               // other than the icon and text name.
                               // But probably a class, seeing as I will push a new window onto the existing
                               // So the class will take a child widget to desgin the layout.
+                              // *Just do a widget instead, no need a for class.
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.red,
@@ -1662,7 +1666,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                 child: const Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    //TODO: switch to figma icon(download and create icon folder in assets)
                                     Icon(
                                       Icons.data_thresholding_rounded,
                                       size: 55,
@@ -1692,16 +1695,16 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                 ),
                                 onPressed: (){
                           
-                                  //TODO: add file_picker or write my own to the winapi
-                                  //How would I write my own to do that?
-                                  //look up the file picker github
+                                  // TODO: add file_picker or write my own to the winapi
+                                  // How would I write my own to do that?
+                                  // look up the file picker github
                                   //
+                                  // FileOpenDialog(ptr)
                                   
                                 },
                                 child: const Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    //TODO: switch to figma icon(download and create icon folder in assets)
                                     Icon(
                                       Icons.drive_file_move_rtl,
                                       size: 55,
@@ -1745,7 +1748,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                 child: const Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    //TODO: switch to figma icon(download and create icon folder in assets)
                                     Icon(
                                       Icons.block_sharp,
                                       size: 55,
